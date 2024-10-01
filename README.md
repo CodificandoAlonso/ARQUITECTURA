@@ -1,5 +1,4 @@
-# ARQUITECTURA
-100495764
-100495794
-100495879
-100471939
+100495764, Agramunt Muro, Jorge
+100495794, Alvarez Marcos, Hector
+100495879, Navarro Hurtado, Pablo
+100471939, Penas Diaz, Alberto
