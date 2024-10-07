@@ -9,9 +9,6 @@ using namespace std;
 
 int main (int argc, char *argv[]) {
 
-    if (check_args(argc, argv) < 0) {
-        return -1;
-    }
-
+    Checker checker(argc, argv);
     return 0;
 }
