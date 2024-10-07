@@ -4,5 +4,16 @@
 
 #ifndef PROGARGS_HPP
 #define PROGARGS_HPP
-int check_args(int argc, char *argv[]);
+#include <iostream>
+#include <vector>
+class Checker   {
+    public:
+        string input_file;
+        string output_file;
+        string optype;
+        vector<int> args;
+
+        int check_args(int argc, char *argv[]);
+};
+
 #endif //PROGARGS_HPP
