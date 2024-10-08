@@ -96,15 +96,15 @@ int ImageAOS::escalate_intensity() {
             for (int i = 0; i < width * height; i++) {
                 input_file.read((char*)&r1, sizeof(unsigned char));
                 input_file.read((char*)&r2, sizeof(unsigned char));
-                r = (r2 << 8) | r1;
-
                 input_file.read((char*)&g1, sizeof(unsigned char));
                 input_file.read((char*)&g2, sizeof(unsigned char));
-                g = (g2 << 8) | g1;
-
                 input_file.read((char*)&b1, sizeof(unsigned char));
                 input_file.read((char*)&b2, sizeof(unsigned char));
-                b = (b2 << 8) | b1;
+
+                r = convert_from_2byte_to_short(r2, r1);
+                g = convert_from_2byte_to_short(g2, g1);
+                b = convert_from_2byte_to_short(b2, b1);
+
 
                 r = static_cast<unsigned short>((r * this->args[0]) / maxval);
                 g = static_cast<unsigned short>((g * this->args[0]) / maxval);
@@ -130,9 +130,9 @@ int ImageAOS::escalate_intensity() {
                 input_file.read((char *) &b1, sizeof(unsigned char));
                 input_file.read((char *) &b2, sizeof(unsigned char));
 
-                r = convert_from_2byte_to_short(r1, r2);
-                g = convert_from_2byte_to_short(g1, g2);
-                b = convert_from_2byte_to_short(b1, b2);
+                r = convert_from_2byte_to_short(r2, r1);
+                g = convert_from_2byte_to_short(g2, g1);
+                b = convert_from_2byte_to_short(b2, b1);
 
                 r = static_cast<unsigned short>((r * this->args[0]) / maxval);
                 g = static_cast<unsigned short>((g * this->args[0]) / maxval);
