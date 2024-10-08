@@ -61,9 +61,10 @@ int ImageAOS::escalate_intensity() {
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
 
-    output_file << format << " " << width << " " << height << " " << this->args[0] << endl;
-
     if (this->args[0] < 256) {
+        // Se ha pedido que el formato de salida sea con un maxvalue de 255,
+        //queda por determinar si el maxvalue de la imagen de entrada es mayor o igual a 256
+        output_file << format << " " << width << " " << height << " " << maxval << endl;
         // Utilizamos unsigned char, ya que ocupan 1 byte, que es lo que precisamos para
         // almacenar cada uno de los canales de color de la imagen (si el valor máximo es 255).
         unsigned char r, g, b;
@@ -82,7 +83,7 @@ int ImageAOS::escalate_intensity() {
         }
     }
     else if (this->args[0] < 65536) {
-
+        output_file << format << " " << width << " " << height << " " << maxval << endl;
     }
     else {
         cerr << "Error: nivel de intensidad no soportado" << endl;
