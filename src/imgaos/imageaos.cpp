@@ -65,21 +65,54 @@ int ImageAOS::escalate_intensity() {
         // Se ha pedido que el formato de salida sea con un maxvalue de 255,
         //queda por determinar si el maxvalue de la imagen de entrada es mayor o igual a 256
         output_file << format << " " << width << " " << height << " " << maxval << endl;
-        // Utilizamos unsigned char, ya que ocupan 1 byte, que es lo que precisamos para
-        // almacenar cada uno de los canales de color de la imagen (si el valor máximo es 255).
-        unsigned char r, g, b;
-        for (int i = 0; i < width * height; i++) {
-            input_file.read((char *) &r, sizeof(unsigned char));
-            input_file.read((char *) &g, sizeof(unsigned char));
-            input_file.read((char*)&b, sizeof(unsigned char));
 
-            r = static_cast<unsigned char>((r * this->args[0]) / maxval);
-            g = static_cast<unsigned char>((g * this->args[0]) / maxval);
-            b = static_cast<unsigned char>((b * this->args[0]) / maxval);
+        if (maxval < 256) {
+            // Utilizamos unsigned char, ya que ocupan 1 byte, que es lo que precisamos para
+            // almacenar cada uno de los canales de color de la imagen (si el valor máximo es 255).
+            unsigned char r, g, b;
+            for (int i = 0; i < width * height; i++) {
+                input_file.read((char *) &r, sizeof(unsigned char));
+                input_file.read((char *) &g, sizeof(unsigned char));
+                input_file.read((char*)&b, sizeof(unsigned char));
 
-            output_file.write((char*)&r, sizeof(unsigned char));
-            output_file.write((char*)&g, sizeof(unsigned char));
-            output_file.write((char*)&b, sizeof(unsigned char));
+                r = static_cast<unsigned char>((r * this->args[0]) / maxval);
+                g = static_cast<unsigned char>((g * this->args[0]) / maxval);
+                b = static_cast<unsigned char>((b * this->args[0]) / maxval);
+
+                output_file.write((char*)&r, sizeof(unsigned char));
+                output_file.write((char*)&g, sizeof(unsigned char));
+                output_file.write((char*)&b, sizeof(unsigned char));
+            }
+        }
+        else if (maxval < 65536) {
+            /*
+             * La imagen de entrada tiene un maxval de 65535, por lo que se deben utilizar
+             * unsigned short para almacenar los canales de color de la imagen, ya que tienen 2 bytes.
+             * hay que tener en cuenta que estos dos bytes están almacenados en little-endian.
+             */
+            unsigned short r, g, b;
+            unsigned char r1, r2, g1, g2, b1, b2;
+            for (int i = 0; i < width * height; i++) {
+                input_file.read((char*)&r1, sizeof(unsigned char));
+                input_file.read((char*)&r2, sizeof(unsigned char));
+                r = (r2 << 8) | r1;
+
+                input_file.read((char*)&g1, sizeof(unsigned char));
+                input_file.read((char*)&g2, sizeof(unsigned char));
+                g = (g2 << 8) | g1;
+
+                input_file.read((char*)&b1, sizeof(unsigned char));
+                input_file.read((char*)&b2, sizeof(unsigned char));
+                b = (b2 << 8) | b1;
+
+                r = static_cast<unsigned short>((r * this->args[0]) / maxval);
+                g = static_cast<unsigned short>((g * this->args[0]) / maxval);
+                b = static_cast<unsigned short>((b * this->args[0]) / maxval);
+
+                output_file.write((char*)&r, sizeof(unsigned short));
+                output_file.write((char*)&g, sizeof(unsigned short));
+                output_file.write((char*)&b, sizeof(unsigned short));
+            }
         }
     }
     else if (this->args[0] < 65536) {
