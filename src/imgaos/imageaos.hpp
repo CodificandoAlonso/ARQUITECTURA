@@ -18,6 +18,7 @@ private:
     std::string output_file;
     std::string optype;
     std::vector<int> args;
+    int escalate_intensity();
 };
 
 #endif //IMAGEAOS_HPP
