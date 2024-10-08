@@ -6,12 +6,21 @@
 
 using namespace std;
 
-unsigned short convert_from_2byte_to_short(unsigned char op1, unsigned char op2) {
+/**
+ * Esta función convierte dos bytes en un número de 16 bits (2 bytes).
+ * De esta forma, si tenemos dos bytes 0x12 y 0x34, al aplicar esta función
+ * obtendremos 0x3412.
+ */
+unsigned short merge16(unsigned char op1, unsigned char op2) {
     unsigned short result = (op2 << 8) | op1;
     return result ;
 }
-
-unsigned short convert_from_short_to_2byte(unsigned short op) {
+/**
+ * Esta función intercambia los bytes de un número de 16 bits (2 bytes).
+ * De esta forma, si tenemos un número 0x1234, al aplicar esta función
+ * obtendremos 0x3412.
+ */
+unsigned short swap16(unsigned short op) {
     unsigned short result = (op >> 8) | (op << 8);
     return result;
 }

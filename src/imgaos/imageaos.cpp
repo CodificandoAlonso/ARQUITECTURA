@@ -9,6 +9,8 @@
 #include "common/mtdata.hpp"
 #include "common/binario.hpp"
 
+#include <bitset>
+
 using namespace std;
 
 ImageAOS::ImageAOS(std::string input_file, std::string output_file, std::string optype, std::vector<int> args) {
@@ -33,7 +35,7 @@ int ImageAOS::process_operation() {
     }
     else if (this->optype == "maxlevel") {
         // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
-        if (escalate_intensity() < 0) {
+        if (maxlevel() < 0) {
             return -1;
         }
     }
@@ -41,11 +43,10 @@ int ImageAOS::process_operation() {
         cerr << "Operación no soportada: " << optype << endl;
         return -1;
     }
-
     return 0;
 }
 
-int ImageAOS::escalate_intensity() {
+int ImageAOS::maxlevel() {
     // Implementación de la operación de escalado de intensidad usando AOS (Array of Structures)
     // Se debe leer la imagen de entrada, aplicar la operación y guardar la imagen de salida
 
@@ -63,13 +64,14 @@ int ImageAOS::escalate_intensity() {
     input_file.ignore(1);
 
     if (this->args[0] < 256) {
-        // Se ha pedido que el formato de salida sea con un maxvalue de 255,
-        //queda por determinar si el maxvalue de la imagen de entrada es mayor o igual a 256
         output_file << format << " " << width << " " << height << " " << maxval << endl;
 
         if (maxval < 256) {
-            // Utilizamos unsigned char, ya que ocupan 1 byte, que es lo que precisamos para
-            // almacenar cada uno de los canales de color de la imagen (si el valor máximo es 255).
+            /*
+             * Si se desea escalar una imagen cuyo máximo nivel de intensidad es 255 a
+             * otra con un nivel de intensidad menor a 256, leemos la imagen de entrada
+             * de 8 bits en 8 bits y escribimos en la imagen de salida de 8 bits en 8 bits.
+             */
             unsigned char r, g, b;
             for (int i = 0; i < width * height; i++) {
                 input_file.read((char *) &r, sizeof(unsigned char));
@@ -87,12 +89,13 @@ int ImageAOS::escalate_intensity() {
         }
         else if (maxval < 65536) {
             /*
-             * La imagen de entrada tiene un maxval de 65535, por lo que se deben utilizar
-             * unsigned short para almacenar los canales de color de la imagen, ya que tienen 2 bytes.
-             * hay que tener en cuenta que estos dos bytes están almacenados en little-endian.
+             * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a
+             * 255 a otra con un nivel de intensidad entre 0 y 255, leemos la imagen de
+             * entrada de 8 bits en 8 bits (teniendo en cuenta que cada color ocupa 2 bytes)
+             * y escribimos en la imagen de salida de 16 bits
              */
-            unsigned short r, g, b;
             unsigned char r1, r2, g1, g2, b1, b2;
+            unsigned short r, g, b;
             for (int i = 0; i < width * height; i++) {
                 input_file.read((char*)&r1, sizeof(unsigned char));
                 input_file.read((char*)&r2, sizeof(unsigned char));
@@ -101,10 +104,9 @@ int ImageAOS::escalate_intensity() {
                 input_file.read((char*)&b1, sizeof(unsigned char));
                 input_file.read((char*)&b2, sizeof(unsigned char));
 
-                r = convert_from_2byte_to_short(r2, r1);
-                g = convert_from_2byte_to_short(g2, g1);
-                b = convert_from_2byte_to_short(b2, b1);
-
+                r = merge16(r2, r1);
+                g = merge16(g2, g1);
+                b = merge16(b2, b1);
 
                 r = static_cast<unsigned short>((r * this->args[0]) / maxval);
                 g = static_cast<unsigned short>((g * this->args[0]) / maxval);
@@ -115,12 +117,22 @@ int ImageAOS::escalate_intensity() {
                 output_file.write((char*)&b, sizeof(unsigned short));
             }
         }
+        else {
+            cerr << "Formato incorrecto" << endl;
+            return -1;
+        }
     }
     else if (this->args[0] < 65536) {
         output_file << format << " " << width << " " << height << " " << 65535 << endl;
         
         unsigned short r, g, b;
         if (maxval > 255) {
+            /*
+             * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a
+             * 255 a otra con un nivel de intensidad entre 0 y 65535, leemos la imagen de
+             * entrada de 16 bits en 16 bits y escribimos en la imagen de salida de 16 bits
+             * en 16 bits.
+             */
             unsigned char r1, r2, g1, g2, b1, b2;
             for (int i = 0; i < width * height; i++) {
                 input_file.read((char *) &r1, sizeof(unsigned char));
@@ -130,27 +142,47 @@ int ImageAOS::escalate_intensity() {
                 input_file.read((char *) &b1, sizeof(unsigned char));
                 input_file.read((char *) &b2, sizeof(unsigned char));
 
-                r = convert_from_2byte_to_short(r2, r1);
-                g = convert_from_2byte_to_short(g2, g1);
-                b = convert_from_2byte_to_short(b2, b1);
+                if (i<10) {
+                    cout << "r1: " << bitset<8>(r1) << " r2: " << bitset<8>(r2) << endl;
+                }
+
+                r = merge16(r2, r1);
+                g = merge16(g2, g1);
+                b = merge16(b2, b1);
+
+                if (i<10) {
+                    cout << "r merged: " << bitset<16>(r) << endl;
+                }
 
                 r = static_cast<unsigned short>((r * this->args[0]) / maxval);
                 g = static_cast<unsigned short>((g * this->args[0]) / maxval);
                 b = static_cast<unsigned short>((b * this->args[0]) / maxval);
 
-                r = convert_from_short_to_2byte(r);
-                g = convert_from_short_to_2byte(g);
-                b = convert_from_short_to_2byte(b);
+                if (i<10) {
+                    cout << "r calc: " << bitset<16>(r) << endl;
+                }
+
+                r = swap16(r);
+                g = swap16(g);
+                b = swap16(b);
+
+                if (i<10) {
+                    cout << "r swapped: " << bitset<16>(r) << endl << endl;
+                }
 
                 output_file.write((char *)&r, sizeof(unsigned short));
                 output_file.write((char *)&g, sizeof(unsigned short));
                 output_file.write((char *)&b, sizeof(unsigned short));
-
             }
         }
         else if (maxval < 256) {
+            /*
+             * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a 255 a
+             * otra con un nivel de intensidad entre 0 y 65535, leemos la imagen de entrada
+             * de 8 bits en 8 bits y escribimos en la imagen de salida de 16 bits en 16 bits.
+             */
+            unsigned char r1, b1, g1;
             for (int i = 0; i < width * height; i++) {
-                unsigned char r1, b1, g1;
                 input_file.read((char *) &r1, sizeof(unsigned char));
                 input_file.read((char *) &g1, sizeof(unsigned char));
                 input_file.read((char *)&b1, sizeof(unsigned char));
@@ -159,9 +191,9 @@ int ImageAOS::escalate_intensity() {
                 g = static_cast<unsigned short>((g1 * this->args[0]) / maxval);
                 b = static_cast<unsigned short>((b1 * this->args[0]) / maxval);
 
-                r = convert_from_short_to_2byte(r);
-                g = convert_from_short_to_2byte(g);
-                b = convert_from_short_to_2byte(b);
+                r = swap16(r);
+                g = swap16(g);
+                b = swap16(b);
 
                 output_file.write((char *)&r, sizeof(unsigned short));
                 output_file.write((char *)&g, sizeof(unsigned short));
@@ -170,6 +202,7 @@ int ImageAOS::escalate_intensity() {
         }
         else {
             cerr << "Incorret Format" << endl;
+            return -1;
         }
     }
     else {
@@ -180,11 +213,7 @@ int ImageAOS::escalate_intensity() {
     input_file.close();
     output_file.close();
 
-    cout << "Operación de escalado de intensidad completada" << endl;
+    cout << "Operación de escalado de intensidad completada." << endl;
 
     return 0;
 }
-
-
-
-
