@@ -7,6 +7,7 @@
 #include <cstdint>
 #include "imageaos.hpp"
 #include "common/mtdata.hpp"
+#include "common/binario.hpp"
 
 using namespace std;
 
@@ -83,7 +84,60 @@ int ImageAOS::escalate_intensity() {
         }
     }
     else if (this->args[0] < 65536) {
-        output_file << format << " " << width << " " << height << " " << maxval << endl;
+        output_file << format << " " << width << " " << height << " " << 65535 << endl;
+        
+        unsigned short r, g, b;
+        if (maxval > 255) {
+            unsigned char r1, r2, g1, g2, b1, b2;
+            for (int i = 0; i < width * height; i++) {
+                input_file.read((char *) &r1, sizeof(unsigned char));
+                input_file.read((char *) &r2, sizeof(unsigned char));
+                input_file.read((char *) &g1, sizeof(unsigned char));
+                input_file.read((char *) &g2, sizeof(unsigned char));
+                input_file.read((char *) &b1, sizeof(unsigned char));
+                input_file.read((char *) &b2, sizeof(unsigned char));
+
+                r = convert_from_2byte_to_short(r1, r2);
+                g = convert_from_2byte_to_short(g1, g2);
+                b = convert_from_2byte_to_short(b1, b2);
+
+                r = static_cast<unsigned short>((r * this->args[0]) / maxval);
+                g = static_cast<unsigned short>((g * this->args[0]) / maxval);
+                b = static_cast<unsigned short>((b * this->args[0]) / maxval);
+
+                r = convert_from_short_to_2byte(r);
+                g = convert_from_short_to_2byte(g);
+                b = convert_from_short_to_2byte(b);
+
+                output_file.write((char *)&r, sizeof(unsigned short));
+                output_file.write((char *)&g, sizeof(unsigned short));
+                output_file.write((char *)&b, sizeof(unsigned short));
+
+            }
+        }
+        else if (maxval < 256) {
+            for (int i = 0; i < width * height; i++) {
+                unsigned char r1, b1, g1;
+                input_file.read((char *) &r1, sizeof(unsigned char));
+                input_file.read((char *) &g1, sizeof(unsigned char));
+                input_file.read((char *)&b1, sizeof(unsigned char));
+
+                r = static_cast<unsigned short>((r1 * this->args[0]) / maxval);
+                g = static_cast<unsigned short>((g1 * this->args[0]) / maxval);
+                b = static_cast<unsigned short>((b1 * this->args[0]) / maxval);
+
+                r = convert_from_short_to_2byte(r);
+                g = convert_from_short_to_2byte(g);
+                b = convert_from_short_to_2byte(b);
+
+                output_file.write((char *)&r, sizeof(unsigned short));
+                output_file.write((char *)&g, sizeof(unsigned short));
+                output_file.write((char *)&b, sizeof(unsigned short));
+            }
+        }
+        else {
+            cerr << "Incorret Format" << endl;
+        }
     }
     else {
         cerr << "Error: nivel de intensidad no soportado" << endl;
