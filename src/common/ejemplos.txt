@@ -1,0 +1,57 @@
+// ##################################### SOA: Struct of Arrays
+#include <array>
+
+constexpr int maxsize = 100000;
+
+struct points {
+  std::array<double, maxsize> x;
+  std::array<double, maxsize> y;
+};
+
+int main() {
+  points a{}, b{}, c{}; // Default init
+
+  for (int i=0; i<maxsize; ++i) {
+    a.x[i] = b.x[i] + c.x[i];
+    a.y[i] = b.y[i] + c.y[i];
+  }
+}
+
+//####################################### AOS: Array of Structures
+#include <array>
+
+struct point {
+  double x;
+  double y;
+};
+
+int main() {
+  constexpr int maxsize = 100000;
+
+  std::array<point, maxsize> a;
+  std::array<point, maxsize> b;
+  std::array<point, maxsize> c;
+
+  for (int i=0; i<maxsize; ++i) {
+    a[i].x = b[i].x + c[i].x;
+    a[i].y = b[i].y + c[i].y;
+  }
+}
+
+
+
+
+unsigned char thisiteration;
+            for (int colours = 0; colours < 3; colours ++){
+                if (colours > 0) {
+                    input_file.seekg(0, ios::beg);
+                    input_file.ignore(colours * sizeof(unsigned char));
+                }
+                for (int i = 0; i < width * height; i++) {
+                    input_file.read((char *) &thisiteration, sizeof(unsigned char));
+                    input_file.ignore(2 * sizeof(unsigned char));
+                    thisiteration = static_cast<unsigned char>((thisiteration * this->args[0]) / maxval);
+                    output_file.write((char*)&thisiteration, sizeof(unsigned char));
+                    output_file.seekp(2,ios::beg );
+                }
+            }

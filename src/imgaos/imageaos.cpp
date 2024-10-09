@@ -64,7 +64,7 @@ int ImageAOS::maxlevel() {
     input_file.ignore(1);
 
     if (this->args[0] < 256) {
-        output_file << format << " " << width << " " << height << " " << maxval << endl;
+        output_file << format << " " << width << " " << height << " " << 255 << endl;
 
         if (maxval < 256) {
             /*
