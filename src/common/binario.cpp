@@ -9,6 +9,8 @@
 using namespace std;
 static constexpr int val_byte = 8;
 
+
+/*
 Filereader::Filereader(int origin_maxlevel, int output_maxlevel, ifstream *file) : origin_maxlevel(origin_maxlevel), output_maxlevel(output_maxlevel), file(file) {
 
 }
@@ -17,11 +19,10 @@ void Filereader::r_s_file() {
 
 
 }
+*/
 
 
-
-
-/**
+/*
  * Esta función convierte dos bytes en un número de 16 bits (2 bytes).
  * De esta forma, si tenemos dos bytes 0x12 y 0x34, al aplicar esta función
  * obtendremos 0x3412.
@@ -29,7 +30,7 @@ void Filereader::r_s_file() {
 unsigned short merge16(unsigned char op1, unsigned char op2) {
     return (op2 << val_byte) | op1; ;
 }
-/**
+/*
  * Esta función intercambia los bytes de un número de 16 bits (2 bytes).
  * De esta forma, si tenemos un número 0x1234, al aplicar esta función
  * obtendremos 0x3412.

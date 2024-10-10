@@ -43,6 +43,7 @@ int ImageSOA::process_operation() {
 
 
 int ImageSOA::maxlevel() {
+
     ifstream input_file(this->input_file, ios::binary);
     ofstream output_file(this->output_file, ios::binary);
 
@@ -65,15 +66,39 @@ int ImageSOA::maxlevel() {
 
             for(int i=0; i< width * height; i++) {
 
-                unsigned char r;
+                //Lectura de entrada
+
                 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                 input_file.read(reinterpret_cast<char*>(&r), sizeof(r));
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                input_file.read(reinterpret_cast<char*>(&g), sizeof(r));
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                input_file.read(reinterpret_cast<char*>(&b), sizeof(r));
 
+                //Calculo de valores
 
+                r = static_cast<unsigned char>(r* this->args[3]/ maxval);
+                g = static_cast<unsigned char>(g* this->args[3]/ maxval);
+                b = static_cast<unsigned char>(b* this->args[3]/ maxval);
+
+                //Guardado en soa
+
+                mysoa.r.push_back(r);
+                mysoa.g.push_back(g);
+                mysoa.b.push_back(b);
             }
 
+            for(vector<unsigned char>::size_type i = 0; i < mysoa.r.size();i++) {
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                output_file.write(reinterpret_cast<char*>(&mysoa.r[i]), sizeof(unsigned char));
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                output_file.write(reinterpret_cast<char*>(&mysoa.g[i]), sizeof(unsigned char));
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                output_file.write(reinterpret_cast<char*>(&mysoa.b[i]), sizeof(unsigned char));
+            }
         }
     }
+    return 0;
 }
 
 

@@ -18,15 +18,15 @@ struct rgb_big {
 };
 
 struct soa_rgb_small {
-    vector<rgb_small> r;
-    vector<rgb_small> g;
-    vector<rgb_small> b;
+    vector<unsigned char> r;
+    vector<unsigned char> g;
+    vector<unsigned char> b;
 };
 
 struct soa_rgb_big {
-    vector<rgb_big> r;
-    vector<rgb_big> g;
-    vector<rgb_big> b;
+    vector<unsigned short> r;
+    vector<unsigned short> g;
+    vector<unsigned short> b;
 };
 
 #endif //STRUCT_RGB_HPP
