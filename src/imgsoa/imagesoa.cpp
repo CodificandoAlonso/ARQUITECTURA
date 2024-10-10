@@ -37,7 +37,7 @@ int ImageSOA::process_operation() {
         }
     }
     else {
-        cerr << "Operación no soportada: " << optype << endl;
+        cerr << "Operación no soportada: " << optype << "\n";
         return -1;
     }
     return 0;
@@ -49,23 +49,24 @@ int ImageSOA::maxlevel() {
     ofstream output_file(this->output_file, ios::binary);
 
     if (!input_file || !output_file) {
-        cerr << "Error al abrir los archivos de entrada/salida" << endl;
+        cerr << "Error al abrir los archivos de entrada/salida" << "\n";
         return -1;
     }
 
     string format;
-    int width, height, maxval;
+    int width=0, height =0, maxval =0;
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
 
-    if (this->args[0] < 256) {
-        output_file << format << " " << width << " " << height << " " << 255 << endl;
-        if(maxval<256) {
+    if (constexpr int small_maxsize = 256; this->args[0] < small_maxsize) {
+        output_file << format << " " << width << " " << height << " " << small_maxsize -1 << "\n";
+        if(maxval< small_maxsize) {
             //Este caso es origen maxvalue <256 y destino <256
-            unsigned char thisiteration;
+            unsigned char r =0,g = 0,b= 0;
             soa_rgb_small mysoa;
 
             for(int i=0; i< width * height; i++) {
+
 
 
             }

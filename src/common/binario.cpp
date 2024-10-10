@@ -3,8 +3,22 @@
 //
 
 #include "binario.hpp"
+#include "struct-rgb.hpp"
+
 
 using namespace std;
+
+
+Filereader::Filereader(int origin_maxlevel, int output_maxlevel, ifstream *file) : origin_maxlevel(origin_maxlevel), output_maxlevel(output_maxlevel), file(file) {
+
+}
+
+void Filereader::r_s_file() {
+
+}
+
+
+
 
 /**
  * Esta función convierte dos bytes en un número de 16 bits (2 bytes).
@@ -12,8 +26,7 @@ using namespace std;
  * obtendremos 0x3412.
  */
 unsigned short merge16(unsigned char op1, unsigned char op2) {
-    unsigned short result = (op2 << 8) | op1;
-    return result ;
+    return (op2 << 8) | op1; ;
 }
 /**
  * Esta función intercambia los bytes de un número de 16 bits (2 bytes).
@@ -21,6 +34,7 @@ unsigned short merge16(unsigned char op1, unsigned char op2) {
  * obtendremos 0x3412.
  */
 unsigned short swap16(unsigned short op) {
-    unsigned short result = (op >> 8) | (op << 8);
-    return result;
+    return (op >> 8) | (op << 8);;
 }
+
+

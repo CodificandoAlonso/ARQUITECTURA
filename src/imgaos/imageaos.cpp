@@ -11,6 +11,8 @@
 
 #include <bitset>
 
+#include "common/struct-rgb.hpp"
+
 using namespace std;
 
 ImageAOS::ImageAOS(std::string input_file, std::string output_file, std::string optype, std::vector<int> args) {
@@ -64,20 +66,21 @@ int ImageAOS::maxlevel() {
     input_file.ignore(1);
 
     if (this->args[0] < 256) {
-        output_file << format << " " << width << " " << height << " " << 255 << endl;
+        output_file << format << " " << width << " " << height << " " << 255 << "\n";
 
         if (maxval < 256) {
-            vector<rgb> our_aos[width * height];
+            vector<rgb_small> our_aos ;
         }
-    else {
-        cerr << "Error: nivel de intensidad no soportado" << endl;
-        return -1;
+        else {
+            cerr << "Error: nivel de intensidad no soportado" << "\n";
+            return -1;
+        }
+
+        input_file.close();
+        output_file.close();
+
+        cout << "Operación de escalado de intensidad completada." << "\n";
+
+        return 0;
     }
-
-    input_file.close();
-    output_file.close();
-
-    cout << "Operación de escalado de intensidad completada." << endl;
-
-    return 0;
 }

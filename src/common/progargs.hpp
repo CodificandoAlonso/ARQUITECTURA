@@ -7,13 +7,14 @@
 
 #include <string>
 #include <vector>
+using namespace std;
 
 class Checker {
 public:
-    std::string input_file;
-    std::string output_file;
-    std::string optype;
-    std::vector<int> args;
+    string input_file;
+    string output_file;
+    string optype;
+    vector<int> args;
 
     Checker(int argc, char *argv[]);
     int check_args();
