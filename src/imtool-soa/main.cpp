@@ -10,12 +10,16 @@
 using namespace std;
 
 int main (int argc, char *argv[]) {
-
+    /*
     Checker checker(argc, argv);
     if (checker.check_args() < 0) {
         return -1;
     }
-
+    */
+    ImageSOA image(argc, argv);
+    if (image.process_operation() < 0) {
+        return -1;
+    }
 
     return 0;
 }

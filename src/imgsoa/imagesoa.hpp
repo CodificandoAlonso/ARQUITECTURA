@@ -7,21 +7,15 @@
 
 #include <iostream>
 #include <vector>
+#include "common/progargs.hpp"
 using namespace std;
 
-class ImageSOA {
+class ImageSOA : public Checker {
 public:
-    ImageSOA(string input_file, string output_file, string optype, vector<int> args);
-    ~ImageSOA();
-    int process_operation();
-private:
-    string input_file;
-    string output_file;
-    string optype;
-    vector<int> args;
-    int maxlevel();
+    ImageSOA(int argc, char *argv[]);  // Constructor
+~ImageSOA();
+int process_operation();
+int maxlevel();
 };
-
-
 
 #endif //IMAGESOA_HPP

@@ -64,7 +64,7 @@ int ImageAOS::maxlevel() {
     int width, height, maxval;
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
-
+    /*
     if (this->args[0] < 256) {
         output_file << format << " " << width << " " << height << " " << 255 << "\n";
 
@@ -75,12 +75,12 @@ int ImageAOS::maxlevel() {
             cerr << "Error: nivel de intensidad no soportado" << "\n";
             return -1;
         }
-
+    */
         input_file.close();
         output_file.close();
 
         cout << "Operación de escalado de intensidad completada." << "\n";
 
         return 0;
-    }
+    //}
 }

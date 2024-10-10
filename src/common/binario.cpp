@@ -7,13 +7,14 @@
 
 
 using namespace std;
-
+static constexpr int val_byte = 8;
 
 Filereader::Filereader(int origin_maxlevel, int output_maxlevel, ifstream *file) : origin_maxlevel(origin_maxlevel), output_maxlevel(output_maxlevel), file(file) {
 
 }
 
 void Filereader::r_s_file() {
+
 
 }
 
@@ -26,7 +27,7 @@ void Filereader::r_s_file() {
  * obtendremos 0x3412.
  */
 unsigned short merge16(unsigned char op1, unsigned char op2) {
-    return (op2 << 8) | op1; ;
+    return (op2 << val_byte) | op1; ;
 }
 /**
  * Esta función intercambia los bytes de un número de 16 bits (2 bytes).
@@ -34,7 +35,7 @@ unsigned short merge16(unsigned char op1, unsigned char op2) {
  * obtendremos 0x3412.
  */
 unsigned short swap16(unsigned short op) {
-    return (op >> 8) | (op << 8);;
+    return (op >> val_byte) | (op << val_byte);;
 }
 
 

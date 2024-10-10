@@ -7,15 +7,13 @@
 #include "common/mtdata.hpp"
 #include "common/binario.hpp"
 #include "common/struct-rgb.hpp"
+#include "common/progargs.hpp"
 
 
 using namespace std;
 
-ImageSOA::ImageSOA(string input_file, string output_file, string optype, vector<int> args) {
-    this->input_file = input_file;
-    this->output_file = output_file;
-    this->optype = optype;
-    this->args = args;
+ImageSOA::ImageSOA(int argc, char *argv[]) : Checker(argc, argv) {
+    check_args();  // Llama a la función check_args() de la clase base
 }
 
 ImageSOA::~ImageSOA() {
@@ -67,6 +65,9 @@ int ImageSOA::maxlevel() {
 
             for(int i=0; i< width * height; i++) {
 
+                unsigned char r;
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                input_file.read(reinterpret_cast<char*>(&r), sizeof(r));
 
 
             }
