@@ -6,11 +6,10 @@
 #include<fstream>
 #include "common/mtdata.hpp"
 #include "common/binario.hpp"
+#include "common/struct-rgb.hpp"
 
 
-
-
-using namespace std
+using namespace std;
 
 ImageSOA::ImageSOA(string input_file, string output_file, string optype, vector<int> args) {
     this->input_file = input_file;
@@ -62,7 +61,14 @@ int ImageSOA::maxlevel() {
     if (this->args[0] < 256) {
         output_file << format << " " << width << " " << height << " " << 255 << endl;
         if(maxval<256) {
+            //Este caso es origen maxvalue <256 y destino <256
             unsigned char thisiteration;
+            soa_rgb_small mysoa;
+
+            for(int i=0; i< width * height; i++) {
+
+
+            }
 
         }
     }
