@@ -28,8 +28,8 @@ struct soa_rgb_small {
 };
 
 struct soa_rgb_big {
-    vector<short> r;
-    vector<short> g;
-    vector<short> b;
+    vector<unsigned short> r;
+    vector<unsigned short> g;
+    vector<unsigned short> b;
 };
 
