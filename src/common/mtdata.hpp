@@ -4,5 +4,7 @@
 
 #ifndef MTDATA_HPP
 #define MTDATA_HPP
-int get_metadata(std::string input_file);
+
+int get_metadata(const std::string& input_file);
+
 #endif //MTDATA_HPP

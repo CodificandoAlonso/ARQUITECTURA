@@ -5,19 +5,13 @@
 #ifndef IMAGEAOS_HPP
 #define IMAGEAOS_HPP
 
-#include <iostream>
 #include <vector>
+#include <common/progargs.hpp>
 
-class ImageAOS {
+class ImageAOS : public Image {
 public:
-    ImageAOS(std::string input_file, std::string output_file, std::string optype, std::vector<int> args);
-    ~ImageAOS();
+    ImageAOS(int argc, const std::vector<string>& argv);
     int process_operation();
-private:
-    std::string input_file;
-    std::string output_file;
-    std::string optype;
-    std::vector<int> args;
     int maxlevel();
 };
 

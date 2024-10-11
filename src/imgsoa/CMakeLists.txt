@@ -3,4 +3,4 @@ add_library(imgsoa
         imagesoa.cpp
 )
 # Use this line only if you have dependencies from this library to GSL
-target_link_libraries (imgsoa PRIVATE common Microsoft.GSL::GSL)
+target_link_libraries (imgsoa PUBLIC common Microsoft.GSL::GSL)

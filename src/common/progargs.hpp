@@ -9,18 +9,21 @@
 #include <vector>
 using namespace std;
 
-class Checker {
+class Image {
 public:
+    Image(int argc, const vector<string> &argv);
+    int check_args();
+    [[nodiscard]] string get_input_file() const { return input_file; }
+    [[nodiscard]] string get_output_file() const { return output_file; }
+    [[nodiscard]] string get_optype() const { return optype; }
+    [[nodiscard]] vector<int> get_args() const { return args; }
+private:
     string input_file;
     string output_file;
     string optype;
     vector<int> args;
-
-    Checker(int argc, char *argv[]);
-    int check_args();
-private:
     int argc;
-    char **argv;
+    vector<string> argv;
 };
 
 #endif //PROGARGS_HPP

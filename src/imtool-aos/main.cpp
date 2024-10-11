@@ -8,9 +8,9 @@
 
 using namespace std;
 
-int main (int argc, char *argv[]) {
+int main (int argc, vector<string> argv) {
 
-    Checker checker(argc, argv);
+    Image checker(argc, argv);
     if (checker.check_args() < 0) {
         return -1;
     }
