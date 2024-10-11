@@ -9,8 +9,6 @@
 #include "common/mtdata.hpp"
 #include "common/binario.hpp"
 
-#include <bitset>
-
 #include "common/struct-rgb.hpp"
 
 using namespace std;

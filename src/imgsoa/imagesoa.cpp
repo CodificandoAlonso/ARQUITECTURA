@@ -2,40 +2,40 @@
 // Created by beto on 4/10/24.
 //
 
+
+#include <iostream>
+#include <fstream>
 #include "imagesoa.hpp"
-#include<fstream>
 #include "common/mtdata.hpp"
 #include "common/binario.hpp"
 #include "common/struct-rgb.hpp"
 #include "common/progargs.hpp"
 
+static const int MAX_LEVEL = 65535;
+static const int MIN_LEVEL = 255;
+
 
 using namespace std;
 
-ImageSOA::ImageSOA(int argc, char *argv[]) : Checker(argc, argv) {
-    check_args();  // Llama a la función check_args() de la clase base
-}
-
-ImageSOA::~ImageSOA() {
-    // Destructor de la clase, por si reservamos memoria
+ImageSOA::ImageSOA(int argc, const vector<string> &argv) : Image(argc, argv) {
 }
 
 int ImageSOA::process_operation() {
     // Primera operación: leer los metadatos de la imagen de entrada. Como
     // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
-    if (this->optype == "info") {
-        if (get_metadata(this->input_file) < 0) {
+    if (this->get_optype() == "info") {
+        if (get_metadata(this->get_input_file()) < 0) {
             return -1;
         }
     }
-    else if (this->optype == "maxlevel") {
+    else if (this->get_optype() == "maxlevel") {
         // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
         if (maxlevel() < 0) {
             return -1;
         }
     }
     else {
-        cerr << "Operación no soportada: " << optype << "\n";
+        cerr << "Operación no soportada: " << this->get_optype() << "\n";
         return -1;
     }
     return 0;
@@ -44,8 +44,8 @@ int ImageSOA::process_operation() {
 
 int ImageSOA::maxlevel() {
 
-    ifstream input_file(this->input_file, ios::binary);
-    ofstream output_file(this->output_file, ios::binary);
+    ifstream input_file(this->get_input_file(), ios::binary);
+    ofstream output_file(this->get_output_file(), ios::binary);
 
     if (!input_file || !output_file) {
         cerr << "Error al abrir los archivos de entrada/salida" << "\n";
@@ -57,9 +57,9 @@ int ImageSOA::maxlevel() {
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
 
-    if (constexpr int small_maxsize = 256; this->args[0] < small_maxsize) {
-        output_file << format << " " << width << " " << height << " " << small_maxsize -1 << "\n";
-        if(maxval< small_maxsize) {
+    if (this->get_args()[0] < MIN_LEVEL + 1) {
+        output_file << format << " " << width << " " << height << " " << MIN_LEVEL << "\n";
+        if(maxval < MIN_LEVEL) {
             //Este caso es origen maxvalue <256 y destino <256
             unsigned char r =0,g = 0,b= 0;
             soa_rgb_small mysoa;
@@ -77,9 +77,9 @@ int ImageSOA::maxlevel() {
 
                 //Calculo de valores
 
-                r = static_cast<unsigned char>(r* this->args[3]/ maxval);
-                g = static_cast<unsigned char>(g* this->args[3]/ maxval);
-                b = static_cast<unsigned char>(b* this->args[3]/ maxval);
+                r = static_cast<unsigned char>(r* this->get_args()[3]/ maxval);
+                g = static_cast<unsigned char>(g* this->get_args()[3]/ maxval);
+                b = static_cast<unsigned char>(b* this->get_args()[3]/ maxval);
 
                 //Guardado en soa
 
