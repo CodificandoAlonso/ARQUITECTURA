@@ -76,7 +76,7 @@ int ImageSOA::maxlevel() {
                 input_file.read(&g, sizeof(r));
                 input_file.read(&b, sizeof(r));
 
-
+            //A ver si me deja coommitear
             //ESTO SE BORRA LUEGO.   Chati dice que a un char si le restas '0' se puede convertir dentro de una variable int y sumandole '0' viceversa.
             //Esto creo que tiene que ver con que char es cn signo y sumarle 0 es como indicar que es de signo positivo(PORRO)
 
