@@ -59,7 +59,7 @@ int ImageSOA::maxlevel() {
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
 
-    if (this->get_args()[0] <= MIN_LEVEL) {
+    if (this->get_args()[0] < MIN_LEVEL + 1) {
         output_file << format << " " << width << " " << height << " " << MIN_LEVEL << "\n";
         if(maxval <= MIN_LEVEL) {
             //Este caso es origen maxvalue <256 y destino <256
@@ -68,23 +68,30 @@ int ImageSOA::maxlevel() {
 
             // Leer y escribir en memoria
             for(int i = 0; i < width * height; i++) {
+
+                //Lectura de entrada
+                vector<char> const buffer(sizeof(r));
+
                 input_file.read(&r, sizeof(r));
                 input_file.read(&g, sizeof(r));
                 input_file.read(&b, sizeof(r));
 
+
+            //ESTO SE BORRA LUEGO.   Chati dice que a un char si le restas '0' se puede convertir dentro de una variable int y sumandole '0' viceversa.
+            //Esto creo que tiene que ver con que char es cn signo y sumarle 0 es como indicar que es de signo positivo(PORRO)
+
+
                 // Calculamos el nuevo valor de cada pixel teniendo en cuenta el nuevo maxval
-                /*
-                 * EXPLICACIÓN DE CONVERSIONES:
-                 * Queremos operar con maxval y un nuevo valor entero. Ambos son enteros de
-                 * 32 bits, PERO LA VARIABLE "r" NO LO ES, ya que es un char de 8 bits. Para no perder
-                 * información en el cálculo, primero convertimos "r" a entero de 32 bits, realizamos
-                 * la operación y luego convertimos el resultado a char.
-                 */
-
-                r = static_cast<char>((static_cast<int>(r) * this->get_args()[0]) / maxval);
-                g = static_cast<char>((static_cast<int>(g) * this->get_args()[0]) / maxval);
-                b = static_cast<char>((static_cast<int>(b) * this->get_args()[0]) / maxval);
-
+                int new_r = 0, new_g = 0, new_b = 0;
+                new_r = r - '0';
+                new_g = g - '0';
+                new_b = b -'0';
+                new_r = (new_r * this->get_args()[0])/maxval;
+                new_g = (new_g * this->get_args()[0])/maxval;
+                new_b = (new_b * this->get_args()[0])/maxval;
+                r = static_cast<char>(new_r + '0');
+                g = static_cast<char>(new_g + '0');
+                b = static_cast<char>(new_b + '0');
                 //Guardado en soa
                 mysoa.r.push_back(r);
                 mysoa.g.push_back(g);
