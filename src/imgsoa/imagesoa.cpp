@@ -6,6 +6,9 @@
 #include <iostream>
 #include <fstream>
 #include "imagesoa.hpp"
+
+#include <sys/stat.h>
+
 #include "common/mtdata.hpp"
 #include "common/struct-rgb.hpp"
 #include "common/progargs.hpp"
@@ -58,42 +61,35 @@ int ImageSOA::maxlevel() {
 
     if (this->get_args()[0] < MIN_LEVEL + 1) {
         output_file << format << " " << width << " " << height << " " << MIN_LEVEL << "\n";
-        if(maxval < MIN_LEVEL) {
+        if(maxval <= MIN_LEVEL) {
             //Este caso es origen maxvalue <256 y destino <256
-            unsigned char r =0,g = 0,b= 0;
+            char r = 0, g = 0, b = 0;
             soa_rgb_small mysoa;
 
-            for(int i=0; i< width * height; i++) {
+            // Leer y escribir en memoria
+            for(int i = 0; i < width * height; i++) {
 
                 //Lectura de entrada
+                vector<char> const buffer(sizeof(r));
 
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                input_file.read(reinterpret_cast<char*>(&r), sizeof(r));
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                input_file.read(reinterpret_cast<char*>(&g), sizeof(r));
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                input_file.read(reinterpret_cast<char*>(&b), sizeof(r));
+                input_file.read(&r, sizeof(r));
+                input_file.read(&g, sizeof(r));
+                input_file.read(&b, sizeof(r));
 
-                //Calculo de valores
-
-                r = static_cast<unsigned char>(r* this->get_args()[3]/ maxval);
-                g = static_cast<unsigned char>(g* this->get_args()[3]/ maxval);
-                b = static_cast<unsigned char>(b* this->get_args()[3]/ maxval);
+                // Calculamos el nuevo valor de cada pixel teniendo en cuenta el nuevo maxval
 
                 //Guardado en soa
-
                 mysoa.r.push_back(r);
                 mysoa.g.push_back(g);
                 mysoa.b.push_back(b);
             }
 
-            for(vector<unsigned char>::size_type i = 0; i < mysoa.r.size();i++) {
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                output_file.write(reinterpret_cast<char*>(&mysoa.r[i]), sizeof(unsigned char));
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                output_file.write(reinterpret_cast<char*>(&mysoa.g[i]), sizeof(unsigned char));
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                output_file.write(reinterpret_cast<char*>(&mysoa.b[i]), sizeof(unsigned char));
+            // Leer de memoria y escribir imagen
+            for(vector<char>::size_type i = 0; i < mysoa.r.size(); i++) {
+                // Escribimos en el output file los datos almecenados
+                output_file.write(&mysoa.r[i], sizeof(r));
+                output_file.write(&mysoa.g[i], sizeof(g));
+                output_file.write(&mysoa.b[i], sizeof(b));
             }
         }
     }
