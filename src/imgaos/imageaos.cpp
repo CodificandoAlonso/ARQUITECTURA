@@ -4,43 +4,32 @@
 
 #include <iostream>
 #include <fstream>
-#include <cstdint>
 #include "imageaos.hpp"
 #include "common/mtdata.hpp"
-#include "common/binario.hpp"
-
-#include "common/struct-rgb.hpp"
 
 using namespace std;
 
-ImageAOS::ImageAOS(std::string input_file, std::string output_file, std::string optype, std::vector<int> args) {
-    this->input_file = input_file;
-    this->output_file = output_file;
-    this->optype = optype;
-    this->args = args;
-}
-
-ImageAOS::~ImageAOS() {
-    // Destructor de la clase, por si reservamos memoria
+ImageAOS::ImageAOS(int argc, const vector<string> &argv) : Image(argc, argv) {
+    // Constructor de la clase
 }
 
 int ImageAOS::process_operation() {
 
     // Primera operación: leer los metadatos de la imagen de entrada. Como
     // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
-    if (this->optype == "info") {
-        if (get_metadata(this->input_file) < 0) {
+    if (this->get_optype() == "info") {
+        if (get_metadata(this->get_input_file()) < 0) {
             return -1;
         }
     }
-    else if (this->optype == "maxlevel") {
+    else if (this->get_optype() == "maxlevel") {
         // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
         if (maxlevel() < 0) {
             return -1;
         }
     }
     else {
-        cerr << "Operación no soportada: " << optype << endl;
+        cerr << "Operación no soportada de momento: " << this->get_optype() << '\n';
         return -1;
     }
     return 0;
@@ -50,16 +39,18 @@ int ImageAOS::maxlevel() {
     // Implementación de la operación de escalado de intensidad usando AOS (Array of Structures)
     // Se debe leer la imagen de entrada, aplicar la operación y guardar la imagen de salida
 
-    ifstream input_file(this->input_file, ios::binary);
-    ofstream output_file(this->output_file, ios::binary);
+    ifstream input_file(this->get_input_file(), ios::binary);
+    ofstream output_file(this->get_output_file(), ios::binary);
 
     if (!input_file || !output_file) {
-        cerr << "Error al abrir los archivos de entrada/salida" << endl;
+        cerr << "Error al abrir los archivos de entrada/salida" << '\n';
         return -1;
     }
 
     string format;
-    int width, height, maxval;
+    int width = 0;
+    int height = 0;
+    int maxval = 0;
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
     /*

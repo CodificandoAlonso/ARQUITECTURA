@@ -7,7 +7,6 @@
 #include <fstream>
 #include "imagesoa.hpp"
 #include "common/mtdata.hpp"
-#include "common/binario.hpp"
 #include "common/struct-rgb.hpp"
 #include "common/progargs.hpp"
 
@@ -35,7 +34,7 @@ int ImageSOA::process_operation() {
         }
     }
     else {
-        cerr << "Operación no soportada: " << this->get_optype() << "\n";
+        cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
         return -1;
     }
     return 0;

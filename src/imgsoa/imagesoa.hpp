@@ -8,11 +8,9 @@
 #include <vector>
 #include "common/progargs.hpp"
 
-using namespace std;
-
 class ImageSOA : public Image {
 public:
-    ImageSOA(int argc, const vector<string>& argv);
+    ImageSOA(int argc, const std::vector<string>& argv);
     int process_operation();
     int maxlevel();
 };
