@@ -68,60 +68,22 @@ int ImageSOA::maxlevel() {
 
             // Leer y escribir en memoria
             for(int i = 0; i < width * height; i++) {
-
-                //Lectura de entrada
-                vector<char> const buffer(sizeof(r));
-
                 input_file.read(&r, sizeof(r));
                 input_file.read(&g, sizeof(r));
                 input_file.read(&b, sizeof(r));
 
-            //A ver si me deja coommitear
-            //ESTO SE BORRA LUEGO.   Chati dice que a un char si le restas '0' se puede convertir dentro de una variable int y sumandole '0' viceversa.
-            //Esto creo que tiene que ver con que char es cn signo y sumarle 0 es como indicar que es de signo positivo(PORRO)
+                int new_r = static_cast<unsigned char>(r);
+                int new_g = static_cast<unsigned char>(g);
+                int new_b = static_cast<unsigned char>(b);
 
-
-                // Calculamos el nuevo valor de cada pixel teniendo en cuenta el nuevo maxval
-                //int new_r = 0, new_g = 0, new_b = 0;
-
-
-
-
-
-                //Vale. Esto funciona y convierte a unsigned int los valores
-                unsigned int new_r = static_cast<unsigned char>(r);
-                unsigned int new_g = static_cast<unsigned char>(g);
-                unsigned int new_b = static_cast<unsigned char>(b);
-
-
-                //debug
-                /*
-                new_r = r - '0';
-                new_g = g - '0';
-                new_b = b -'0';
-                */
-                if(i<10) {
-                    cout << "La r es: " << int(r) << "y la newr: " << new_r << "\n";
-                }
-
-                //Falta conseguir que se operen bien
-                /*
                 new_r = (new_r * this->get_args()[0])/maxval;
                 new_g = (new_g * this->get_args()[0])/maxval;
                 new_b = (new_b * this->get_args()[0])/maxval;
-            */
 
-                //Esto quizas haya que cambiarlo a algo parecido a lo que hay arriba
-                //Yo me voy que he quedado
-                r = static_cast<char>(new_r + '0');
-                g = static_cast<char>(new_g + '0');
-                b = static_cast<char>(new_b + '0');
+                r = static_cast<char>(new_r);
+                g = static_cast<char>(new_g);
+                b = static_cast<char>(new_b);
 
-                if(i<10) {
-                    cout << "La r eeeees: " << int(r) << "y la newr: " << new_r << "\n";
-                }
-
-                //Guardado en soa
                 mysoa.r.push_back(r);
                 mysoa.g.push_back(g);
                 mysoa.b.push_back(b);
