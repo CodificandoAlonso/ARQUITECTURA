@@ -59,7 +59,7 @@ int ImageSOA::maxlevel() {
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
 
-    if (this->get_args()[0] < MIN_LEVEL + 1) {
+    if (this->get_args()[0] <= MIN_LEVEL) {
         output_file << format << " " << width << " " << height << " " << MIN_LEVEL << "\n";
         if(maxval <= MIN_LEVEL) {
             //Este caso es origen maxvalue <256 y destino <256
@@ -68,15 +68,22 @@ int ImageSOA::maxlevel() {
 
             // Leer y escribir en memoria
             for(int i = 0; i < width * height; i++) {
-
-                //Lectura de entrada
-                vector<char> const buffer(sizeof(r));
-
                 input_file.read(&r, sizeof(r));
                 input_file.read(&g, sizeof(r));
                 input_file.read(&b, sizeof(r));
 
                 // Calculamos el nuevo valor de cada pixel teniendo en cuenta el nuevo maxval
+                /*
+                 * EXPLICACIÓN DE CONVERSIONES:
+                 * Queremos operar con maxval y un nuevo valor entero. Ambos son enteros de
+                 * 32 bits, PERO LA VARIABLE "r" NO LO ES, ya que es un char de 8 bits. Para no perder
+                 * información en el cálculo, primero convertimos "r" a entero de 32 bits, realizamos
+                 * la operación y luego convertimos el resultado a char.
+                 */
+
+                r = static_cast<char>((static_cast<int>(r) * this->get_args()[0]) / maxval);
+                g = static_cast<char>((static_cast<int>(g) * this->get_args()[0]) / maxval);
+                b = static_cast<char>((static_cast<int>(b) * this->get_args()[0]) / maxval);
 
                 //Guardado en soa
                 mysoa.r.push_back(r);
