@@ -91,7 +91,7 @@ int ImageSOA::maxlevel() {
             }
 
             // Leer de memoria y escribir imagen
-            for(vector<char>::size_type i = 0; i < mysoa.r.size(); i++) {
+            for(long unsigned int i = 0; i < mysoa.r.size(); i++) {
                 // Escribimos en el output file los datos almecenados
                 output_file.write(&mysoa.r[i], sizeof(r));
                 output_file.write(&mysoa.g[i], sizeof(g));
@@ -130,7 +130,7 @@ int ImageSOA::maxlevel() {
             }
 
             // Leer de memoria y escribir imagen
-            for(vector<char>::size_type i = 0; i < mysoa.r.size(); i++) {
+            for(long unsigned int i = 0; i < mysoa.r.size(); i++) {
                 // Escribimos en el output file los datos almecenados
                 output_file.write(&mysoa.r[i], sizeof(char));
                 output_file.write(&mysoa.g[i], sizeof(char));
@@ -161,7 +161,7 @@ int ImageSOA::maxlevel() {
             }
 
             // Leer de memoria y escribir imagen
-            for(vector<char>::size_type i = 0; i < mysoa.r.size(); i++) {
+            for(long unsigned int i = 0; i < mysoa.r.size(); i++) {
                 int new_r = static_cast<unsigned char>(mysoa.r[i]);
                 int new_g = static_cast<unsigned char>(mysoa.g[i]);
                 int new_b = static_cast<unsigned char>(mysoa.b[i]);
@@ -202,46 +202,42 @@ int ImageSOA::maxlevel() {
                 input_file.get(g2);
                 input_file.get(b1);
                 input_file.get(b2);
-                if (i<10) {
-                    cout << "r1: " << (int)r1 << " r2: " << (int)r2 << " g1: " << (int)g1 << " g2: " << (int)g2 << " b1: " << (int)b1 << " b2: " << (int)b2 << "\n";
-                }
-                /*
-                const auto r = static_cast<unsigned short>((r2 << 8) | r1);
-                const auto g = static_cast<unsigned short>((g2 << 8) | g1);
-                const auto b = static_cast<unsigned short>((b2 << 8) | b1);
-                */
-                unsigned short r = (static_cast<unsigned char>(r2)) |
-                                     (static_cast<unsigned char>(r1) << 8);
-                unsigned short g = (static_cast<unsigned char>(g2)) |
-                                          (static_cast<unsigned char>(g1) << 8);
-                unsigned short b = (static_cast<unsigned char>(b2)) |
-                                                (static_cast<unsigned char>(b1) << 8);
 
-              int new_r = r;
-              int new_g = g;
-              int new_b = b;
-              r = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
-              g = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
-              b = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
+                unsigned short r = (static_cast<unsigned char>(r2)) | (static_cast<unsigned char>(r1) << BYTE);
+                unsigned short g = (static_cast<unsigned char>(g2)) | (static_cast<unsigned char>(g1) << BYTE);
+                unsigned short b = (static_cast<unsigned char>(b2)) | (static_cast<unsigned char>(b1) << BYTE);
+
+                int const new_r = r;
+                int const new_g = g;
+                int const new_b = b;
+
+                r = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
+                g = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
+                b = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
+
                 mysoa.r.push_back(r);
                 mysoa.g.push_back(g);
                 mysoa.b.push_back(b);
             }
 
-            for (vector<unsigned short>::size_type i = 0; i < mysoa.r.size(); i++) {
-                const char r1 = static_cast<char>(mysoa.r[i] &  0xFF);
-                const char r2 = static_cast<char>(mysoa.r[i] >>8 & 0xFF);
-                const char g1 = static_cast<char>(mysoa.g[i] &  0xFF);
-                const char g2 = static_cast<char>(mysoa.g[i] >> 8 & 0xFF);
-                const char b1 = static_cast<char>(mysoa.b[i] &  0xFF);
-                const char b2 = static_cast<char>(mysoa.b[i] >> 8 & 0xFF);
+            for (long unsigned int i = 0; i < mysoa.r.size(); i++) {
+                unsigned short const r = mysoa.r[i];
+                unsigned short const g = mysoa.g[i];
+                unsigned short const b = mysoa.b[i];
 
-                output_file.write(&r1, sizeof(r1));
-                output_file.write(&r2, sizeof(r2));
-                output_file.write(&g1, sizeof(g1));
-                output_file.write(&g2, sizeof(g2));
-                output_file.write(&b1, sizeof(b1));
-                output_file.write(&b2, sizeof(b2));
+                const char r1 = static_cast<char>(r &  0xFF);
+                const char r2 = static_cast<char>(r >> 8 & 0xFF);
+                const char g1 = static_cast<char>(g &  0xFF);
+                const char g2 = static_cast<char>(g >> 8 & 0xFF);
+                const char b1 = static_cast<char>(b &  0xFF);
+                const char b2 = static_cast<char>(b >> 8 & 0xFF);
+
+                output_file.write(&r2, sizeof(r1));
+                output_file.write(&r1, sizeof(r2));
+                output_file.write(&g2, sizeof(g1));
+                output_file.write(&g1, sizeof(g2));
+                output_file.write(&b2, sizeof(b1));
+                output_file.write(&b1, sizeof(b2));
             }
         }
     }
