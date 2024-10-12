@@ -37,5 +37,7 @@ int get_metadata(const string& input_file) {
     cout << "Height: " << height << '\n';
     cout << "Max color value: " << max_color_value << '\n';
 
+    file.close();
+
     return 0;
 }

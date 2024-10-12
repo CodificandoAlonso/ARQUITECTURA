@@ -7,8 +7,9 @@
 
 using namespace std;
 
-unsigned short merge16(unsigned char op1, unsigned char op2);
+unsigned short merge16(unsigned char op1,unsigned char op2);
 
 unsigned short swap16(unsigned short op);
+unsigned char pruebita(char op);
 
 #endif //BINARIO_HPP
