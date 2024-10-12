@@ -112,13 +112,17 @@ int ImageSOA::maxlevel() {
                 input_file.read(&b1, sizeof(b1));
                 input_file.read(&b2, sizeof(b2));
 
-                int r = static_cast<unsigned short>((r1 << BYTE) | r2);
-                int g = static_cast<unsigned short>((g1 << BYTE) | g2);
-                int b = static_cast<unsigned short>((b1 << BYTE) | b2);
+                unsigned short r = (static_cast<unsigned char>(r2)) | (static_cast<unsigned char>(r1) << BYTE);
+                unsigned short g = (static_cast<unsigned char>(g2)) | (static_cast<unsigned char>(g1) << BYTE);
+                unsigned short b = (static_cast<unsigned char>(b2)) | (static_cast<unsigned char>(b1) << BYTE);
 
-                r = (r * this->get_args()[0])/maxval;
-                g = (g * this->get_args()[0])/maxval;
-                b = (b * this->get_args()[0])/maxval;
+                int const new_r = r;
+                int const new_g = g;
+                int const new_b = b;
+
+                r = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
+                g = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
+                b = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
 
                 const char r_char = static_cast<char>(r);
                 const char g_char = static_cast<char>(g);
@@ -132,9 +136,13 @@ int ImageSOA::maxlevel() {
             // Leer de memoria y escribir imagen
             for(long unsigned int i = 0; i < mysoa.r.size(); i++) {
                 // Escribimos en el output file los datos almecenados
-                output_file.write(&mysoa.r[i], sizeof(char));
-                output_file.write(&mysoa.g[i], sizeof(char));
-                output_file.write(&mysoa.b[i], sizeof(char));
+                const char r = mysoa.r[i];
+                const char g = mysoa.g[i];
+                const char b = mysoa.b[i];
+
+                output_file.write(&r, sizeof(char));
+                output_file.write(&g, sizeof(char));
+                output_file.write(&b, sizeof(char));
             }
         }
         else {
