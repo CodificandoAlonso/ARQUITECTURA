@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 #include "imagesoa.hpp"
 #include "common/mtdata.hpp"
@@ -34,6 +35,12 @@ int ImageSOA::process_operation() {
     else if (this->get_optype() == "maxlevel") {
         // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
         if (maxlevel() < 0) {
+            return -1;
+        }
+    }
+    else if (this->get_optype() == "resize") {
+        // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
+        if (resize() < 0) {
             return -1;
         }
     }
@@ -249,8 +256,105 @@ int ImageSOA::maxlevel() {
             }
         }
     }
+    input_file.close();
+    output_file.close();
     return 0;
 }
 
+int ImageSOA::resize() {
+    ifstream input_file(this->get_input_file(), ios::binary);
+    ofstream output_file(this->get_output_file(), ios::binary);
 
+    if (!input_file || !output_file) {
+        cerr << "Error al abrir los archivos de entrada/salida" << "\n";
+        return -1;
+    }
+
+    string format;
+    unsigned int width = 0, height = 0, maxval = 0;
+    input_file >> format >> width >> height >> maxval;
+    input_file.ignore(1);
+
+    int const new_width = this->get_args()[0];
+    int const new_height = this->get_args()[1];
+
+    output_file << format << " " << new_width << " " << new_height << " " << maxval << "\n";
+
+    // leemos la imagen y la almacenamos en memoria
+    soa_rgb_small image;
+    for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        image.r.push_back(r);
+        input_file.read(&g, sizeof(g));
+        image.g.push_back(g);
+        input_file.read(&b, sizeof(b));
+        image.b.push_back(b);
+    }
+
+    for (int y_prime = 0; y_prime < new_height; y_prime++) {
+        for (int x_prime = 0; x_prime < new_width; x_prime++) {
+            double const x = x_prime * (static_cast<double>(width) / new_width);
+            double const y = y_prime * (static_cast<double>(height) / new_height);
+
+            auto xl = static_cast<unsigned int>(floor(x)), xh = static_cast<unsigned int>(ceil(x));
+            auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
+
+            // Obtenemos los 4 pixeles más cercanos
+            rgb_small const p1 = {
+                .r=image.r[static_cast<unsigned long>(yl) * width + xl],
+                .g=image.g[static_cast<unsigned long>(yl) * width + xl],
+                .b=image.b[static_cast<unsigned long>(yl) * width + xl]
+            };
+
+            rgb_small const p2 = {
+                .r=image.r[static_cast<unsigned long>(yl) * width + xh],
+                .g=image.g[static_cast<unsigned long>(yl) * width + xh],
+                .b=image.b[static_cast<unsigned long>(yl) * width + xh]
+            };
+
+            rgb_small const p3 = {
+                .r=image.r[static_cast<unsigned long>(yh) * width + xl],
+                .g=image.g[static_cast<unsigned long>(yh) * width + xl],
+                .b=image.b[static_cast<unsigned long>(yh) * width + xl]
+            };
+            rgb_small const p4 = {
+                .r=image.r[static_cast<unsigned long>(yh) * width + xh],
+                .g=image.g[static_cast<unsigned long>(yh) * width + xh],
+                .b=image.b[static_cast<unsigned long>(yh) * width + xh]
+            };
+
+            // Interpolación en el eje x
+            double const t = x - xl;
+            rgb_small const c1 = {
+                .r=static_cast<char>((1 - t) * p1.r + t * p2.r),
+                .g=static_cast<char>((1 - t) * p1.g + t * p2.g),
+                .b=static_cast<char>((1 - t) * p1.b + t * p2.b)
+            };
+
+            rgb_small const c2 = {
+                .r=static_cast<char>((1 - t) * p3.r + t * p4.r),
+                .g=static_cast<char>((1 - t) * p3.g + t * p4.g),
+                .b=static_cast<char>((1 - t) * p3.b + t * p4.b)
+            };
+
+            // Interpolación en el eje y
+            double const u = y - yl;
+            rgb_small const c = {
+                .r=static_cast<char>((1 - u) * c1.r + u * c2.r),
+                .g=static_cast<char>((1 - u) * c1.g + u * c2.g),
+                .b=static_cast<char>((1 - u) * c1.b + u * c2.b)
+            };
+
+            // Escribir el pixel interpolado
+            output_file.write(&c.r, sizeof(c.r));
+            output_file.write(&c.g, sizeof(c.g));
+            output_file.write(&c.b, sizeof(c.b));
+        }
+    }
+
+    input_file.close();
+    output_file.close();
+    return 0;
+}
 
