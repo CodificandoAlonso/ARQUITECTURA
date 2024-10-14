@@ -293,45 +293,22 @@ int ImageSOA::resize() {
       xh = min(xh, width - 1);
       yh = min(yh, height - 1);
 
-      cout << "xl: " << xl << " xh: " << xh << " yl: " << yl << " yh: " << yh << "\n";
-
       // Obtenemos los 4 pixeles más cercanos
       rgb_small const p1 = {.r = image.r[static_cast<unsigned long>(yl) * width + xl],
                             .g = image.g[static_cast<unsigned long>(yl) * width + xl],
                             .b = image.b[static_cast<unsigned long>(yl) * width + xl]};
 
-      cout << "Pixel p1: " << static_cast<unsigned long>(yl) * width + xl << ". ";
-      cout << "Colores p1: " << static_cast<int>(static_cast<unsigned char>(p1.r)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p1.g)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p1.b)) << "\n";
-
       rgb_small const p2 = {.r = image.r[static_cast<unsigned long>(yl) * width + xh],
                             .g = image.g[static_cast<unsigned long>(yl) * width + xh],
                             .b = image.b[static_cast<unsigned long>(yl) * width + xh]};
-
-      cout << "Pixel p2: " << static_cast<unsigned long>(yl) * width + xh << ". ";
-      cout << "Colores p2: " << static_cast<int>(static_cast<unsigned char>(p2.r)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p2.g)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p2.b)) << "\n";
 
       rgb_small const p3 = {.r = image.r[static_cast<unsigned long>(yh) * width + xl],
                             .g = image.g[static_cast<unsigned long>(yh) * width + xl],
                             .b = image.b[static_cast<unsigned long>(yh) * width + xl]};
 
-      cout << "Pixel p3: " << static_cast<unsigned long>(yh) * width + xl << ". ";
-      cout << "Colores p3: " << static_cast<int>(static_cast<unsigned char>(p3.r)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p3.g)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p3.b)) << "\n";
-
       rgb_small const p4 = {.r = image.r[static_cast<unsigned long>(yh) * width + xh],
                             .g = image.g[static_cast<unsigned long>(yh) * width + xh],
                             .b = image.b[static_cast<unsigned long>(yh) * width + xh]};
-
-      cout << "Pixel p4: " << static_cast<unsigned long>(yh) * width + xh << ". ";
-
-      cout << "Colores p4: " << static_cast<int>(static_cast<unsigned char>(p4.r)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p4.g)) << " "
-           << static_cast<int>(static_cast<unsigned char>(p4.b)) << "\n";
 
       // Interpolación en el eje x
       double const t     = x - xl;
@@ -348,6 +325,11 @@ int ImageSOA::resize() {
       rgb_small const c = {.r = static_cast<char>((1 - u) * c1.r + u * c2.r),
                            .g = static_cast<char>((1 - u) * c1.g + u * c2.g),
                            .b = static_cast<char>((1 - u) * c1.b + u * c2.b)};
+
+      cout << "Pixel ["<< (y_prime + 1) * (x_prime + 1) <<"] interpolado: (" <<
+        static_cast<int>(static_cast<unsigned char>(c.r)) << ", " <<
+        static_cast<int>(static_cast<unsigned char>(c.g))  << ", " <<
+        static_cast<int>(static_cast<unsigned char>(c.b)) << ")\n";
 
       // Escribir el pixel interpolado
       output_file.write(&c.r, sizeof(c.r));
