@@ -13,6 +13,7 @@ public:
     ImageSOA(int argc, const std::vector<string>& argv);
     int process_operation();
     int maxlevel();
+    int cutfreq();
 };
 
 #endif //IMAGESOA_HPP

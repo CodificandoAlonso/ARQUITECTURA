@@ -4,7 +4,7 @@
 
 #include "binario.hpp"
 #include <iostream>
-
+#include <bitset>
 
 using namespace std;
 static constexpr int BYTE = 8;
@@ -24,4 +24,13 @@ unsigned short merge16(unsigned char op1,unsigned char op2) {
  */
 unsigned short swap16(unsigned short op) {
     return (op >> BYTE) | (op << BYTE);;
+}
+
+
+string mix3char(char ch1, char ch2, char ch3) {
+    bitset<BYTE> const byte1(ch1);
+    bitset <BYTE> const byte2(ch2);
+    bitset <BYTE> const byte3(ch3);
+    return byte1.to_string() + byte2.to_string() + byte3.to_string();
+
 }

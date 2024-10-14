@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <map>
 #include "imagesoa.hpp"
 #include "common/mtdata.hpp"
 #include "common/struct-rgb.hpp"
@@ -251,6 +251,44 @@ int ImageSOA::maxlevel() {
     }
     return 0;
 }
+
+int ImageSOA::cutfreq() {
+    ifstream input_file(this->get_input_file(), ios::binary);
+
+    ofstream output_file(this->get_output_file(), ios::binary);
+    if (!input_file || !output_file) {
+        cerr << "Error al abrir los archivos de entrada/salida" << "\n";
+        return -1;
+    }
+
+    string format;
+    unsigned int width = 0, height = 0, maxval = 0;
+    input_file >> format >> width >> height >> maxval;
+    input_file.ignore(1);
+
+    soa_rgb_small mysoa;
+
+    char r = 0,g = 0,b = 0;
+    map<array<char, 3>, int> myMap;
+
+
+    for(int i = 0; i< width * height;i++) {
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+        const string rgb = mix3char(r, g, b);
+
+        mysoa.r.push_back(r);
+        mysoa.g.push_back(g);
+        mysoa.b.push_back(b);
+    }
+
+
+
+}
+
+
+
 
 
 
