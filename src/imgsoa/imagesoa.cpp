@@ -10,6 +10,8 @@
 #include "common/mtdata.hpp"
 #include "common/struct-rgb.hpp"
 #include "common/progargs.hpp"
+#include <vector>
+#include <algorithm>
 
 #include <common/binario.hpp>
 
@@ -34,6 +36,11 @@ int ImageSOA::process_operation() {
     else if (this->get_optype() == "maxlevel") {
         // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
         if (maxlevel() < 0) {
+            return -1;
+        }
+    }
+    else if (this->get_optype() == "cutfreq") {
+        if (cutfreq() < 0) {
             return -1;
         }
     }
@@ -269,22 +276,40 @@ int ImageSOA::cutfreq() {
     soa_rgb_small mysoa;
 
     char r = 0,g = 0,b = 0;
-    map<array<char, 3>, int> myMap;
+    map<string, int> myMap;
 
 
-    for(int i = 0; i< width * height;i++) {
+    for(unsigned int i = 0; i< width * height;i++) {
         input_file.read(&r, sizeof(r));
         input_file.read(&g, sizeof(g));
         input_file.read(&b, sizeof(b));
         const string rgb = mix3char(r, g, b);
-
+        //cout << rgb << "\n";
+        //necesito recorrerme el mapa y ver si ya existe el valor, la key de cada elemento del mapa es un string
+        //que contiene los 3 valores de rgb
+        //si ya existe, incremento el valor del elemento en 1
+        //si no existe, lo añado al mapa con valor 1
+        //al final recorro el mapa y escribo en el fichero de salida los valores de rgb que tengan un valor mayor
+        //o igual al valor de corte
+        if(myMap.find(rgb) != myMap.end()) {
+            myMap[{rgb}]++;
+        }
+        else {
+            myMap[{rgb}] = 1;
+        }
         mysoa.r.push_back(r);
         mysoa.g.push_back(g);
         mysoa.b.push_back(b);
     }
+    vector<pair<string, int>> myVector(myMap.begin(), myMap.end());
+    quick::quicksort(myVector, 0, myVector.size() - 1);
+    //imprimo el vector por pantalla, independientemente de nada
+    for(const auto &[fst, snd]: myVector) {
+      cout << fst << " " << snd << "\n";
+    }
 
 
-
+return 0;
 }
 
 
