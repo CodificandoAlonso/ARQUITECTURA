@@ -8,17 +8,25 @@
 
 using namespace std;
 
-int main (int argc, vector<string> argv) {
+int main (const int argc, char** argv) {
+  /*
+  Image checker(argc, argv);
+  if (checker.check_args() < 0) {
+      return -1;
+  }
+  */
+  vector<string> arguments;
+  copy(argv, next(argv, argc), back_inserter(arguments));
 
-    Image checker(argc, argv);
-    if (checker.check_args() < 0) {
-        return -1;
-    }
+  ImageAOS image(argc, arguments);
 
-    ImageAOS image(checker.input_file, checker.output_file, checker.optype, checker.args);
-    if (image.process_operation() < 0) {
-        return -1;
-    }
+  if (image.check_args() < 0) {
+    return -1;
+  }
 
-    return 0;
+  if (image.process_operation() < 0) {
+    return -1;
+  }
+
+  return 0;
 }

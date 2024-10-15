@@ -294,7 +294,7 @@ int ImageSOA::cutfreq() {
   quick::quicksort(myVector, 0, size - 1);
   */
   ranges::sort(myVector, [](auto const & a, auto const & b) {
-    return a.second > b.second;
+    return a.second < b.second;
   });
 
   // imprimo el vector por pantalla, independientemente de nada
@@ -306,32 +306,32 @@ int ImageSOA::cutfreq() {
     VectorDelete.push_back(myVector[i]);
   }
   size_t tamDelete = n;
-  while(myVector[tamDelete].second == VectorDelete[n-1].second) {
-    VectorDelete.push_back(myVector[tamDelete]);
-    tamDelete ++;
 
+  while (myVector[tamDelete].second == VectorDelete[n - 1].second) {
+    VectorDelete.push_back(myVector[tamDelete]);
+    tamDelete++;
   }
-  //imprimo VectorDelete
-  for(auto & i : VectorDelete) {
+  // imprimo VectorDelete
+  for (auto & i : VectorDelete) {
     cout << i.first << " " << i.second << "\n";
   }
-  const int pivot = VectorDelete[n-1].second;
+  int const pivot  = VectorDelete[n - 1].second;
   int elem_deleted = 0;
 
-  for (size_t i = 0; i< VectorDelete.size(); i++) {
-    if (VectorDelete[i].second > pivot){
-      cout << "Te elimino jueputa " << VectorDelete[i].second  << "\n";
-      elem_deleted ++;
+  for (size_t i = 0; i < VectorDelete.size(); i++) {
+    if (VectorDelete[i].second < pivot) {
+      cout << "Te elimino jueputa " << VectorDelete[i].second << "\n";
+      elem_deleted++;
     }
   }
-  auto new_e_d= static_cast<long int>(elem_deleted);
+  auto new_e_d = static_cast<long int>(elem_deleted);
 
-  vector<pair<string, int>> left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
-  //imprime left_elems
-  for(auto & i : left_elems) {
-      cout << i.first << " " << i.second << "\n";
+  vector left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
+  // imprime left_elems
+  for (auto & i : left_elems) {
+    cout << "tengo que ver si te elimino jueputa " << "\n";
+    cout << i.first << " " << i.second << "\n";
   }
-
   return 0;
 }
 

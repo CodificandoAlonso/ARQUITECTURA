@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include "imageaos.hpp"
+#include "common/progargs.hpp"
 #include "common/mtdata.hpp"
 
 using namespace std;
