@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "mtdata.hpp"
 #include <cmath>
+#include <string>
 
 using namespace std;
 

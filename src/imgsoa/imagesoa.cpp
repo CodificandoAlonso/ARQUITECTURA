@@ -12,6 +12,11 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cstdint>
+
 
 static int const MAX_LEVEL = 65535;
 static int const MIN_LEVEL = 255;
@@ -105,12 +110,9 @@ int ImageSOA::maxlevel() {
         input_file.read(&b1, sizeof(b1));
         input_file.read(&b2, sizeof(b2));
 
-        unsigned short r =
-            (static_cast<unsigned char>(r2)) | (static_cast<unsigned char>(r1) << BYTE);
-        unsigned short g =
-            (static_cast<unsigned char>(g2)) | (static_cast<unsigned char>(g1) << BYTE);
-        unsigned short b =
-            (static_cast<unsigned char>(b2)) | (static_cast<unsigned char>(b1) << BYTE);
+        auto r = static_cast<unsigned short>((static_cast<unsigned char>(r2)) | (static_cast<unsigned char>(r1) << BYTE));
+        auto g = static_cast<unsigned short>((static_cast<unsigned char>(g2)) | (static_cast<unsigned char>(g1) << BYTE));
+        auto b = static_cast<unsigned short>((static_cast<unsigned char>(b2)) | (static_cast<unsigned char>(b1) << BYTE));
 
         int const new_r = r;
         int const new_g = g;
@@ -205,12 +207,9 @@ int ImageSOA::maxlevel() {
         input_file.get(b1);
         input_file.get(b2);
 
-        unsigned short r =
-            (static_cast<unsigned char>(r2)) | (static_cast<unsigned char>(r1) << BYTE);
-        unsigned short g =
-            (static_cast<unsigned char>(g2)) | (static_cast<unsigned char>(g1) << BYTE);
-        unsigned short b =
-            (static_cast<unsigned char>(b2)) | (static_cast<unsigned char>(b1) << BYTE);
+        auto r = static_cast<unsigned short>(static_cast<unsigned short>(r2) | (static_cast<unsigned short>(r1) << BYTE));
+        auto g = static_cast<unsigned short>(static_cast<unsigned short>(g2) | (static_cast<unsigned short>(g1) << BYTE));
+        auto b = static_cast<unsigned short>(static_cast<unsigned short>(b2) | (static_cast<unsigned short>(b1) << BYTE));
 
         int const new_r = r;
         int const new_g = g;

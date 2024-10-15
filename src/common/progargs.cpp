@@ -2,8 +2,12 @@
 // Created by beto on 4/10/24.
 //
 
-#include <iostream>
 #include "progargs.hpp"
+
+#include <iostream>
+#include <cstdlib>
+#include <vector>
+#include <string>
 
 // Constantes
 static const int MAX_LEVEL = 65535;
