@@ -5,15 +5,16 @@
 #ifndef IMAGESOA_HPP
 #define IMAGESOA_HPP
 
-#include <vector>
 #include "common/progargs.hpp"
 
+#include <vector>
+
 class ImageSOA : public Image {
-public:
-    ImageSOA(int argc, const std::vector<string>& argv);
+  public:
+    ImageSOA(int argc, std::vector<string> const & argv);
     int process_operation();
     int maxlevel();
     int resize();
 };
 
-#endif //IMAGESOA_HPP
+#endif  // IMAGESOA_HPP

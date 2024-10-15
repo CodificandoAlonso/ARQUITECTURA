@@ -284,8 +284,10 @@ int ImageSOA::resize() {
 
   for (int y_prime = 0; y_prime < new_height; y_prime++) {
     for (int x_prime = 0; x_prime < new_width; x_prime++) {
-      double const x = x_prime * (static_cast<double>(width) / new_width);
-      double const y = y_prime * (static_cast<double>(height) / new_height);
+      // Por como funcionan las operaciones de coma flotante, hay que redondear el valor
+      // según una cierta precisión. Si no, la imagen final generará píxeles corruptos.
+      double const x = round(x_prime * (static_cast<double>(width) / new_width));
+      double const y = round(y_prime * (static_cast<double>(height) / new_height));
 
       auto xl = static_cast<unsigned int>(floor(x)), xh = static_cast<unsigned int>(ceil(x));
       auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
@@ -325,11 +327,6 @@ int ImageSOA::resize() {
       rgb_small const c = {.r = static_cast<char>((1 - u) * c1.r + u * c2.r),
                            .g = static_cast<char>((1 - u) * c1.g + u * c2.g),
                            .b = static_cast<char>((1 - u) * c1.b + u * c2.b)};
-
-      cout << "Pixel ["<< (y_prime + 1) * (x_prime + 1) <<"] interpolado: (" <<
-        static_cast<int>(static_cast<unsigned char>(c.r)) << ", " <<
-        static_cast<int>(static_cast<unsigned char>(c.g))  << ", " <<
-        static_cast<int>(static_cast<unsigned char>(c.b)) << ")\n";
 
       // Escribir el pixel interpolado
       output_file.write(&c.r, sizeof(c.r));
