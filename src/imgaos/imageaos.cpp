@@ -85,7 +85,9 @@ int ImageAOS::resize() {
         auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
 
         xh = min(xh, width - 1);
+        xl = min(xl, width - 1);
         yh = min(yh, height - 1);
+        yl = min(yl, height - 1);
 
         // Obtenemos los 4 píxeles más cercanos
         rgb_small const p1 = {.r = image[static_cast<unsigned long>(yl) * width + xl].r,
@@ -134,6 +136,59 @@ int ImageAOS::resize() {
       g = read_binary_16(input_file);
       b = read_binary_16(input_file);
       image.push_back({r, g, b});
+    }
+    for (int y_prime = 0; y_prime < new_height; y_prime++) {
+      for (int x_prime = 0; x_prime < new_width; x_prime++) {
+        // Por como funcionan las operaciones de coma flotante, hay que redondear el valor
+        // según una cierta precisión. Si no, la imagen final generará píxeles corruptos.
+        double const x = round(x_prime * (static_cast<double>(width) / new_width));
+        double const y = round(y_prime * (static_cast<double>(height) / new_height));
+
+        auto xl = static_cast<unsigned int>(floor(x)), xh = static_cast<unsigned int>(ceil(x));
+        auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
+
+        xh = min(xh, width - 1);
+        xl = min(xl, width - 1);
+        yh = min(yh, height - 1);
+        yl = min(yl, height - 1);
+
+        // Obtenemos los 4 píxeles más cercanos
+        rgb_big const p1 = {.r = image[static_cast<unsigned long>(yl) * width + xl].r,
+                            .g = image[static_cast<unsigned long>(yl) * width + xl].g,
+                            .b = image[static_cast<unsigned long>(yl) * width + xl].b};
+
+        rgb_big const p2 = {.r = image[static_cast<unsigned long>(yl) * width + xh].r,
+                            .g = image[static_cast<unsigned long>(yl) * width + xh].g,
+                            .b = image[static_cast<unsigned long>(yl) * width + xh].b};
+
+        rgb_big const p3 = {.r = image[static_cast<unsigned long>(yh) * width + xl].r,
+                            .g = image[static_cast<unsigned long>(yh) * width + xl].g,
+                            .b = image[static_cast<unsigned long>(yh) * width + xl].b};
+
+        rgb_big const p4 = {.r = image[static_cast<unsigned long>(yh) * width + xh].r,
+                            .g = image[static_cast<unsigned long>(yh) * width + xh].g,
+                            .b = image[static_cast<unsigned long>(yh) * width + xh].b};
+
+        // Interpolación en el eje x
+        double const t   = x - xl;
+        rgb_big const c1 = {.r = static_cast<uint16_t>((1 - t) * p1.r + t * p2.r),
+                            .g = static_cast<uint16_t>((1 - t) * p1.g + t * p2.g),
+                            .b = static_cast<uint16_t>((1 - t) * p1.b + t * p2.b)};
+
+        rgb_big const c2 = {.r = static_cast<uint16_t>((1 - t) * p3.r + t * p4.r),
+                            .g = static_cast<uint16_t>((1 - t) * p3.g + t * p4.g),
+                            .b = static_cast<uint16_t>((1 - t) * p3.b + t * p4.b)};
+
+        // Interpolación en el eje y
+        double const u  = y - yl;
+        rgb_big const c = {.r = static_cast<uint16_t>((1 - u) * c1.r + u * c2.r),
+                           .g = static_cast<uint16_t>((1 - u) * c1.g + u * c2.g),
+                           .b = static_cast<uint16_t>((1 - u) * c1.b + u * c2.b)};
+
+        write_binary_16(output_file, c.r);
+        write_binary_16(output_file, c.g);
+        write_binary_16(output_file, c.b);
+      }
     }
   } else {
     return -1;

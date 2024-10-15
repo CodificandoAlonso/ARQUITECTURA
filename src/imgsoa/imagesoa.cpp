@@ -87,7 +87,9 @@ int ImageSOA::resize() {
         auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
 
         xh = min(xh, width - 1);
+        xl = min(xl, width - 1);
         yh = min(yh, height - 1);
+        yl = min(yl, height - 1);
 
         // Obtenemos los 4 pixeles más cercanos
         rgb_small const p1 = {.r = image.r[static_cast<unsigned long>(yl) * width + xl],
@@ -150,7 +152,9 @@ int ImageSOA::resize() {
         auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
 
         xh = min(xh, width - 1);
+        xl = min(xl, width - 1);
         yh = min(yh, height - 1);
+        yl = min(yl, height - 1);
 
         // Obtenemos los 4 pixeles más cercanos
         rgb_big const p1 = {.r = image.r[static_cast<unsigned long>(yl) * width + xl],
