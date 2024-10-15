@@ -15,9 +15,9 @@ struct rgb_small {
 };
 
 struct rgb_big {
-    short r;
-    short g;
-    short b;
+    unsigned short r;
+    unsigned short g;
+    unsigned short b;
 
 };
 

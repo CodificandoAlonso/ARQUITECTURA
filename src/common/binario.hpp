@@ -5,7 +5,14 @@
 #ifndef BINARIO_HPP
 #define BINARIO_HPP
 
+#include <fstream>
+#include <cstdint>
+
 using namespace std;
+
+uint16_t read_binary_16(ifstream & input);
+
+void write_binary_16(ofstream & output, uint16_t value);
 
 unsigned short merge16(unsigned char op1,unsigned char op2);
 
