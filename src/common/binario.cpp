@@ -36,27 +36,40 @@ string mix3char(const char ch1, const char ch2, const char ch3) {
 }
 
 namespace quick {
-  int partition(vector<pair<string, int>>& vec, const int low, const int high) {
-    auto pivot = vec[high];  // Usamos el último elemento como pivote
-    int i = low - 1;
+  size_t partition(vector<pair<string, int>>& vec, size_t low, size_t high) {
+    if (low == high) return low; // caso base, cuando solo hay un elemento
 
-    for (int j = low; j < high; j++) {
-      if (vec[j].first < pivot.first) {  // Comparamos solo el primer elemento del par
+    int pivot = vec[high].second;
+    //cerr << "Pivot: " << pivot << endl;
+    int i = static_cast<int>(low) - 1;
+
+    for (size_t j = low; j < high; j++) {
+      if (vec[j].second < pivot) {
         i++;
-        swap(vec[i], vec[j]);
+        swap(vec[static_cast<size_t>(i)], vec[j]);
       }
     }
-    swap(vec[i + 1], vec[high]);
-    return i + 1;
+    auto const aux = static_cast<size_t>(i + 1);
+    swap(vec[aux], vec[high]); // Asegúrate de que `aux` esté dentro de límites
+    return aux; // Devuelve el índice del pivote correctamente
   }
 
-  void quicksort(vector<pair<string, int>>& vec, const int low,const int high) {
+
+
+  void quicksort(vector<pair<string, int>>& vec, size_t low, size_t high) {
     if (low < high) {
-      int pivotIndex = partition(vec, low, high);
-      quicksort(vec, low, pivotIndex - 1);
+      size_t const pivotIndex = partition(vec, low, high);
+
+      // Verifica que los índices sean válidos antes de la llamada recursiva
+      if (pivotIndex > 0) {
+        quicksort(vec, low, pivotIndex - 1);
+      }
       quicksort(vec, pivotIndex + 1, high);
     }
   }
+
+
+
 }
 
 

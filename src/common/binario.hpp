@@ -14,9 +14,9 @@ unsigned short swap16(unsigned short op);
 
 string mix3char(char ch1, char ch2, char ch3);
 namespace quick {
-        int partition(vector<pair<string, int>>& vec, int low, int high);
+        size_t partition(vector<pair<string, int>>& vec, size_t low, size_t high);
 
-        void quicksort(vector<pair<string, int>>& vec, int low, int high);
+        void quicksort(vector<pair<string, int>>& vec, size_t low, size_t high);
 }
 
 #endif //BINARIO_HPP
