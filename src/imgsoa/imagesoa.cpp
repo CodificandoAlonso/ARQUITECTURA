@@ -204,3 +204,33 @@ int ImageSOA::resize() {
   return 0;
 }
 
+int ImageSOA::compress(){
+  ifstream input_file(this->get_input_file(), ios::binary);
+  ofstream output_file(this->get_output_file(), ios::binary);
+
+  if (!input_file || !output_file) {
+    cerr << "Error al abrir los archivos de entrada/salida"
+         << "\n";
+    return -1;
+  }
+
+  string format;
+  unsigned int width = 0, height = 0, maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
+
+  if (maxval <= MIN_LEVEL) {
+
+  } else if (maxval <= MAX_LEVEL) {
+    ;
+  } else {
+    cerr << "Error: maxval no soportado"
+         << "\n";
+    return -1;
+  }
+
+  input_file.close();
+  output_file.close();
+  return 0;
+}
+
