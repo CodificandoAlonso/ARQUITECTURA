@@ -8,14 +8,13 @@
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <cstdint>
-
 
 static int const MAX_LEVEL = 65535;
 static int const MIN_LEVEL = 255;
@@ -36,6 +35,9 @@ int ImageSOA::process_operation() {
   } else if (this->get_optype() == "resize") {
     // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
+  } else if (this->get_optype() == "compress") {
+    // Implementación de la operación de compresión usando AOS (Array of Structures)
+    if (compress() < 0) { return -1; }
   } else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
     return -1;
@@ -43,7 +45,7 @@ int ImageSOA::process_operation() {
   return 0;
 }
 
-int ImageSOA::resize() {
+int ImageSOA::resize() const {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -174,7 +176,7 @@ int ImageSOA::resize() {
                             .b = image.b[static_cast<unsigned long>(yh) * width + xh]};
 
         // Interpolación en el eje x
-        double const t     = x - xl;
+        double const t   = x - xl;
         rgb_big const c1 = {.r = static_cast<uint16_t>((1 - t) * p1.r + t * p2.r),
                             .g = static_cast<uint16_t>((1 - t) * p1.g + t * p2.g),
                             .b = static_cast<uint16_t>((1 - t) * p1.b + t * p2.b)};
@@ -183,7 +185,7 @@ int ImageSOA::resize() {
                             .g = static_cast<uint16_t>((1 - t) * p3.g + t * p4.g),
                             .b = static_cast<uint16_t>((1 - t) * p3.b + t * p4.b)};
 
-        double const u = y - yl;
+        double const u  = y - yl;
         rgb_big const c = {.r = static_cast<uint16_t>((1 - u) * c1.r + u * c2.r),
                            .g = static_cast<uint16_t>((1 - u) * c1.g + u * c2.g),
                            .b = static_cast<uint16_t>((1 - u) * c1.b + u * c2.b)};
@@ -204,7 +206,7 @@ int ImageSOA::resize() {
   return 0;
 }
 
-int ImageSOA::compress(){
+int ImageSOA::compress() const {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -220,7 +222,83 @@ int ImageSOA::compress(){
   input_file.ignore(1);
 
   if (maxval <= MIN_LEVEL) {
+    soa_rgb_small colors;
+    vector<char *> pixels;
+    for (unsigned int i = 0; i < width * height; i++) {
+      char r = 0, g = 0, b = 0;
+      input_file.read(&r, sizeof(r));
+      input_file.read(&g, sizeof(g));
+      input_file.read(&b, sizeof(b));
 
+      // Usaremos un puntero únicamente al canal rojo ya que comparte índice con los canales verde y
+      // azul
+      char * ptr_r = nullptr;
+
+      // Si es el primer elemento, lo guardamos directamente
+      if (i == 0) {
+        colors.r.push_back(r);
+        colors.g.push_back(g);
+        colors.b.push_back(b);
+
+        ptr_r = &colors.r.back();
+      }
+
+      // Si NO es el primer elemento de la lista, verificamos si
+      // está haciendo una busqueda binaria (ya que los elementos se introducirán
+      // en la lista de manera ordenada)
+      else {
+        /*
+         * Esta función realiza una búsqueda binaria para encontrar el primer elemento en el rango
+         * que no sea menor que el valor buscado (r, g, b). El resultado es un iterador que apunta a
+         * la posición donde el valor debería ser insertado si no se encuentra en el vector.
+         */
+        auto it_r = ranges::lower_bound(colors.r, r);
+        auto it_g = ranges::lower_bound(colors.g, g);
+        auto it_b = ranges::lower_bound(colors.b, b);
+
+        // Si el valor ya existe, almacenamos un puntero a la posición
+        if ((it_r != colors.r.end() && *it_r == r) && (it_g != colors.g.end() && *it_g == g) &&
+            (it_b != colors.b.end() && *it_b == b)) {
+          ptr_r = &(*it_r);
+        } else {
+          // Si el elemento no se encuentra en la lista, lo insertamos
+          colors.r.insert(it_r, r);
+          colors.g.insert(it_g, g);
+          colors.b.insert(it_b, b);
+          ptr_r = &colors.r.back();
+        }
+      }
+      // Ahora, almacenamos el puntero a los elementos en el vector de píxeles
+      pixels.push_back(ptr_r);
+    }
+    /*
+     * Una vez almacenada la tabla de colores y los punteros (correspondientes a los píxeles que
+     * apuntan a un color de la tabla de colores) escribimos en la imagen de salida los datos con el
+     * formato correspondiente.
+     */
+    output_file << "C6"
+                << " " << width << " " << height << " " << maxval << " " << colors.r.size() << "\n";
+    for (unsigned long int i = 0; i < colors.r.size(); i++) {
+      output_file.write(&colors.r[i], sizeof(char));
+      output_file.write(&colors.g[i], sizeof(char));
+      output_file.write(&colors.b[i], sizeof(char));
+    }
+    /*
+     * Una vez escrita la tabla de colores, falta escribir los píxeles de la imagen de salida. Para
+     * ello, sabiendo que tenemos un puntero del pixel al ELEMENTO del vector de colores, debemos
+     * conseguir el ÍNDICE del elemento en dicho vector, para así poder escribirlo en binario en el
+     * archivo de salida. Hay que recordar, además, que dependiendo de la cantidad de colores, la
+     * cantidad de bits necesarios para representar un índice será distinta:
+     * - Si la cantidad de colores es <=2^8, necesitamos 8 bit
+     * - Si la cantidad de colores es <=2^16, necesitamos 16 bit
+     * - Si la cantidad de colores es <= 2^32, necesitamos 32 bit
+     * - Si la cantidad de colores es > 2^32, no se soporta
+     */
+
+    for (auto & pixel : pixels) {
+      long const index_r = pixel - &colors.r[0];  // Calcula el índice del elemento
+      cout << "El índice de r es: " << index_r << "\n";
+    }
   } else if (maxval <= MAX_LEVEL) {
     ;
   } else {
