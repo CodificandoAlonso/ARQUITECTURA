@@ -2,29 +2,27 @@
 // Created by hector on 9/10/24.
 //
 
+#include "struct-rgb.hpp"
+
 #include <vector>
 using namespace std;
 
-struct rgb_small {
-    char r;
-    char g;
-    char b;
-};
+size_t soa_rgb_small::find_color(rgb_small color) const {
+  size_t left  = 0;
+  size_t right = this->r.size();
 
-struct rgb_big {
-    unsigned short r;
-    unsigned short g;
-    unsigned short b;
-};
+  while (left < right) {
+    size_t const mid = left + (right - left) / 2;
 
-struct soa_rgb_small {
-    vector<char> r;
-    vector<char> g;
-    vector<char> b;
-};
-
-struct soa_rgb_big {
-    vector<unsigned short> r;
-    vector<unsigned short> g;
-    vector<unsigned short> b;
-};
+    if (tie(this->r[mid], this->g[mid], this->b[mid]) < tie(color.r, color.g, color.b)) {
+      left = mid + 1;
+    } else {
+      right = mid;
+    }
+  }
+  if (left < this->r.size() &&
+      tie(this->r[left], this->g[left], this->b[left]) == tie(color.r, color.g, color.b)) {
+    return left;
+  }
+  return this->r.size();
+}

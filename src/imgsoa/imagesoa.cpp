@@ -244,30 +244,23 @@ int ImageSOA::compress() const {
       }
 
       // Si NO es el primer elemento de la lista, verificamos si
-      // está haciendo una busqueda binaria (ya que los elementos se introducirán
+      // está, haciendo una busqueda binaria (ya que los elementos se introducirán
       // en la lista de manera ordenada)
       else {
-        /*
-         * Esta función realiza una búsqueda binaria para encontrar el primer elemento en el rango
-         * que no sea menor que el valor buscado (r, g, b). El resultado es un iterador que apunta a
-         * la posición donde el valor debería ser insertado si no se encuentra en el vector.
-         */
-        auto it_r = ranges::lower_bound(colors.r, r);
-        auto it_g = ranges::lower_bound(colors.g, g);
-        auto it_b = ranges::lower_bound(colors.b, b);
+        rgb_small const current = {.r = r, .g = g, .b = b};
+        size_t const index = colors.find_color(current);
 
-        // Si el valor ya existe, almacenamos un puntero a la posición
-        if ((it_r != colors.r.end() && *it_r == r) && (it_g != colors.g.end() && *it_g == g) &&
-            (it_b != colors.b.end() && *it_b == b)) {
-          ptr_r = &(*it_r);
-        } else {
-          // Si el elemento no se encuentra en la lista, lo insertamos
-          colors.r.insert(it_r, r);
-          colors.g.insert(it_g, g);
-          colors.b.insert(it_b, b);
-          ptr_r = &colors.r.back();
+        if (index < colors.r.size()) { // Si el color ya está en la lista
+          ptr_r = &colors.r[index];
+        } else { // Si el color no está en la lista
+          colors.r.insert(colors.r.begin() + static_cast<std::vector<uint8_t>::difference_type>(index), r);
+          colors.g.insert(colors.g.begin() + static_cast<std::vector<uint8_t>::difference_type>(index), g);
+          colors.b.insert(colors.b.begin() + static_cast<std::vector<uint8_t>::difference_type>(index), b);
+
+          ptr_r = &colors.r[index];
         }
       }
+
       // Ahora, almacenamos el puntero a los elementos en el vector de píxeles
       pixels.push_back(ptr_r);
     }
