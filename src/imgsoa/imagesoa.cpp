@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
 static constexpr int MAX_LEVEL = 65535;
@@ -259,7 +260,44 @@ int ImageSOA::compress() const {
         }
       }
     }
-  } else if (maxval <= MAX_LEVEL) {
+    // Ahora ya sabemos cuántos colores distintos hay en la imagen. Los escribimos
+    output_file << "C6" << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
+    for (unsigned int i = 0; i < image.r.size(); i++) {
+      output_file.write(&image.r[i], sizeof(image.r[i]));
+      output_file.write(&image.g[i], sizeof(image.g[i]));
+      output_file.write(&image.b[i], sizeof(image.b[i]));
+    }
+    /*
+     * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
+     * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
+     * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
+     * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
+     * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
+     * 4. Si hay más, no lo soportamos.
+     */
+    unsigned long int const num_colors = image.r.size();
+    // Hay que volver a abrir el archivo para volver a leerlo
+    input_file.close();
+    ifstream input_file(this->get_input_file(), ios::binary);
+    input_file >> format >> width >> height >> maxval;
+    input_file.ignore(1);
+    if (num_colors < static_cast<unsigned int>(pow(2, BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = tree.search(concatenated);
+        write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+      }
+    }
+  }
+
+  else if (maxval <= MAX_LEVEL) {
     ;
   } else {
     cerr << "Error: maxval no soportado"

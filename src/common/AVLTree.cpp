@@ -6,6 +6,7 @@
 
 #include <gsl/gsl>
 #include <iostream>
+#include <cmath>
 #include <queue>
 #include <stack>
 
@@ -141,6 +142,24 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
 
   return node;
 }
+
+element AVLTree::search(unsigned long const color) {
+  Node const * current = root;
+
+  while (current != nullptr) {
+    if (color == current->color) {
+      return element{.color=current->color, .index=current->index};
+    } else if (color < current->color) {
+      current = current->left;
+    } else {
+      current = current->right;
+    }
+  }
+  std::cout << "Element not found\n";
+  return element{.color=0, .index=0};
+}
+
+
 
 int AVLTree::insert(element const elem) {
   Node * node = static_cast<gsl::owner<Node *>>(insert(root, elem));

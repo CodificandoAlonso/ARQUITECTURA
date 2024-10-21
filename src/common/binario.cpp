@@ -10,9 +10,6 @@
 using namespace std;
 static constexpr unsigned char BYTE = 8;
 
-/**
- *
- */
 uint16_t read_binary_16(ifstream & input) {
   uint16_t value = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -20,7 +17,17 @@ uint16_t read_binary_16(ifstream & input) {
   return value;
 }
 
+void write_binary_8(ofstream & output, uint8_t value) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  output.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
+
 void write_binary_16(ofstream & output, uint16_t value) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  output.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
+
+void write_binary_32(ofstream & output, uint32_t value) {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   output.write(reinterpret_cast<char *>(&value), sizeof(value));
 }

@@ -34,6 +34,7 @@ class AVLTree {
   public:
     AVLTree() = default;
     int insert(element elem);
+    element search(unsigned long color);
     void print();
 };
 
