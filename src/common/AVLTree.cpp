@@ -138,3 +138,7 @@ gsl::owner<Node*> AVLTree::insert(Node * node, element const elem) {
   }
   return node;
 }
+
+void AVLTree::insert(element const elem) {
+  root = static_cast<gsl::owner<Node *>>(insert(root, elem));
+}
