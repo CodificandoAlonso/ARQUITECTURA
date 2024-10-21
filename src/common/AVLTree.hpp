@@ -34,6 +34,7 @@ class AVLTree {
   public:
     AVLTree() = default;
     void insert(element elem);
+    void print();
 };
 
 #endif //AVLTREE_HPP

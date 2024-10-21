@@ -5,6 +5,8 @@
 #include "AVLTree.hpp"
 
 #include <gsl/gsl>
+#include <iostream>
+#include <queue>
 #include <stack>
 
 int AVLTree::height(Node const * node) {
@@ -45,7 +47,7 @@ int AVLTree::get_balance(Node const * node) {
   return node == nullptr ? 0 : height(node->left) - height(node->right);
 }
 
-gsl::owner<Node*> AVLTree::insert(Node * node, element const elem) {
+gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
   if (node == nullptr) { return static_cast<gsl::owner<Node *>>(new Node(elem)); }
 
   Node * current = node;
@@ -91,7 +93,7 @@ gsl::owner<Node*> AVLTree::insert(Node * node, element const elem) {
             parent->right = rotate_right(current);
           }
         } else {
-          root = rotate_right(current);  // Caso raíz
+          node = rotate_right(current);
         }
       } else {
         // Caso 3: Desbalanceo izquierda-derecha
@@ -104,7 +106,7 @@ gsl::owner<Node*> AVLTree::insert(Node * node, element const elem) {
             parent->right = rotate_right(current);
           }
         } else {
-          root = rotate_right(current);  // Caso raíz
+          node = rotate_right(current);
         }
       }
     } else if (balance < -1) {  // Caso derecha
@@ -118,7 +120,7 @@ gsl::owner<Node*> AVLTree::insert(Node * node, element const elem) {
             parent->left = rotate_left(current);
           }
         } else {
-          root = rotate_left(current);  // Caso raíz
+          node = rotate_left(current);
         }
       } else {
         // Caso 4: Desbalanceo derecha-izquierda
@@ -131,14 +133,33 @@ gsl::owner<Node*> AVLTree::insert(Node * node, element const elem) {
             parent->left = rotate_left(current);
           }
         } else {
-          root = rotate_left(current);  // Caso raíz
+          node = rotate_left(current);
         }
       }
     }
   }
+
   return node;
 }
 
 void AVLTree::insert(element const elem) {
   root = static_cast<gsl::owner<Node *>>(insert(root, elem));
+}
+
+void AVLTree::print() {
+  // Impresión del arbol en anchura
+  if (root == nullptr) { return; }
+
+  std::queue<Node *> q;
+  q.push(root);
+
+  while (!q.empty()) {
+    Node * current = q.front();
+    q.pop();
+
+    std::cout << "Color: " << current->color << " Index: " << current->index << "\n";
+
+    if (current->left != nullptr) { q.push(current->left); }
+    if (current->right != nullptr) { q.push(current->right); }
+  }
 }
