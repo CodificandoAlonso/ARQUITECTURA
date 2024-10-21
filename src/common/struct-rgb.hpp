@@ -24,14 +24,13 @@ struct soa_rgb_small {
     vector<char> r;
     vector<char> g;
     vector<char> b;
-    [[nodiscard]] size_t find_color(rgb_small color) const;
+    void print(unsigned int index);
 };
 
 struct soa_rgb_big {
     vector<unsigned short> r;
     vector<unsigned short> g;
     vector<unsigned short> b;
-    [[nodiscard]] size_t find_color(rgb_big color) const;
 };
 
 #endif //STRUCT_RGB_HPP

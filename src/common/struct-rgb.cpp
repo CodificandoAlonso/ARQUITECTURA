@@ -4,25 +4,14 @@
 
 #include "struct-rgb.hpp"
 
-#include <vector>
-using namespace std;
+#include <iostream>
 
-size_t soa_rgb_small::find_color(rgb_small color) const {
-  size_t left  = 0;
-  size_t right = this->r.size();
-
-  while (left < right) {
-    size_t const mid = left + (right - left) / 2;
-
-    if (tie(this->r[mid], this->g[mid], this->b[mid]) < tie(color.r, color.g, color.b)) {
-      left = mid + 1;
-    } else {
-      right = mid;
-    }
+void soa_rgb_small::print(unsigned int index) {
+  if (index < r.size()) {
+    std::cout << static_cast<int>(static_cast<unsigned char>(r[index])) << " "
+            << static_cast<int>(static_cast<unsigned char>(g[index])) << " "
+            << static_cast<int>(static_cast<unsigned char>(b[index])) << '\n';
+  } else {
+    std::cout << "Index " << index << " out of bounds." << '\n';
   }
-  if (left < this->r.size() &&
-      tie(this->r[left], this->g[left], this->b[left]) == tie(color.r, color.g, color.b)) {
-    return left;
-  }
-  return this->r.size();
 }

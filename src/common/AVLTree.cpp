@@ -64,7 +64,7 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
     } else if (elem.color > current->color) {
       current = current->right;
     } else {
-      return node;
+      return nullptr;
     }
   }
 
@@ -142,8 +142,11 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
   return node;
 }
 
-void AVLTree::insert(element const elem) {
-  root = static_cast<gsl::owner<Node *>>(insert(root, elem));
+int AVLTree::insert(element const elem) {
+  Node * node = static_cast<gsl::owner<Node *>>(insert(root, elem));
+  if (node == nullptr) { return -1; }
+  root = node;
+  return 0;
 }
 
 void AVLTree::print() {

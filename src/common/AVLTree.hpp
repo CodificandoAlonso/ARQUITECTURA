@@ -7,13 +7,13 @@
 
 struct element {
     unsigned long color;
-    int index;
+    unsigned int index;
 };
 
 class Node {
   public:
     unsigned long color; // rgb concatenados en un solo int
-    int index;
+    unsigned int index;
     Node *left = nullptr;
     Node *right = nullptr;
     int height{1};
@@ -33,7 +33,7 @@ class AVLTree {
     Node* insert(Node *node, element elem);
   public:
     AVLTree() = default;
-    void insert(element elem);
+    int insert(element elem);
     void print();
 };
 

@@ -4,6 +4,7 @@
 
 #include "imagesoa.hpp"
 
+#include "common/AVLTree.hpp"
 #include "common/binario.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
@@ -16,13 +17,13 @@
 #include <string>
 #include <vector>
 
-static int const MAX_LEVEL = 65535;
-static int const MIN_LEVEL = 255;
-static int const BYTE      = 8;
+static constexpr int MAX_LEVEL = 65535;
+static constexpr int MIN_LEVEL = 255;
+static constexpr int BYTE      = 8;
 
 using namespace std;
 
-ImageSOA::ImageSOA(int argc, vector<string> const & argv) : Image(argc, argv) { }
+ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
 
 int ImageSOA::process_operation() {
   // Primera operación: leer los metadatos de la imagen de entrada. Como
@@ -222,76 +223,46 @@ int ImageSOA::compress() const {
   input_file.ignore(1);
 
   if (maxval <= MIN_LEVEL) {
-    soa_rgb_small colors;
-    vector<char *> pixels;
+    /*
+     * Usaremos un árbol AVL como si fuera un catálogo de colores para almacenar los colores
+     * DISTINTOS de la imagen. Éstos también se almacenan un struct_soa, para recorrelo
+     * posteriormente. Esta implementación hará que la complejidad de esta operación sea
+     * O(n log(n)), donde n es el número de píxeles de la imagen.
+     */
+    AVLTree tree;
+    soa_rgb_small image;
     for (unsigned int i = 0; i < width * height; i++) {
       char r = 0, g = 0, b = 0;
       input_file.read(&r, sizeof(r));
       input_file.read(&g, sizeof(g));
       input_file.read(&b, sizeof(b));
 
-      // Usaremos un puntero únicamente al canal rojo ya que comparte índice con los canales verde y
-      // azul
-      char * ptr_r = nullptr;
-
-      // Si es el primer elemento, lo guardamos directamente
-      if (i == 0) {
-        colors.r.push_back(r);
-        colors.g.push_back(g);
-        colors.b.push_back(b);
-
-        ptr_r = &colors.r.back();
-      }
-
-      // Si NO es el primer elemento de la lista, verificamos si
-      // está, haciendo una busqueda binaria (ya que los elementos se introducirán
-      // en la lista de manera ordenada)
-      else {
-        rgb_small const current = {.r = r, .g = g, .b = b};
-        size_t const index = colors.find_color(current);
-
-        if (index < colors.r.size()) { // Si el color ya está en la lista
-          ptr_r = &colors.r[index];
-        } else { // Si el color no está en la lista
-          colors.r.insert(colors.r.begin() + static_cast<std::vector<uint8_t>::difference_type>(index), r);
-          colors.g.insert(colors.g.begin() + static_cast<std::vector<uint8_t>::difference_type>(index), g);
-          colors.b.insert(colors.b.begin() + static_cast<std::vector<uint8_t>::difference_type>(index), b);
-
-          ptr_r = &colors.r[index];
+      if (i == 0) {  // Si es el primer elemento
+        element const elem = {.color = static_cast<unsigned long>(r) << 2 * BYTE |
+                                       static_cast<unsigned long>(g) << BYTE |
+                                       static_cast<unsigned long>(b),
+                              .index = 0};
+        tree.insert(elem);
+        image.r.push_back(r);
+        image.g.push_back(g);
+        image.b.push_back(b);
+        image.print(0);
+      } else {  // Si no es el primer elemento
+        // Comprobamos si el color ya está en el árbol
+        element const elem = {.color = static_cast<unsigned long>(r) << 2 * BYTE |
+                                       static_cast<unsigned long>(g) << BYTE |
+                                       static_cast<unsigned long>(b),
+                              .index = i};
+        if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
+          image.r.push_back(r);
+          image.g.push_back(g);
+          image.b.push_back(b);
+          image.print(i);
         }
       }
-
-      // Ahora, almacenamos el puntero a los elementos en el vector de píxeles
-      pixels.push_back(ptr_r);
     }
-    /*
-     * Una vez almacenada la tabla de colores y los punteros (correspondientes a los píxeles que
-     * apuntan a un color de la tabla de colores) escribimos en la imagen de salida los datos con el
-     * formato correspondiente.
-     */
-    output_file << "C6"
-                << " " << width << " " << height << " " << maxval << " " << colors.r.size() << "\n";
-    for (unsigned long int i = 0; i < colors.r.size(); i++) {
-      output_file.write(&colors.r[i], sizeof(char));
-      output_file.write(&colors.g[i], sizeof(char));
-      output_file.write(&colors.b[i], sizeof(char));
-    }
-    /*
-     * Una vez escrita la tabla de colores, falta escribir los píxeles de la imagen de salida. Para
-     * ello, sabiendo que tenemos un puntero del pixel al ELEMENTO del vector de colores, debemos
-     * conseguir el ÍNDICE del elemento en dicho vector, para así poder escribirlo en binario en el
-     * archivo de salida. Hay que recordar, además, que dependiendo de la cantidad de colores, la
-     * cantidad de bits necesarios para representar un índice será distinta:
-     * - Si la cantidad de colores es <=2^8, necesitamos 8 bit
-     * - Si la cantidad de colores es <=2^16, necesitamos 16 bit
-     * - Si la cantidad de colores es <= 2^32, necesitamos 32 bit
-     * - Si la cantidad de colores es > 2^32, no se soporta
-     */
-
-    for (auto & pixel : pixels) {
-      long const index_r = pixel - &colors.r[0];  // Calcula el índice del elemento
-      cout << "El índice de r es: " << index_r << "\n";
-    }
+    // DEGUG imprimiremos
+    cout << image.r.size();
   } else if (maxval <= MAX_LEVEL) {
     ;
   } else {
