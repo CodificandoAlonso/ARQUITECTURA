@@ -260,8 +260,14 @@ int ImageSOA::compress() const {
         }
       }
     }
+    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4*BYTE))) {
+      cerr << "Error: demasiados colores distintos."
+           << "\n";
+      return -1;
+    }
     // Ahora ya sabemos cuántos colores distintos hay en la imagen. Los escribimos
-    output_file << "C6" << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
+    output_file << "C6"
+                << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
     for (unsigned int i = 0; i < image.r.size(); i++) {
       output_file.write(&image.r[i], sizeof(image.r[i]));
       output_file.write(&image.g[i], sizeof(image.g[i]));
@@ -281,7 +287,7 @@ int ImageSOA::compress() const {
     ifstream input_file(this->get_input_file(), ios::binary);
     input_file >> format >> width >> height >> maxval;
     input_file.ignore(1);
-    if (num_colors < static_cast<unsigned int>(pow(2, BYTE))) {
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
       for (unsigned int i = 0; i < width * height; i++) {
         char r = 0, g = 0, b = 0;
         input_file.read(&r, sizeof(r));
@@ -293,6 +299,32 @@ int ImageSOA::compress() const {
                                           static_cast<unsigned char>(b);
         element const elem = tree.search(concatenated);
         write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+      }
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = tree.search(concatenated);
+        write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+      }
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = tree.search(concatenated);
+        write_binary_32(output_file, static_cast<uint32_t>(elem.index));
       }
     }
   }
