@@ -238,31 +238,27 @@ int ImageSOA::compress() const {
       input_file.read(&b, sizeof(b));
 
       if (i == 0) {  // Si es el primer elemento
-        element const elem = {.color = static_cast<unsigned long>(r) << 2 * BYTE |
-                                       static_cast<unsigned long>(g) << BYTE |
-                                       static_cast<unsigned long>(b),
-                              .index = 0};
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = {.color = concatenated, .index = 0};
         tree.insert(elem);
         image.r.push_back(r);
         image.g.push_back(g);
         image.b.push_back(b);
-        image.print(0);
       } else {  // Si no es el primer elemento
         // Comprobamos si el color ya está en el árbol
-        element const elem = {.color = static_cast<unsigned long>(r) << 2 * BYTE |
-                                       static_cast<unsigned long>(g) << BYTE |
-                                       static_cast<unsigned long>(b),
-                              .index = i};
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = {.color = concatenated, .index = i};
         if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
           image.r.push_back(r);
           image.g.push_back(g);
           image.b.push_back(b);
-          image.print(i);
         }
       }
     }
-    // DEGUG imprimiremos
-    cout << image.r.size();
   } else if (maxval <= MAX_LEVEL) {
     ;
   } else {
