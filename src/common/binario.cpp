@@ -3,12 +3,16 @@
 //
 
 #include "binario.hpp"
-
+#include <cstddef>
+#include <iostream>
+#include <bitset>
+#include <vector>
 #include <cstdint>
 #include <fstream>
 
-using namespace std;
+static constexpr int BYTE_2 = 16;
 static constexpr unsigned char BYTE = 8;
+using namespace std;
 
 uint16_t read_binary_16(ifstream & input) {
   uint16_t value = 0;
@@ -37,6 +41,7 @@ void write_binary_32(ofstream & output, uint32_t value) {
  * De esta forma, si tenemos dos bytes 0x12 y 0x34, al aplicar esta función
  * obtendremos 0x3412.
  */
+
 unsigned short merge16(unsigned char op1, unsigned char op2) {
   return static_cast<unsigned short>((op2 << BYTE) | op1);
 }
@@ -46,6 +51,47 @@ unsigned short merge16(unsigned char op1, unsigned char op2) {
  * De esta forma, si tenemos un número 0x1234, al aplicar esta función
  * obtendremos 0x3412.
  */
+
+
+string mix3char(const char ch1, const char ch2, const char ch3) {
+      bitset<BYTE> const byte1(static_cast<unsigned char>(ch1));
+      bitset<BYTE> const byte2(static_cast<unsigned char>(ch2));
+      bitset<BYTE> const byte3(static_cast<unsigned char>(ch3));
+    return byte1.to_string() + byte2.to_string() + byte3.to_string();
+
+}
+
+__uint8_t extractblue(const string& rgb) {
+  const string blue = rgb.substr(rgb.size() - BYTE, BYTE);
+  bitset<BYTE> const bluebinary(blue);
+  auto const blueint = static_cast<__uint8_t>(bluebinary.to_ulong());
+  return blueint;
+}
+
+__uint8_t extractgreen(const string& rgb) {
+  const string green = rgb.substr(rgb.size() - BYTE_2, BYTE);
+  bitset<BYTE> const greenbinary(green);
+  auto const greenint = static_cast<__uint8_t>(greenbinary.to_ulong());
+  return greenint;
+}
+
+__uint8_t extractred(const string& rgb) {
+  const string red = rgb.substr(0, BYTE);
+  bitset<BYTE> const redbinary(red);
+  auto const redint = static_cast<__uint8_t>(redbinary.to_ulong());
+  return redint;
+}
+
 unsigned short swap16(unsigned short op) {
   return static_cast<unsigned short>((op >> BYTE) | (op << BYTE));
 }
+
+
+
+
+
+
+
+
+
+

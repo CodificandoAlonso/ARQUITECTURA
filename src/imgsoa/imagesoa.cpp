@@ -6,10 +6,12 @@
 
 #include "common/AVLTree.hpp"
 #include "common/binario.hpp"
+#include "common/mtdata.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
-
+#include "common/binario.hpp"
 #include <algorithm>
+#include <map>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
@@ -30,10 +32,12 @@ int ImageSOA::process_operation() {
   // Primera operación: leer los metadatos de la imagen de entrada. Como
   // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
-    if (Image::info() < 0) { return -1; }
+    if (get_metadata(this->get_input_file()) < 0) { return -1; }
   } else if (this->get_optype() == "maxlevel") {
     // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
-    if (Image::maxlevel() < 0) { return -1; }
+    if (maxlevel() < 0) { return -1; }
+  } else if (this->get_optype() == "cutfreq") {
+    if (cutfreq() < 0) { return -1; }
   } else if (this->get_optype() == "resize") {
     // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
@@ -47,7 +51,174 @@ int ImageSOA::process_operation() {
   return 0;
 }
 
-int ImageSOA::resize() const {
+int ImageSOA::cutfreq() {
+  ifstream input_file(this->get_input_file(), ios::binary);
+
+  ofstream output_file(this->get_output_file(), ios::binary);
+  if (!input_file || !output_file) {
+    cerr << "Error al abrir los archivos de entrada/salida"
+         << "\n";
+    return -1;
+  }
+
+  string format;
+  unsigned int width = 0, height = 0, maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
+
+  soa_rgb_small mysoa;
+
+  char r = 0, g = 0, b = 0;
+  map<string, int> myMap;
+
+  for (unsigned int i = 0; i < width * height; i++) {
+    input_file.read(&r, sizeof(r));
+    input_file.read(&g, sizeof(g));
+    input_file.read(&b, sizeof(b));
+
+    /* Se actualizan las repeticines del misimo codigo rgb en el diccionario
+     * y si no está se añade
+     * */
+    if (string const rgb = mix3char(r, g, b); myMap.contains(rgb)) {
+      myMap[{rgb}]++;
+    } else {
+      myMap[{rgb}] = 1;
+    }
+    mysoa.r.push_back(r);
+    mysoa.g.push_back(g);
+    mysoa.b.push_back(b);
+  }
+  vector<pair<string, int>> myVector(myMap.begin(), myMap.end());
+  // const int size = static_cast<int>(myVector.size());
+  /*size_t const size = myVector.size();
+  quick::quicksort(myVector, 0, size - 1);
+  */
+  ranges::sort(myVector, [](auto const & a, auto const & b) {
+    return a.second < b.second;
+  });
+
+  // imprimo el vector por pantalla, independientemente de nada
+
+  vector<pair<string, int>> VectorDelete;
+  auto n = static_cast<size_t>(this->get_args()[0]);
+
+  for (size_t i = 0; i < n; i++) { VectorDelete.push_back(myVector[i]); }
+  size_t tamDelete = n;
+
+  while (myVector[tamDelete].second == VectorDelete[n - 1].second) {
+    VectorDelete.push_back(myVector[tamDelete]);
+    tamDelete++;
+  }
+  // imprimo VectorDelete
+  for (auto & i : VectorDelete) { cout << i.first << " " << i.second << "\n"; }
+  int const pivot  = VectorDelete[n - 1].second;
+  int elem_deleted = 0;
+  vector<pair<string, string>> Deleteitems;
+  for (size_t i = 0; i < VectorDelete.size(); i++) {
+    if (VectorDelete[i].second < pivot) {
+      cout << "Te elimino jueputa " << VectorDelete[i].second << "\n";
+      Deleteitems.emplace_back(VectorDelete[i].first, "");
+      elem_deleted++;
+    }
+  }
+  int const new_n = static_cast<int>(n);
+  int num_left    = new_n - elem_deleted;
+  auto new_e_d    = static_cast<long int>(elem_deleted);
+
+  vector left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
+
+  // imprime left_elems
+  for (auto & i : left_elems) {
+    cout << "tengo que ver si te elimino jueputa "
+         << "\n";
+    cout << i.first << " " << i.second << "\n";
+  }
+
+  vector<pair<string, __uint8_t>> bluevalues;
+  __uint8_t blue = 0;
+  for (auto & iterator : left_elems) {
+    blue = extractblue(iterator.first);
+    bluevalues.emplace_back(iterator.first, blue);
+  }
+  ranges::sort(bluevalues, [](auto const & a, auto const & b) {
+    return get<1>(a) > get<1>(b);
+  });
+
+  while (num_left > 0) {
+    if (bluevalues[0].second == bluevalues[1].second) {
+      size_t meanwhile = 1;
+      while (bluevalues[meanwhile].second == bluevalues[meanwhile + 1].second) { meanwhile++; }
+      if (meanwhile == 1) {
+        // Hay que comparar el gree n del elemento 0 y del 1
+        __uint8_t const green0 = extractgreen(left_elems[0].first);
+        __uint8_t const green1 = extractgreen(left_elems[1].first);
+        if (green0 - green1 > 0) {
+          Deleteitems.emplace_back(bluevalues[0].first, "");
+          bluevalues.erase(bluevalues.begin());
+          num_left--;
+        } else {
+          Deleteitems.emplace_back(bluevalues[1].first, "");
+          bluevalues.erase(bluevalues.begin() + 1);
+          num_left--;
+        }
+      } else {
+        __uint8_t green = 0;
+        vector<tuple<string, __uint8_t, __uint8_t>> greenvalues;
+        for (size_t i = 0; i <= meanwhile; i++) {
+          green = extractgreen(bluevalues[i].first);
+          greenvalues.emplace_back(bluevalues[i].first, bluevalues[i].second, green);
+        }
+
+        ranges::sort(greenvalues, [](auto const & a, auto const & b) {
+          return get<2>(a) > get<2>(b);
+        });
+        if (get<2>(greenvalues[0]) == get<2>(greenvalues[1])) {
+          size_t meanwhile = 1;
+          while (get<2>(greenvalues[meanwhile]) == get<2>(greenvalues[meanwhile + 1])) {
+            meanwhile++;
+          }
+          if (meanwhile == 1) {
+            __uint8_t const red1 = extractred(get<0>(greenvalues[1]));
+            __uint8_t const red0 = extractred(get<0>(greenvalues[0]));
+            if(red1 - red0 >0) {
+              Deleteitems.emplace_back(get<0>(greenvalues[1]), "");
+              greenvalues.erase(greenvalues.begin() +1);
+
+            }
+            else {
+              Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
+              greenvalues.erase(greenvalues.begin());
+            }
+            num_left--;
+          } else {
+            cout << "Tengo que ver a cual mato rojo cabron"
+                 << "\n";
+            num_left--;
+          }
+
+        } else {
+          Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
+          greenvalues.erase(greenvalues.begin());
+          num_left--;
+        }
+      }
+    } else {
+      Deleteitems.emplace_back(bluevalues[0].first, "");
+      bluevalues.erase(bluevalues.begin());
+      num_left--;
+    }
+  }
+
+  /*
+   * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
+   * no depende de su posición en la imagen sino de sus valores RGB.
+   * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
+   */
+
+  return 0;
+}
+
+int ImageSOA::resize() {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -79,7 +250,6 @@ int ImageSOA::resize() const {
       input_file.read(&b, sizeof(b));
       image.b.push_back(b);
     }
-
     for (int y_prime = 0; y_prime < new_height; y_prime++) {
       for (int x_prime = 0; x_prime < new_width; x_prime++) {
         // Por como funcionan las operaciones de coma flotante, hay que redondear el valor
@@ -146,7 +316,6 @@ int ImageSOA::resize() const {
       image.g.push_back(g);
       image.b.push_back(b);
     }
-
     for (int y_prime = 0; y_prime < new_height; y_prime++) {
       for (int x_prime = 0; x_prime < new_width; x_prime++) {
         double const x = round(x_prime * (static_cast<double>(width) / new_width));

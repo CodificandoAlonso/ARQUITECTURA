@@ -16,6 +16,7 @@ class ImageSOA : public Image {
   private:
     [[nodiscard]] int resize() const;
     [[nodiscard]] int compress() const;
+    [[nodiscard]] int cutfreq() const;
 };
 
 #endif  // IMAGESOA_HPP
