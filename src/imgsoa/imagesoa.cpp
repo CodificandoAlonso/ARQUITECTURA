@@ -377,9 +377,17 @@ int ImageSOA::cutfreq() {
             meanwhile++;
           }
           if (meanwhile == 1) {
-            // extraigo rojo
-            cout << "Te mato rojo cabron"
-                 << "\n";
+            __uint8_t const red1 = extractred(get<0>(greenvalues[1]));
+            __uint8_t const red0 = extractred(get<0>(greenvalues[0]));
+            if(red1 - red0 >0) {
+              Deleteitems.emplace_back(get<0>(greenvalues[1]), "");
+              greenvalues.erase(greenvalues.begin() +1);
+
+            }
+            else {
+              Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
+              greenvalues.erase(greenvalues.begin());
+            }
             num_left--;
           } else {
             cout << "Tengo que ver a cual mato rojo cabron"
