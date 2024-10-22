@@ -10,13 +10,10 @@
 #include <cstdint>
 #include <fstream>
 
-static constexpr int BYTE = 8;
 static constexpr int BYTE_2 = 16;
 static constexpr unsigned char BYTE = 8;
 using namespace std;
-/**
- *
- */
+
 uint16_t read_binary_16(ifstream & input) {
   uint16_t value = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -24,10 +21,21 @@ uint16_t read_binary_16(ifstream & input) {
   return value;
 }
 
+void write_binary_8(ofstream & output, uint8_t value) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  output.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
+
 void write_binary_16(ofstream & output, uint16_t value) {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   output.write(reinterpret_cast<char *>(&value), sizeof(value));
 }
+
+void write_binary_32(ofstream & output, uint32_t value) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  output.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
+
 /**
  * Esta función convierte dos bytes en un número de 16 bits (2 bytes).
  * De esta forma, si tenemos dos bytes 0x12 y 0x34, al aplicar esta función

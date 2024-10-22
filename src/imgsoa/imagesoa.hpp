@@ -13,8 +13,10 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, std::vector<string> const & argv);
     int process_operation();
-    int cutfreq();
-    int resize();
+  private:
+    [[nodiscard]] int resize() const;
+    [[nodiscard]] int compress() const;
+    [[nodiscard]] int cutfreq() const;
 };
 
 #endif  // IMAGESOA_HPP

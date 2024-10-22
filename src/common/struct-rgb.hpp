@@ -5,6 +5,9 @@
 #ifndef STRUCT_RGB_HPP
 #define STRUCT_RGB_HPP
 
+#include <vector>
+using namespace std;
+
 struct rgb_small {
     char r;
     char g;
@@ -21,6 +24,7 @@ struct soa_rgb_small {
     vector<char> r;
     vector<char> g;
     vector<char> b;
+    void print(unsigned int index);
 };
 
 struct soa_rgb_big {

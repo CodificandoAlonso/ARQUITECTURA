@@ -2,29 +2,16 @@
 // Created by hector on 9/10/24.
 //
 
-#include <vector>
-using namespace std;
+#include "struct-rgb.hpp"
 
-struct rgb_small {
-    char r;
-    char g;
-    char b;
-};
+#include <iostream>
 
-struct rgb_big {
-    unsigned short r;
-    unsigned short g;
-    unsigned short b;
-};
-
-struct soa_rgb_small {
-    vector<char> r;
-    vector<char> g;
-    vector<char> b;
-};
-
-struct soa_rgb_big {
-    vector<unsigned short> r;
-    vector<unsigned short> g;
-    vector<unsigned short> b;
-};
+void soa_rgb_small::print(unsigned int index) {
+  if (index < r.size()) {
+    std::cout << static_cast<int>(static_cast<unsigned char>(r[index])) << " "
+            << static_cast<int>(static_cast<unsigned char>(g[index])) << " "
+            << static_cast<int>(static_cast<unsigned char>(b[index])) << '\n';
+  } else {
+    std::cout << "Index " << index << " out of bounds." << '\n';
+  }
+}

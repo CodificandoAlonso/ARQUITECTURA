@@ -4,28 +4,29 @@
 
 #include "imagesoa.hpp"
 
-
+#include "common/AVLTree.hpp"
+#include "common/binario.hpp"
 #include "common/mtdata.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
 #include "common/binario.hpp"
-
+#include <algorithm>
 #include <map>
 #include <cmath>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
-#include <algorithm>
-#include <cstdint>
 
-static int const MAX_LEVEL = 65535;
-static int const MIN_LEVEL = 255;
-static int const BYTE      = 8;
+static constexpr int MAX_LEVEL = 65535;
+static constexpr int MIN_LEVEL = 255;
+static constexpr int BYTE      = 8;
 
 using namespace std;
 
-ImageSOA::ImageSOA(int argc, vector<string> const & argv) : Image(argc, argv) { }
+ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
 
 int ImageSOA::process_operation() {
   // Primera operación: leer los metadatos de la imagen de entrada. Como
@@ -40,6 +41,9 @@ int ImageSOA::process_operation() {
   } else if (this->get_optype() == "resize") {
     // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
+  } else if (this->get_optype() == "compress") {
+    // Implementación de la operación de compresión usando AOS (Array of Structures)
+    if (compress() < 0) { return -1; }
   } else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
     return -1;
@@ -343,7 +347,7 @@ int ImageSOA::resize() {
                             .b = image.b[static_cast<unsigned long>(yh) * width + xh]};
 
         // Interpolación en el eje x
-        double const t     = x - xl;
+        double const t   = x - xl;
         rgb_big const c1 = {.r = static_cast<uint16_t>((1 - t) * p1.r + t * p2.r),
                             .g = static_cast<uint16_t>((1 - t) * p1.g + t * p2.g),
                             .b = static_cast<uint16_t>((1 - t) * p1.b + t * p2.b)};
@@ -352,7 +356,7 @@ int ImageSOA::resize() {
                             .g = static_cast<uint16_t>((1 - t) * p3.g + t * p4.g),
                             .b = static_cast<uint16_t>((1 - t) * p3.b + t * p4.b)};
 
-        double const u = y - yl;
+        double const u  = y - yl;
         rgb_big const c = {.r = static_cast<uint16_t>((1 - u) * c1.r + u * c2.r),
                            .g = static_cast<uint16_t>((1 - u) * c1.g + u * c2.g),
                            .b = static_cast<uint16_t>((1 - u) * c1.b + u * c2.b)};
@@ -373,6 +377,137 @@ int ImageSOA::resize() {
   return 0;
 }
 
+int ImageSOA::compress() const {
+  ifstream input_file(this->get_input_file(), ios::binary);
+  ofstream output_file(this->get_output_file(), ios::binary);
 
+  if (!input_file || !output_file) {
+    cerr << "Error al abrir los archivos de entrada/salida"
+         << "\n";
+    return -1;
+  }
 
+  string format;
+  unsigned int width = 0, height = 0, maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
+
+  if (maxval <= MIN_LEVEL) {
+    /*
+     * Usaremos un árbol AVL como si fuera un catálogo de colores para almacenar los colores
+     * DISTINTOS de la imagen. Éstos también se almacenan un struct_soa, para recorrelo
+     * posteriormente. Esta implementación hará que la complejidad de esta operación sea
+     * O(n log(n)), donde n es el número de píxeles de la imagen.
+     */
+    AVLTree tree;
+    soa_rgb_small image;
+    for (unsigned int i = 0; i < width * height; i++) {
+      char r = 0, g = 0, b = 0;
+      input_file.read(&r, sizeof(r));
+      input_file.read(&g, sizeof(g));
+      input_file.read(&b, sizeof(b));
+
+      if (i == 0) {  // Si es el primer elemento
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = {.color = concatenated, .index = 0};
+        tree.insert(elem);
+        image.r.push_back(r);
+        image.g.push_back(g);
+        image.b.push_back(b);
+      } else {  // Si no es el primer elemento
+        // Comprobamos si el color ya está en el árbol
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = {.color = concatenated, .index = i};
+        if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
+          image.r.push_back(r);
+          image.g.push_back(g);
+          image.b.push_back(b);
+        }
+      }
+    }
+    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4*BYTE))) {
+      cerr << "Error: demasiados colores distintos."
+           << "\n";
+      return -1;
+    }
+    // Ahora ya sabemos cuántos colores distintos hay en la imagen. Los escribimos
+    output_file << "C6"
+                << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
+    for (unsigned int i = 0; i < image.r.size(); i++) {
+      output_file.write(&image.r[i], sizeof(image.r[i]));
+      output_file.write(&image.g[i], sizeof(image.g[i]));
+      output_file.write(&image.b[i], sizeof(image.b[i]));
+    }
+    /*
+     * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
+     * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
+     * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
+     * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
+     * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
+     * 4. Si hay más, no lo soportamos.
+     */
+    unsigned long int const num_colors = image.r.size();
+    // Hay que volver a abrir el archivo para volver a leerlo
+    input_file.close();
+    ifstream input_file(this->get_input_file(), ios::binary);
+    input_file >> format >> width >> height >> maxval;
+    input_file.ignore(1);
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = tree.search(concatenated);
+        write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+      }
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = tree.search(concatenated);
+        write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+      }
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        char r = 0, g = 0, b = 0;
+        input_file.read(&r, sizeof(r));
+        input_file.read(&g, sizeof(g));
+        input_file.read(&b, sizeof(b));
+
+        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
+                                          static_cast<unsigned char>(g) << BYTE |
+                                          static_cast<unsigned char>(b);
+        element const elem = tree.search(concatenated);
+        write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+      }
+    }
+  }
+
+  else if (maxval <= MAX_LEVEL) {
+    ;
+  } else {
+    cerr << "Error: maxval no soportado"
+         << "\n";
+    return -1;
+  }
+
+  input_file.close();
+  output_file.close();
+  return 0;
+}
 
