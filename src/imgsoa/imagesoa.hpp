@@ -13,6 +13,7 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, std::vector<string> const & argv);
     int process_operation();
+    int cutfreq();
     int resize();
 };
 
