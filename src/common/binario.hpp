@@ -13,6 +13,9 @@ unsigned short merge16(unsigned char op1,unsigned char op2);
 unsigned short swap16(unsigned short op);
 
 string mix3char(char ch1, char ch2, char ch3);
+__uint8_t extractblue(const string& rgb);
+__uint8_t extractgreen(const string& rgb);
+__uint8_t extractred(const string& rgb);
 namespace quick {
         size_t partition(vector<pair<string, int>>& vec, size_t low, size_t high);
 

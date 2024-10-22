@@ -3,11 +3,13 @@
 //
 
 #include "binario.hpp"
+#include <cstddef>
 #include <iostream>
 #include <bitset>
 #include <vector>
 using namespace std;
 static constexpr int BYTE = 8;
+static constexpr int BYTE_2 = 16;
 
 /**
  * Esta función convierte dos bytes en un número de 16 bits (2 bytes).
@@ -34,6 +36,28 @@ string mix3char(const char ch1, const char ch2, const char ch3) {
     return byte1.to_string() + byte2.to_string() + byte3.to_string();
 
 }
+
+__uint8_t extractblue(const string& rgb) {
+  const string blue = rgb.substr(rgb.size() - BYTE, BYTE);
+  bitset<BYTE> const bluebinary(blue);
+  auto const blueint = static_cast<__uint8_t>(bluebinary.to_ulong());
+  return blueint;
+}
+
+__uint8_t extractgreen(const string& rgb) {
+  const string green = rgb.substr(rgb.size() - BYTE_2, BYTE);
+  bitset<BYTE> const greenbinary(green);
+  auto const greenint = static_cast<__uint8_t>(greenbinary.to_ulong());
+  return greenint;
+}
+
+__uint8_t extractred(const string& rgb) {
+  const string red = rgb.substr(0, BYTE);
+  bitset<BYTE> const redbinary(red);
+  auto const redint = static_cast<__uint8_t>(redbinary.to_ulong());
+  return redint;
+}
+
 
 namespace quick {
   size_t partition(vector<pair<string, int>>& vec, size_t low, size_t high) {
