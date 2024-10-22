@@ -2,11 +2,8 @@
 // Created by hector on 9/10/24.
 //
 
-
-
-#include<vector>
+#include <vector>
 using namespace std;
-
 
 struct rgb_small {
     char r;
@@ -15,10 +12,9 @@ struct rgb_small {
 };
 
 struct rgb_big {
-    short r;
-    short g;
-    short b;
-
+    unsigned short r;
+    unsigned short g;
+    unsigned short b;
 };
 
 struct soa_rgb_small {
@@ -32,4 +28,3 @@ struct soa_rgb_big {
     vector<unsigned short> g;
     vector<unsigned short> b;
 };
-

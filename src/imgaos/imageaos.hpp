@@ -12,7 +12,7 @@ class ImageAOS : public Image {
 public:
     ImageAOS(int argc, const std::vector<string>& argv);
     int process_operation();
-    int maxlevel();
+    int resize();
 };
 
 #endif //IMAGEAOS_HPP

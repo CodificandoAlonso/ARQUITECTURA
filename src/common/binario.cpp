@@ -7,26 +7,42 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
-using namespace std;
+#include <cstdint>
+#include <fstream>
+
 static constexpr int BYTE = 8;
 static constexpr int BYTE_2 = 16;
+static constexpr unsigned char BYTE = 8;
+using namespace std;
+/**
+ *
+ */
+uint16_t read_binary_16(ifstream & input) {
+  uint16_t value = 0;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  input.read(reinterpret_cast<char *>(&value), sizeof(value));
+  return value;
+}
 
+void write_binary_16(ofstream & output, uint16_t value) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  output.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
 /**
  * Esta función convierte dos bytes en un número de 16 bits (2 bytes).
  * De esta forma, si tenemos dos bytes 0x12 y 0x34, al aplicar esta función
  * obtendremos 0x3412.
  */
-unsigned short merge16(const unsigned char op1, const unsigned char op2) {
-    return op2 << BYTE | op1;
+
+unsigned short merge16(unsigned char op1, unsigned char op2) {
+  return static_cast<unsigned short>((op2 << BYTE) | op1);
 }
+
 /**
  * Esta función intercambia los bytes de un número de 16 bits (2 bytes).
  * De esta forma, si tenemos un número 0x1234, al aplicar esta función
  * obtendremos 0x3412.
  */
-unsigned short swap16(const unsigned short op) {
-    return op >> BYTE | op << BYTE;
-}
 
 
 string mix3char(const char ch1, const char ch2, const char ch3) {
@@ -58,42 +74,8 @@ __uint8_t extractred(const string& rgb) {
   return redint;
 }
 
-
-namespace quick {
-  size_t partition(vector<pair<string, int>>& vec, size_t low, size_t high) {
-    if (low == high) return low; // caso base, cuando solo hay un elemento
-
-    int pivot = vec[high].second;
-    //cerr << "Pivot: " << pivot << endl;
-    int i = static_cast<int>(low) - 1;
-
-    for (size_t j = low; j < high; j++) {
-      if (vec[j].second < pivot) {
-        i++;
-        swap(vec[static_cast<size_t>(i)], vec[j]);
-      }
-    }
-    auto const aux = static_cast<size_t>(i + 1);
-    swap(vec[aux], vec[high]); // Asegúrate de que `aux` esté dentro de límites
-    return aux; // Devuelve el índice del pivote correctamente
-  }
-
-
-
-  void quicksort(vector<pair<string, int>>& vec, size_t low, size_t high) {
-    if (low < high) {
-      size_t const pivotIndex = partition(vec, low, high);
-
-      // Verifica que los índices sean válidos antes de la llamada recursiva
-      if (pivotIndex > 0) {
-        quicksort(vec, low, pivotIndex - 1);
-      }
-      quicksort(vec, pivotIndex + 1, high);
-    }
-  }
-
-
-
+unsigned short swap16(unsigned short op) {
+  return static_cast<unsigned short>((op >> BYTE) | (op << BYTE));
 }
 
 

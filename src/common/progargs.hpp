@@ -13,6 +13,8 @@ class Image {
 public:
     Image(int argc, const vector<string> &argv);
     int check_args();
+    int info();
+    int maxlevel();
     [[nodiscard]] string get_input_file() const { return input_file; }
     [[nodiscard]] string get_output_file() const { return output_file; }
     [[nodiscard]] string get_optype() const { return optype; }
