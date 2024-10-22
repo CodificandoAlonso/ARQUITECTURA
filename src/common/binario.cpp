@@ -3,16 +3,21 @@
 //
 
 #include "binario.hpp"
-#include <cstddef>
 #include <iostream>
 #include <bitset>
-#include <vector>
 #include <cstdint>
 #include <fstream>
 
 static constexpr int BYTE_2 = 16;
 static constexpr unsigned char BYTE = 8;
 using namespace std;
+
+uint8_t read_binary_8(ifstream & input) {
+  uint8_t value = 0;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  input.read(reinterpret_cast<char *>(&value), sizeof(value));
+  return value;
+}
 
 uint16_t read_binary_16(ifstream & input) {
   uint16_t value = 0;
@@ -82,8 +87,8 @@ __uint8_t extractred(const string& rgb) {
   return redint;
 }
 
-unsigned short swap16(unsigned short op) {
-  return static_cast<unsigned short>((op >> BYTE) | (op << BYTE));
+unsigned short swap16(unsigned short opr) {
+  return static_cast<unsigned short>((opr >> BYTE) | (opr << BYTE));
 }
 
 

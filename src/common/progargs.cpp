@@ -23,8 +23,14 @@ static int const DECIMAL_BASE = 10;
 
 using namespace std;
 
+/**
+ * Constructor de la superclase Imagen.
+ */
 Image::Image(int argc, vector<string> const & argv) : argc(argc), argv(argv) { }
 
+/**
+ * Función que verifica los parámetros de entrada.
+ */
 int Image::check_args() {
   /*
    * La aplicación tomará los siguientes parámetros:
@@ -61,7 +67,7 @@ int Image::check_args() {
 
   // Si la opción es maxlevel, el número de argumentos debe ser exactamente cuatro. El cuarto
   // argumento debe ser un número entero entre los valores 0 y 65535.
-  else if (option == "maxlevel") {
+  if (option == "maxlevel") {
     if (argc != MAX_ARGS - 1) {
       cerr << "Error: Invalid number of arguments for option maxlevel: " << argc << '\n';
       return -1;
@@ -126,7 +132,10 @@ int Image::check_args() {
   return 0;
 }
 
-int Image::info() {
+/**
+ * Función que esscribe por la salida estándar los metadatos de la imagen.
+ */
+int Image::info() const {
   /*
    * Función común a ImageAOS e ImageSOA para leer los metadatos de la imagen de entrada .ppm.
    */
@@ -159,52 +168,88 @@ int Image::info() {
   return 0;
 }
 
-int Image::maxlevel() {
-  ifstream input_file(this->get_input_file(), ios::binary);
-  ofstream output_file(this->get_output_file(), ios::binary);
+/**
+ * Función para leer el archivo de entrada y escribir los atributos de la superclase.
+ */
+void Image::get_imgdata() {
+  ifstream input_file(this->input_file, ios::binary);
 
-  if (!input_file || !output_file) {
-    cerr << "Error al abrir los archivos de entrada/salida"
+  if (!input_file) {
+    cerr << "Error al abrir el archivo de salida"
          << "\n";
-    return -1;
   }
 
   string format;
-  int width = 0, height = 0, maxval = 0;
+  int width = 0;
+  int height = 0;
+  int maxval = 0;
+
   input_file >> format >> width >> height >> maxval;
+
+  this->format = format;
+  this->width = width;
+  this->height = height;
+  this->maxval = maxval;
+
   input_file.ignore(1);
+}
 
+/**
+ * Función para escribir la cabecera del archivo de salida.
+ */
+void Image::write_out(int level) {
+  ofstream output_file(this->get_output_file(), ios::binary);
+
+  if (!output_file) {
+    cerr << "Error al abrir el archivo de salida"
+         << "\n";
+  }
+
+  string const format = this->format;
+  int const min_level = level;
+  int const width     = this->width;
+  int const height    = this->height;
+  output_file << format << width << height << min_level;
+}
+
+/**
+ * Caso 1 de la función maxlevel:
+ * imagen de entrada con maxlevel = 255
+ * imagen de salida con maxlevel = 65535
+ */
+void Image::min_min()const {
+  /*
+   * Si se desea escalar una imagen cuyo máximo nivel de intensidad es 255 a
+   * otra con un nivel de intensidad menor a 256, leemos la imagen de entrada
+   * de 8 bits en 8 bits y escribimos en la imagen de salida de 8 bits en 8 bits.
+   */
+  __uint8_t red = 0;
+  __uint8_t grn = 0;
+  __uint8_t blu = 0;
+  ifstream input_file = this->input_file;
+  for (int i = 0; i < width * height; i++) {
+    red = read_binary_8(this->input_file);
+    grn = read_binary_8(this->input_file);
+    blu = read_binary_8(this->input_file);
+
+    red = red * this->get_args()[0] / maxval;
+    grn = grn * this->get_args()[0] / maxval;
+    blu = blu * this->get_args()[0] / maxval;
+
+    write_binary_8(this->output_file, red);
+    write_binary_8(this->output_file, grn);
+    write_binary_8(this->output_file, blu);
+
+    }
+}
+
+int Image::maxlevel() {
+  get_imgdata();
   if (this->args[0] <= MIN_LEVEL) {  // Imagen de salida 255
-    output_file << format << " " << width << " " << height << " " << MIN_LEVEL << '\n';
+    write_out(MIN_LEVEL);
 
-    if (maxval <= MIN_LEVEL) {  // Imagen de entrada 255
-      /*
-       * Si se desea escalar una imagen cuyo máximo nivel de intensidad es 255 a
-       * otra con un nivel de intensidad menor a 256, leemos la imagen de entrada
-       * de 8 bits en 8 bits y escribimos en la imagen de salida de 8 bits en 8 bits.
-       */
-      char r = 0, g = 0, b = 0;
-      for (int i = 0; i < width * height; i++) {
-        input_file.read(&r, sizeof(r));
-        input_file.read(&g, sizeof(g));
-        input_file.read(&b, sizeof(b));
-
-        int new_r = static_cast<unsigned char>(r);
-        int new_g = static_cast<unsigned char>(g);
-        int new_b = static_cast<unsigned char>(b);
-
-        new_r = (new_r * this->get_args()[0]) / maxval;
-        new_g = (new_g * this->get_args()[0]) / maxval;
-        new_b = (new_b * this->get_args()[0]) / maxval;
-
-        r = static_cast<char>(new_r);
-        g = static_cast<char>(new_g);
-        b = static_cast<char>(new_b);
-
-        output_file.write(&r, sizeof(unsigned char));
-        output_file.write(&g, sizeof(unsigned char));
-        output_file.write(&b, sizeof(unsigned char));
-      }
+    if (maxval <= MIN_LEVEL) {
+      min_min();
     } else if (maxval <= MAX_LEVEL) {  // Imagen de entrada 65535
       /*
        * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a
@@ -212,27 +257,29 @@ int Image::maxlevel() {
        * entrada de 8 bits en 8 bits (teniendo en cuenta que cada color ocupa 2 bytes)
        * y escribimos en la imagen de salida de 16 bits
        */
-      unsigned short r = 0, g = 0, b = 0;
+      unsigned short red = 0;
+      unsigned short grn = 0;
+      unsigned short blu = 0;
       for (int i = 0; i < width * height; i++) {
-        r = read_binary_16(input_file);
-        g = read_binary_16(input_file);
-        b = read_binary_16(input_file);
+        red = read_binary_16(input_file);
+        grn = read_binary_16(input_file);
+        blu = read_binary_16(input_file);
 
-        r = swap16(r);
-        g = swap16(g);
-        b = swap16(b);
+        red = swap16(red);
+        grn = swap16(grn);
+        blu = swap16(blu);
 
-        int const new_r = r;
-        int const new_g = g;
-        int const new_b = b;
+        int const new_r = red;
+        int const new_g = grn;
+        int const new_b = blu;
 
-        r = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
-        g = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
-        b = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
+        red = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
+        grn = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
+        blu = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
 
-        char const r_char = static_cast<char>(r);
-        char const g_char = static_cast<char>(g);
-        char const b_char = static_cast<char>(b);
+        char const r_char = static_cast<char>(red);
+        char const g_char = static_cast<char>(grn);
+        char const b_char = static_cast<char>(blu);
 
         output_file.write(&r_char, sizeof(unsigned char));
         output_file.write(&g_char, sizeof(unsigned char));
@@ -251,15 +298,17 @@ int Image::maxlevel() {
        * entrada de 16 bits en 16 bits y escribimos en la imagen de salida de 16 bits
        * en 16 bits.
        */
-      char r = 0, g = 0, b = 0;
+      char red = 0;
+      char grn = 0;
+      char blu = 0;
       for (int i = 0; i < width * height; i++) {
-        input_file.read(&r, sizeof(unsigned char));
-        input_file.read(&g, sizeof(unsigned char));
-        input_file.read(&b, sizeof(unsigned char));
+        input_file.read(&red, sizeof(unsigned char));
+        input_file.read(&grn, sizeof(unsigned char));
+        input_file.read(&blu, sizeof(unsigned char));
 
-        auto new_r = static_cast<int>(static_cast<unsigned char>(r));
-        auto new_g = static_cast<int>(static_cast<unsigned char>(g));
-        auto new_b = static_cast<int>(static_cast<unsigned char>(b));
+        auto new_r = static_cast<int>(static_cast<unsigned char>(red));
+        auto new_g = static_cast<int>(static_cast<unsigned char>(grn));
+        auto new_b = static_cast<int>(static_cast<unsigned char>(blu));
 
         auto r_16 = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
         auto g_16 = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
@@ -279,19 +328,21 @@ int Image::maxlevel() {
        * otra con un nivel de intensidad entre 0 y 65535, leemos la imagen de entrada
        * de 8 bits en 8 bits y escribimos en la imagen de salida de 16 bits en 16 bits.
        */
-      unsigned short r = 0, g = 0, b = 0;
+      unsigned short red = 0;
+      unsigned short grn = 0;
+      unsigned short blu = 0;
       for (int i = 0; i < width * height; i++) {
-        r = read_binary_16(input_file);
-        g = read_binary_16(input_file);
-        b = read_binary_16(input_file);
+        red = read_binary_16(input_file);
+        grn = read_binary_16(input_file);
+        blu = read_binary_16(input_file);
 
-        r = swap16(r);
-        g = swap16(g);
-        b = swap16(b);
+        red = swap16(red);
+        grn = swap16(grn);
+        blu = swap16(blu);
 
-        int const new_r = r;
-        int const new_g = g;
-        int const new_b = b;
+        int const new_r = red;
+        int const new_g = grn;
+        int const new_b = blu;
 
         auto r_16 = static_cast<uint16_t>((new_r * this->args[0]) / maxval);
         auto g_16 = static_cast<uint16_t>((new_g * this->args[0]) / maxval);

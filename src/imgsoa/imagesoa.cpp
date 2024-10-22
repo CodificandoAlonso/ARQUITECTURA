@@ -6,16 +6,15 @@
 
 #include "common/AVLTree.hpp"
 #include "common/binario.hpp"
-#include "common/mtdata.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
-#include "common/binario.hpp"
+
 #include <algorithm>
-#include <map>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
@@ -32,7 +31,7 @@ int ImageSOA::process_operation() {
   // Primera operación: leer los metadatos de la imagen de entrada. Como
   // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
-    if (get_metadata(this->get_input_file()) < 0) { return -1; }
+    if (info() < 0) { return -1; }
   } else if (this->get_optype() == "maxlevel") {
     // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
     if (maxlevel() < 0) { return -1; }
@@ -51,7 +50,7 @@ int ImageSOA::process_operation() {
   return 0;
 }
 
-int ImageSOA::cutfreq() {
+int ImageSOA::cutfreq() const {
   ifstream input_file(this->get_input_file(), ios::binary);
 
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -180,12 +179,11 @@ int ImageSOA::cutfreq() {
           if (meanwhile == 1) {
             __uint8_t const red1 = extractred(get<0>(greenvalues[1]));
             __uint8_t const red0 = extractred(get<0>(greenvalues[0]));
-            if(red1 - red0 >0) {
+            if (red1 - red0 > 0) {
               Deleteitems.emplace_back(get<0>(greenvalues[1]), "");
-              greenvalues.erase(greenvalues.begin() +1);
+              greenvalues.erase(greenvalues.begin() + 1);
 
-            }
-            else {
+            } else {
               Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
               greenvalues.erase(greenvalues.begin());
             }
@@ -218,7 +216,7 @@ int ImageSOA::cutfreq() {
   return 0;
 }
 
-int ImageSOA::resize() {
+int ImageSOA::resize() const {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -429,7 +427,7 @@ int ImageSOA::compress() const {
         }
       }
     }
-    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4*BYTE))) {
+    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
       cerr << "Error: demasiados colores distintos."
            << "\n";
       return -1;
