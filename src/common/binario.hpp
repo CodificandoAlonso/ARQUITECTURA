@@ -10,10 +10,10 @@
 #include <cstdint>
 
 using namespace std;
-uint8_t read_binary_8(ifstream & input);
+uint8_t read_binary_8(ifstream  & input);
 uint16_t read_binary_16(ifstream & input);
 
-void write_binary_8(ofstream & output, uint8_t value);
+void write_binary_8(ofstream  &output, uint8_t value);
 
 void write_binary_16(ofstream & output, uint16_t value);
 

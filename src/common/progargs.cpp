@@ -185,7 +185,7 @@ void Image::get_imgdata() {
   int maxval = 0;
 
   input_file >> format >> width >> height >> maxval;
-
+  this->if_input_file = move(input_file);
   this->format = format;
   this->width = width;
   this->height = height;
@@ -210,6 +210,7 @@ void Image::write_out(int level) {
   int const width     = this->width;
   int const height    = this->height;
   output_file << format << width << height << min_level;
+  this->of_output_file = move(output_file);
 }
 
 /**
@@ -226,19 +227,18 @@ void Image::min_min()const {
   __uint8_t red = 0;
   __uint8_t grn = 0;
   __uint8_t blu = 0;
-  ifstream input_file = this->input_file;
   for (int i = 0; i < width * height; i++) {
-    red = read_binary_8(this->input_file);
-    grn = read_binary_8(this->input_file);
-    blu = read_binary_8(this->input_file);
+    red = read_binary_8(this->if_input_file);
+    grn = read_binary_8(this->if_input_file);
+    blu = read_binary_8(this->if_input_file);
 
     red = red * this->get_args()[0] / maxval;
     grn = grn * this->get_args()[0] / maxval;
     blu = blu * this->get_args()[0] / maxval;
 
-    write_binary_8(this->output_file, red);
-    write_binary_8(this->output_file, grn);
-    write_binary_8(this->output_file, blu);
+    write_binary_8(this->of_output_file, red);
+    write_binary_8(this->of_output_file, grn);
+    write_binary_8(this->of_output_file, blu);
 
     }
 }
