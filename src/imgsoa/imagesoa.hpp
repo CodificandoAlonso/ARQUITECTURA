@@ -7,6 +7,8 @@
 
 #include "common/progargs.hpp"
 
+#include <common/struct-rgb.hpp>
+#include <map>
 #include <vector>
 using namespace std;
 
@@ -16,6 +18,7 @@ class ImageSOA : public Image {
     int process_operation();
   private:
     bool obtain_args();
+    map<string, int> load_and_map_8();
     [[nodiscard]] int resize();
     [[nodiscard]] int compress();
     [[nodiscard]] int cutfreq();

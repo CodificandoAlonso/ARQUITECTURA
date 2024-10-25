@@ -221,15 +221,9 @@ int ImageSOA::resize(){
   return 0;
 }
 
-
-
-
 bool ImageSOA::obtain_args() {
   ifstream input_file(this->get_input_file(), ios::binary);
-  if (!input_file) {
-
-    return false;
-  }
+  if (!input_file) { return false; }
 
   string format;
   int width  = 0;
@@ -246,31 +240,17 @@ bool ImageSOA::obtain_args() {
   return true;
 }
 
-int ImageSOA::cutfreq(){
-
-  if (not obtain_args()) {
-    cerr << "Error al abrir los archivos de entrada"
-         << "\n";
-    return -1;
-  }
-  ofstream output_file(this->get_output_file(), ios::binary);
-
-
+map<string, int> ImageSOA::load_and_map_8(){
   soa_rgb_small mysoa;
-
+  map <string, int> myMap;
   char red = 0;
   char grn = 0;
   char blu = 0;
-  map<string, int> myMap;
-
-  for (int i = 0; i < this->width * this->height; i++) {
+  for(int i=0; i< this->width * this->height; i++){
     this->if_input_file.read(&red, sizeof(red));
     this->if_input_file.read(&grn, sizeof(grn));
     this->if_input_file.read(&blu, sizeof(blu));
 
-    /* Se actualizan las repeticines del misimo codigo rgb en el diccionario
-     * y si no está se añade
-     * */
     if (string const rgb = mix3char(red, grn, blu); myMap.contains(rgb)) {
       myMap[{rgb}]++;
     } else {
@@ -280,6 +260,44 @@ int ImageSOA::cutfreq(){
     mysoa.g.push_back(grn);
     mysoa.b.push_back(blu);
   }
+  return myMap;
+}
+
+
+vector<pair<string, __uint8_t>> same_bgr_vector(vector<pair<string, int>> father_vector, int value, int counter) {
+    //Value será 1 para blue, 2 para green y 3 para red
+    vector<pair<string, __uint8_t>> color_vector;
+    __uint8_t color = 0;
+    for (size_t i = 0; i <= counter; i++) {
+        if(value ==1){color = extractblue(father_vector[i].first);}
+        if(value ==2){color = extractgreen(father_vector[i].first);}
+        if(value ==3){color = extractred(father_vector[i].first);}
+      color_vector.emplace_back(father_vector[i].first, color);
+    }
+    ranges::sort(color_vector, [](auto const & op1, auto const & op2) {
+      return get<1>(op1) > get<1>(op2);
+    });
+  return color_vector;
+}
+
+
+
+
+
+
+int ImageSOA::cutfreq(){
+
+  if (not obtain_args()) {
+    cerr << "Error al abrir los archivos de entrada"
+         << "\n";
+    return -1;
+  }
+  //ofstream output_file(this->get_output_file(), ios::binary);
+
+  //Obtengo el diccionario con los valores rgb unicos
+  map<string, int> myMap = load_and_map_8();
+  this->if_input_file.close();
+
   vector<pair<string, int>> myVector(myMap.begin(), myMap.end());
 
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
@@ -313,6 +331,7 @@ int ImageSOA::cutfreq(){
 
   vector left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
 
+  /*
   vector<pair<string, __uint8_t>> bluevalues;
   __uint8_t blue = 0;
   for (auto & iterator : left_elems) {
@@ -322,6 +341,9 @@ int ImageSOA::cutfreq(){
   ranges::sort(bluevalues, [](auto const & op1, auto const & op2) {
     return get<1>(op1) > get<1>(op2);
   });
+  */
+  int const size = static_cast<int>(left_elems.size());
+  auto bluevalues = same_bgr_vector(left_elems, 1, size);
 
   while (num_left > 0) {
     if (bluevalues[0].second == bluevalues[1].second) {
@@ -341,6 +363,7 @@ int ImageSOA::cutfreq(){
           num_left--;
         }
       } else {
+        /*
         __uint8_t green = 0;
         vector<tuple<string, __uint8_t, __uint8_t>> greenvalues;
         for (size_t i = 0; i <= meanwhile; i++) {
@@ -351,9 +374,13 @@ int ImageSOA::cutfreq(){
         ranges::sort(greenvalues, [](auto const & a, auto const & b) {
           return get<2>(a) > get<2>(b);
         });
-        if (get<2>(greenvalues[0]) == get<2>(greenvalues[1])) {
+        */
+        auto const int_meanwhile = static_cast<int>(meanwhile);
+        auto greenvalues = same_bgr_vector(left_elems, 2, int_meanwhile);
+
+        if (greenvalues[0].second == greenvalues[1].second) {
           size_t meanwhile = 1;
-          while (get<2>(greenvalues[meanwhile]) == get<2>(greenvalues[meanwhile + 1])) {
+          while (greenvalues[meanwhile].second == greenvalues[meanwhile + 1].second) {
             meanwhile++;
           }
           if (meanwhile == 1) {
