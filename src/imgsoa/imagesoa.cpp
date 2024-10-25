@@ -220,6 +220,7 @@ int ImageSOA::resize() const {
 }
 
 int ImageSOA::cutfreq() const {
+
   ifstream input_file(this->get_input_file(), ios::binary);
 
   ofstream output_file(this->get_output_file(), ios::binary);

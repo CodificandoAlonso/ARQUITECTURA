@@ -8,10 +8,11 @@
 #include "common/progargs.hpp"
 
 #include <vector>
+using namespace std;
 
 class ImageSOA : public Image {
   public:
-    ImageSOA(int argc, std::vector<string> const & argv);
+    ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
   private:
     [[nodiscard]] int resize() const;
