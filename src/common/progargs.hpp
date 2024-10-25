@@ -16,7 +16,7 @@ public:
   static bool check_info(int argc, string const & option);
     bool check_maxval(int argc, vector<string> const & argv, string const & option);
   bool check_resize(int argc, vector<string> const & argv, string const & option);
-    bool check_cutfreq(int argc, vector<string> argv, string const & option);
+    bool check_cutfreq(int argc, vector<string> const & argv, string const & option);
     int check_args();
     [[nodiscard]] int info() const;
     int maxlevel();
@@ -28,8 +28,8 @@ private:
     void get_imgdata();
     void write_out(int level);
     void min_min();
-    void min_max() ;
     void max_min() ;
+    void min_max() ;
     void max_max() ;
     string input_file;
     string output_file;

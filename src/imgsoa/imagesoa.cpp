@@ -50,172 +50,6 @@ int ImageSOA::process_operation() {
   return 0;
 }
 
-int ImageSOA::cutfreq() const {
-  ifstream input_file(this->get_input_file(), ios::binary);
-
-  ofstream output_file(this->get_output_file(), ios::binary);
-  if (!input_file || !output_file) {
-    cerr << "Error al abrir los archivos de entrada/salida"
-         << "\n";
-    return -1;
-  }
-
-  string format;
-  unsigned int width = 0, height = 0, maxval = 0;
-  input_file >> format >> width >> height >> maxval;
-  input_file.ignore(1);
-
-  soa_rgb_small mysoa;
-
-  char r = 0, g = 0, b = 0;
-  map<string, int> myMap;
-
-  for (unsigned int i = 0; i < width * height; i++) {
-    input_file.read(&r, sizeof(r));
-    input_file.read(&g, sizeof(g));
-    input_file.read(&b, sizeof(b));
-
-    /* Se actualizan las repeticines del misimo codigo rgb en el diccionario
-     * y si no está se añade
-     * */
-    if (string const rgb = mix3char(r, g, b); myMap.contains(rgb)) {
-      myMap[{rgb}]++;
-    } else {
-      myMap[{rgb}] = 1;
-    }
-    mysoa.r.push_back(r);
-    mysoa.g.push_back(g);
-    mysoa.b.push_back(b);
-  }
-  vector<pair<string, int>> myVector(myMap.begin(), myMap.end());
-  // const int size = static_cast<int>(myVector.size());
-  /*size_t const size = myVector.size();
-  quick::quicksort(myVector, 0, size - 1);
-  */
-  ranges::sort(myVector, [](auto const & a, auto const & b) {
-    return a.second < b.second;
-  });
-
-  // imprimo el vector por pantalla, independientemente de nada
-
-  vector<pair<string, int>> VectorDelete;
-  auto n = static_cast<size_t>(this->get_args()[0]);
-
-  for (size_t i = 0; i < n; i++) { VectorDelete.push_back(myVector[i]); }
-  size_t tamDelete = n;
-
-  while (myVector[tamDelete].second == VectorDelete[n - 1].second) {
-    VectorDelete.push_back(myVector[tamDelete]);
-    tamDelete++;
-  }
-  // imprimo VectorDelete
-  for (auto & i : VectorDelete) { cout << i.first << " " << i.second << "\n"; }
-  int const pivot  = VectorDelete[n - 1].second;
-  int elem_deleted = 0;
-  vector<pair<string, string>> Deleteitems;
-  for (size_t i = 0; i < VectorDelete.size(); i++) {
-    if (VectorDelete[i].second < pivot) {
-      cout << "Te elimino jueputa " << VectorDelete[i].second << "\n";
-      Deleteitems.emplace_back(VectorDelete[i].first, "");
-      elem_deleted++;
-    }
-  }
-  int const new_n = static_cast<int>(n);
-  int num_left    = new_n - elem_deleted;
-  auto new_e_d    = static_cast<long int>(elem_deleted);
-
-  vector left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
-
-  // imprime left_elems
-  for (auto & i : left_elems) {
-    cout << "tengo que ver si te elimino jueputa "
-         << "\n";
-    cout << i.first << " " << i.second << "\n";
-  }
-
-  vector<pair<string, __uint8_t>> bluevalues;
-  __uint8_t blue = 0;
-  for (auto & iterator : left_elems) {
-    blue = extractblue(iterator.first);
-    bluevalues.emplace_back(iterator.first, blue);
-  }
-  ranges::sort(bluevalues, [](auto const & a, auto const & b) {
-    return get<1>(a) > get<1>(b);
-  });
-
-  while (num_left > 0) {
-    if (bluevalues[0].second == bluevalues[1].second) {
-      size_t meanwhile = 1;
-      while (bluevalues[meanwhile].second == bluevalues[meanwhile + 1].second) { meanwhile++; }
-      if (meanwhile == 1) {
-        // Hay que comparar el gree n del elemento 0 y del 1
-        __uint8_t const green0 = extractgreen(left_elems[0].first);
-        __uint8_t const green1 = extractgreen(left_elems[1].first);
-        if (green0 - green1 > 0) {
-          Deleteitems.emplace_back(bluevalues[0].first, "");
-          bluevalues.erase(bluevalues.begin());
-          num_left--;
-        } else {
-          Deleteitems.emplace_back(bluevalues[1].first, "");
-          bluevalues.erase(bluevalues.begin() + 1);
-          num_left--;
-        }
-      } else {
-        __uint8_t green = 0;
-        vector<tuple<string, __uint8_t, __uint8_t>> greenvalues;
-        for (size_t i = 0; i <= meanwhile; i++) {
-          green = extractgreen(bluevalues[i].first);
-          greenvalues.emplace_back(bluevalues[i].first, bluevalues[i].second, green);
-        }
-
-        ranges::sort(greenvalues, [](auto const & a, auto const & b) {
-          return get<2>(a) > get<2>(b);
-        });
-        if (get<2>(greenvalues[0]) == get<2>(greenvalues[1])) {
-          size_t meanwhile = 1;
-          while (get<2>(greenvalues[meanwhile]) == get<2>(greenvalues[meanwhile + 1])) {
-            meanwhile++;
-          }
-          if (meanwhile == 1) {
-            __uint8_t const red1 = extractred(get<0>(greenvalues[1]));
-            __uint8_t const red0 = extractred(get<0>(greenvalues[0]));
-            if (red1 - red0 > 0) {
-              Deleteitems.emplace_back(get<0>(greenvalues[1]), "");
-              greenvalues.erase(greenvalues.begin() + 1);
-
-            } else {
-              Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
-              greenvalues.erase(greenvalues.begin());
-            }
-            num_left--;
-          } else {
-            cout << "Tengo que ver a cual mato rojo cabron"
-                 << "\n";
-            num_left--;
-          }
-
-        } else {
-          Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
-          greenvalues.erase(greenvalues.begin());
-          num_left--;
-        }
-      }
-    } else {
-      Deleteitems.emplace_back(bluevalues[0].first, "");
-      bluevalues.erase(bluevalues.begin());
-      num_left--;
-    }
-  }
-
-  /*
-   * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
-   * no depende de su posición en la imagen sino de sus valores RGB.
-   * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
-   */
-
-  return 0;
-}
-
 int ImageSOA::resize() const {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -385,6 +219,163 @@ int ImageSOA::resize() const {
   return 0;
 }
 
+int ImageSOA::cutfreq() const {
+  ifstream input_file(this->get_input_file(), ios::binary);
+
+  ofstream output_file(this->get_output_file(), ios::binary);
+  if (!input_file || !output_file) {
+    cerr << "Error al abrir los archivos de entrada/salida"
+         << "\n";
+    return -1;
+  }
+
+  string format;
+  unsigned int width = 0;
+  unsigned int height = 0;
+  unsigned int maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
+
+  soa_rgb_small mysoa;
+
+  char red = 0;
+  char grn = 0;
+  char blu = 0;
+  map<string, int> myMap;
+
+  for (unsigned int i = 0; i < width * height; i++) {
+    input_file.read(&red, sizeof(red));
+    input_file.read(&grn, sizeof(grn));
+    input_file.read(&blu, sizeof(blu));
+
+    /* Se actualizan las repeticines del misimo codigo rgb en el diccionario
+     * y si no está se añade
+     * */
+    if (string const rgb = mix3char(red, grn, blu); myMap.contains(rgb)) {
+      myMap[{rgb}]++;
+    } else {
+      myMap[{rgb}] = 1;
+    }
+    mysoa.r.push_back(red);
+    mysoa.g.push_back(grn);
+    mysoa.b.push_back(blu);
+  }
+  vector<pair<string, int>> myVector(myMap.begin(), myMap.end());
+
+  ranges::sort(myVector, [](auto const & op1, auto const & op2) {
+    return op1.second < op2.second;
+  });
+
+
+  vector<pair<string, int>> VectorDelete;
+  auto elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+
+  for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.push_back(myVector[i]); }
+  size_t tamDelete = elems_to_delete;
+
+  while (myVector[tamDelete].second == VectorDelete[elems_to_delete - 1].second) {
+    VectorDelete.push_back(myVector[tamDelete]);
+    tamDelete++;
+  }
+
+  int const pivot  = VectorDelete[elems_to_delete - 1].second;
+  int elem_deleted = 0;
+  vector<pair<string, string>> Deleteitems;
+  for (auto & iterator : VectorDelete) {
+    if (iterator.second < pivot) {
+      Deleteitems.emplace_back(iterator.first, "");
+      elem_deleted++;
+    }
+  }
+  int const new_n = static_cast<int>(elems_to_delete);
+  int num_left    = new_n - elem_deleted;
+  auto new_e_d    = static_cast<long int>(elem_deleted);  //elem_deleted
+
+  vector left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
+
+  vector<pair<string, __uint8_t>> bluevalues;
+  __uint8_t blue = 0;
+  for (auto & iterator : left_elems) {
+    blue = extractblue(iterator.first);
+    bluevalues.emplace_back(iterator.first, blue);
+  }
+  ranges::sort(bluevalues, [](auto const & a, auto const & b) {
+    return get<1>(a) > get<1>(b);
+  });
+
+  while (num_left > 0) {
+    if (bluevalues[0].second == bluevalues[1].second) {
+      size_t meanwhile = 1;
+      while (bluevalues[meanwhile].second == bluevalues[meanwhile + 1].second) { meanwhile++; }
+      if (meanwhile == 1) {
+        // Hay que comparar el gree n del elemento 0 y del 1
+        __uint8_t const green0 = extractgreen(left_elems[0].first);
+        __uint8_t const green1 = extractgreen(left_elems[1].first);
+        if (green0 - green1 > 0) {
+          Deleteitems.emplace_back(bluevalues[0].first, "");
+          bluevalues.erase(bluevalues.begin());
+          num_left--;
+        } else {
+          Deleteitems.emplace_back(bluevalues[1].first, "");
+          bluevalues.erase(bluevalues.begin() + 1);
+          num_left--;
+        }
+      } else {
+        __uint8_t green = 0;
+        vector<tuple<string, __uint8_t, __uint8_t>> greenvalues;
+        for (size_t i = 0; i <= meanwhile; i++) {
+          green = extractgreen(bluevalues[i].first);
+          greenvalues.emplace_back(bluevalues[i].first, bluevalues[i].second, green);
+        }
+
+        ranges::sort(greenvalues, [](auto const & a, auto const & b) {
+          return get<2>(a) > get<2>(b);
+        });
+        if (get<2>(greenvalues[0]) == get<2>(greenvalues[1])) {
+          size_t meanwhile = 1;
+          while (get<2>(greenvalues[meanwhile]) == get<2>(greenvalues[meanwhile + 1])) {
+            meanwhile++;
+          }
+          if (meanwhile == 1) {
+            __uint8_t const red1 = extractred(get<0>(greenvalues[1]));
+            __uint8_t const red0 = extractred(get<0>(greenvalues[0]));
+            if (red1 - red0 > 0) {
+              Deleteitems.emplace_back(get<0>(greenvalues[1]), "");
+              greenvalues.erase(greenvalues.begin() + 1);
+
+            } else {
+              Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
+              greenvalues.erase(greenvalues.begin());
+            }
+            num_left--;
+          } else {
+            cout << "Tengo que ver a cual mato rojo cabron"
+                 << "\n";
+            num_left--;
+          }
+
+        } else {
+          Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
+          greenvalues.erase(greenvalues.begin());
+          num_left--;
+        }
+      }
+    } else {
+      Deleteitems.emplace_back(bluevalues[0].first, "");
+      bluevalues.erase(bluevalues.begin());
+      num_left--;
+    }
+  }
+
+  /*
+   * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
+   * no depende de su posición en la imagen sino de sus valores RGB.
+   * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
+   */
+
+  return 0;
+}
+
 int ImageSOA::compress() const {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -528,4 +519,6 @@ int ImageSOA::compress() const {
   output_file.close();
   return 0;
 }
+
+
 

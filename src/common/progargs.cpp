@@ -17,17 +17,17 @@
 #include <vector>
 
 // Constantes
-static int const MAX_LEVEL    = 65535;
-static int const MIN_LEVEL    = 255;
-static int const MAX_ARGS     = 6;
-static int const DECIMAL_BASE = 10;
+static constexpr int MAX_LEVEL    = 65535;
+static constexpr int MIN_LEVEL    = 255;
+static constexpr int MAX_ARGS     = 6;
+static constexpr int DECIMAL_BASE = 10;
 
 using namespace std;
 
 /**
  * Constructor de la superclase Imagen.
  */
-Image::Image(int argc, vector<string> const & argv) : argc(argc), argv(argv) { }
+Image::Image(int const argc, vector<string> const & argv) : argc(argc), argv(argv) { }
 
 
 bool Image::check_info(int const argc, string const & option) {
@@ -69,9 +69,9 @@ bool Image::check_resize(int const argc, vector<string> const & argv, string con
       return true;
     }
     // Comprobamos que el cuarto y quinto argumento sean números enteros positivos
-    char * end     = nullptr;
-    long argument1 = strtol(argv[4].c_str(), &end, DECIMAL_BASE);
-    long argument2 = strtol(argv[MAX_ARGS - 1].c_str(), &end, DECIMAL_BASE);
+    char * end           = nullptr;
+    long const argument1 = strtol(argv[4].c_str(), &end, DECIMAL_BASE);
+    long const argument2 = strtol(argv[MAX_ARGS - 1].c_str(), &end, DECIMAL_BASE);
     if (argument1 <= 0) {
       cerr << "Error: Invalid resize width: " << argv[4] << '\n';
       return true;
@@ -86,7 +86,7 @@ bool Image::check_resize(int const argc, vector<string> const & argv, string con
   return false;
 }
 
-bool Image::check_cutfreq(int const argc, vector<string> argv, string const & option) {
+bool Image::check_cutfreq(int const argc, vector<string> const &argv, string const & option) {
   // Si la opción es cutfreq, el número de argumentos debe ser exactamente cuatro. El cuarto
   // argumento debe ser un número entero positivo.
   if (option == "cutfreq") {
@@ -209,7 +209,7 @@ void Image::get_imgdata() {
 /**
  * Función para escribir la cabecera del archivo de salida.
  */
-void Image::write_out(int level) {
+void Image::write_out(const int level) {
   ofstream output_file(this->get_output_file(), ios::binary);
 
   if (!output_file) {
@@ -262,7 +262,7 @@ void Image::min_min() {
   this->if_input_file.close();
 }
 
-void Image::min_max() {
+void Image::max_min() {
   /*
    * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a
    * 255 a otra con un nivel de intensidad entre 0 y 255, leemos la imagen de
@@ -273,9 +273,12 @@ void Image::min_max() {
   unsigned short grn = 0;
   unsigned short blu = 0;
   for (int i = 0; i < width * height; i++) {
-    red = read_binary_16(this->if_input_file);
-    grn = read_binary_16(this->if_input_file);
-    blu = read_binary_16(this->if_input_file);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->if_input_file.read(reinterpret_cast<char *>(&red),sizeof(unsigned short));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->if_input_file.read(reinterpret_cast<char *>(&grn),sizeof(unsigned short));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->if_input_file.read(reinterpret_cast<char *>(&blu),sizeof(unsigned short));
     red = swap16(red);
     grn = swap16(grn);
     blu = swap16(blu);
@@ -284,43 +287,49 @@ void Image::min_max() {
     int const new_g = grn;
     int const new_b = blu;
 
-    red = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
-    grn = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
-    blu = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
+    red = static_cast<unsigned char>(new_r * this->get_args()[0] / maxval);
+    grn = static_cast<unsigned char>(new_g * this->get_args()[0] / maxval);
+    blu = static_cast<unsigned char>(new_b * this->get_args()[0] / maxval);
 
-    write_binary_16(this->of_output_file, red);
-    write_binary_16(this->of_output_file, grn);
-    write_binary_16(this->of_output_file, blu);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->of_output_file.write(reinterpret_cast<char *>(&red),sizeof(unsigned char));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->of_output_file.write(reinterpret_cast<char *>(&grn),sizeof(unsigned char));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->of_output_file.write(reinterpret_cast<char *>(&blu),sizeof(unsigned char));
   }
 }
 
-void Image::max_min(){
+void Image::min_max(){
   /*
-   * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a
+   * Si se desea escalar una imagen cuyo máximo nivel de intensidad es menor a
    * 255 a otra con un nivel de intensidad entre 255 y 65535, leemos la imagen de
-   * entrada de 16 bits en 16 bits y escribimos en la imagen de salida de 16 bits
+   * entrada de 8 bits en 8 bits y escribimos en la imagen de salida de 16 bits
    * en 16 bits.
    */
-  char red = 0;
-  char grn = 0;
-  char blu = 0;
+  unsigned char red = 0;
+  unsigned char grn = 0;
+  unsigned char blu = 0;
   for (int i = 0; i < width * height; i++) {
-    this->if_input_file.read(&red, sizeof(unsigned char));
-    this->if_input_file.read(&grn, sizeof(unsigned char));
-    this->if_input_file.read(&blu, sizeof(unsigned char));
-    this->if_input_file.close();
-
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->if_input_file.read(reinterpret_cast<char *>(&red),sizeof(unsigned char));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->if_input_file.read(reinterpret_cast<char *>(&grn),sizeof(unsigned char));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    this->if_input_file.read(reinterpret_cast<char *>(&blu),sizeof(unsigned char));
+    /*
     auto const new_r = static_cast<int>(static_cast<unsigned char>(red));
     auto const new_g = static_cast<int>(static_cast<unsigned char>(grn));
     const auto new_b = static_cast<int>(static_cast<unsigned char>(blu));
-
-    auto r_16 = static_cast<unsigned short>(new_r * this->get_args()[0] / maxval);
-    auto g_16 = static_cast<unsigned short>(new_g * this->get_args()[0] / maxval);
-    auto b_16 = static_cast<unsigned short>(new_b * this->get_args()[0] / maxval);
+    */
+    auto r_16 = static_cast<unsigned short>(red * this->get_args()[0] / maxval);
+    auto g_16 = static_cast<unsigned short>(grn * this->get_args()[0] / maxval);
+    auto b_16 = static_cast<unsigned short>(blu * this->get_args()[0] / maxval);
 
     r_16 = swap16(r_16);
     g_16 = swap16(g_16);
     b_16 = swap16(b_16);
+
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     this->of_output_file.write(reinterpret_cast<char *>(&r_16),sizeof(unsigned short));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -346,18 +355,17 @@ void Image::max_max() {
     this->if_input_file.read(reinterpret_cast<char *>(&grn),sizeof(unsigned short));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     this->if_input_file.read(reinterpret_cast<char *>(&blu),sizeof(unsigned short));
-    this->if_input_file.close();
     red = swap16(red);
     grn = swap16(grn);
     blu = swap16(blu);
-
+    /*
     int const new_r = red;
     int const new_g = grn;
     int const new_b = blu;
-
-    auto r_16 = static_cast<uint16_t>((new_r * this->args[0]) / maxval);
-    auto g_16 = static_cast<uint16_t>((new_g * this->args[0]) / maxval);
-    auto b_16 = static_cast<uint16_t>((new_b * this->args[0]) / maxval);
+    */
+    auto r_16 = static_cast<uint16_t>((red * this->args[0]) / maxval);
+    auto g_16 = static_cast<uint16_t>((grn * this->args[0]) / maxval);
+    auto b_16 = static_cast<uint16_t>((blu * this->args[0]) / maxval);
 
     r_16 = swap16(r_16);
     g_16 = swap16(g_16);
@@ -391,12 +399,15 @@ int Image::maxlevel() {
     if (maxval <= MIN_LEVEL) {  // Imagen de entrada 255
       min_max();
     }
-  } else if (maxval <= MAX_LEVEL) {  // Imagen de entrada 65535
-    max_max();
+    else if (maxval <= MAX_LEVEL) {
+      // Imagen de entrada 65535
+      max_max();
+    }
   } else {
     cerr << "Incorrect Format" << '\n';
 
     return -1;
     }
+
   return 0;
 }
