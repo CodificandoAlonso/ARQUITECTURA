@@ -15,8 +15,9 @@ class ImageSOA : public Image {
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
   private:
-    [[nodiscard]] int resize() const;
-    [[nodiscard]] int compress() const;
+    bool obtain_args();
+    [[nodiscard]] int resize();
+    [[nodiscard]] int compress();
     [[nodiscard]] int cutfreq();
     string input_file;
     string output_file;

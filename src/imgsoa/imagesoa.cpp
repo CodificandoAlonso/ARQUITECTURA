@@ -28,9 +28,6 @@ using namespace std;
 ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
 
 int ImageSOA::process_operation() {
-
-  get_imgdata();
-  write_out(maxval);
   // Primera operación: leer los metadatos de la imagen de entrada. Como
   // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
@@ -53,7 +50,9 @@ int ImageSOA::process_operation() {
   return 0;
 }
 
-int ImageSOA::resize() const {
+int ImageSOA::resize(){
+
+  obtain_args();
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -222,24 +221,40 @@ int ImageSOA::resize() const {
   return 0;
 }
 
-int ImageSOA::cutfreq(){
-  /*
-  ifstream input_file(this->get_input_file(), ios::binary);
 
-  ofstream output_file(this->get_output_file(), ios::binary);
-  if (!input_file || !output_file) {
-    cerr << "Error al abrir los archivos de entrada/salida"
-         << "\n";
-    return -1;
+
+
+bool ImageSOA::obtain_args() {
+  ifstream input_file(this->get_input_file(), ios::binary);
+  if (!input_file) {
+
+    return false;
   }
 
   string format;
-  unsigned int width = 0;
-  unsigned int height = 0;
-  unsigned int maxval = 0;
+  int width  = 0;
+  int height = 0;
+  int maxval = 0;
+
   input_file >> format >> width >> height >> maxval;
   input_file.ignore(1);
-  */
+  this->if_input_file = move(input_file);
+  this->format        = format;
+  this->width         = width;
+  this->height        = height;
+  this->maxval        = maxval;
+  return true;
+}
+
+int ImageSOA::cutfreq(){
+
+  if (not obtain_args()) {
+    cerr << "Error al abrir los archivos de entrada"
+         << "\n";
+    return -1;
+  }
+  ofstream output_file(this->get_output_file(), ios::binary);
+
 
   soa_rgb_small mysoa;
 
@@ -304,8 +319,8 @@ int ImageSOA::cutfreq(){
     blue = extractblue(iterator.first);
     bluevalues.emplace_back(iterator.first, blue);
   }
-  ranges::sort(bluevalues, [](auto const & a, auto const & b) {
-    return get<1>(a) > get<1>(b);
+  ranges::sort(bluevalues, [](auto const & op1, auto const & op2) {
+    return get<1>(op1) > get<1>(op2);
   });
 
   while (num_left > 0) {

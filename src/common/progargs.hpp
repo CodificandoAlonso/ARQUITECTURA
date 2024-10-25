@@ -24,10 +24,10 @@ public:
     [[nodiscard]] string get_output_file() const { return output_file; }
     [[nodiscard]] string get_optype() const { return optype; }
     [[nodiscard]] vector<int> get_args() const { return args; }
+
+private:
     void get_imgdata();
     void write_out(int level);
-private:
-
     void min_min();
     void max_min() ;
     void min_max() ;

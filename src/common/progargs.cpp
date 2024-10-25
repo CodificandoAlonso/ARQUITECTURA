@@ -188,7 +188,7 @@ void Image::get_imgdata() {
   ifstream input_file(this->input_file, ios::binary);
 
   if (!input_file) {
-    cerr << "Error al abrir el archivo de salida"
+    cerr << "Error al abrir el archivo de entrada"
          << "\n";
   }
 
