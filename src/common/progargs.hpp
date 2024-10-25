@@ -25,8 +25,9 @@ public:
     [[nodiscard]] string get_optype() const { return optype; }
     [[nodiscard]] vector<int> get_args() const { return args; }
     void get_imgdata();
-private:
     void write_out(int level);
+private:
+
     void min_min();
     void max_min() ;
     void min_max() ;

@@ -17,7 +17,15 @@ class ImageSOA : public Image {
   private:
     [[nodiscard]] int resize() const;
     [[nodiscard]] int compress() const;
-    [[nodiscard]] int cutfreq() const;
+    [[nodiscard]] int cutfreq();
+    string input_file;
+    string output_file;
+    ifstream if_input_file;
+    ofstream of_output_file;
+    string format ;
+    int width =0;
+    int height =0 ;
+    int maxval=0;
 };
 
 #endif  // IMAGESOA_HPP

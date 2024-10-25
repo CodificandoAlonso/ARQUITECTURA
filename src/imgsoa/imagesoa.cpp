@@ -28,6 +28,9 @@ using namespace std;
 ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
 
 int ImageSOA::process_operation() {
+
+  get_imgdata();
+  write_out(maxval);
   // Primera operación: leer los metadatos de la imagen de entrada. Como
   // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
@@ -219,8 +222,8 @@ int ImageSOA::resize() const {
   return 0;
 }
 
-int ImageSOA::cutfreq() const {
-
+int ImageSOA::cutfreq(){
+  /*
   ifstream input_file(this->get_input_file(), ios::binary);
 
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -236,6 +239,7 @@ int ImageSOA::cutfreq() const {
   unsigned int maxval = 0;
   input_file >> format >> width >> height >> maxval;
   input_file.ignore(1);
+  */
 
   soa_rgb_small mysoa;
 
@@ -244,10 +248,10 @@ int ImageSOA::cutfreq() const {
   char blu = 0;
   map<string, int> myMap;
 
-  for (unsigned int i = 0; i < width * height; i++) {
-    input_file.read(&red, sizeof(red));
-    input_file.read(&grn, sizeof(grn));
-    input_file.read(&blu, sizeof(blu));
+  for (int i = 0; i < this->width * this->height; i++) {
+    this->if_input_file.read(&red, sizeof(red));
+    this->if_input_file.read(&grn, sizeof(grn));
+    this->if_input_file.read(&blu, sizeof(blu));
 
     /* Se actualizan las repeticines del misimo codigo rgb en el diccionario
      * y si no está se añade
