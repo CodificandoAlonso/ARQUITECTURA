@@ -12,7 +12,11 @@ using namespace std;
 
 class Image {
 public:
-    Image(int argc, const vector<string> &argv);
+    Image(int argc, vector<string> const & argv);
+  static bool check_info(int argc, string const & option);
+    bool check_maxval(int argc, vector<string> const & argv, string const & option);
+  bool check_resize(int argc, vector<string> const & argv, string const & option);
+    bool check_cutfreq(int argc, vector<string> argv, string const & option);
     int check_args();
     [[nodiscard]] int info() const;
     int maxlevel();
@@ -20,15 +24,17 @@ public:
     [[nodiscard]] string get_output_file() const { return output_file; }
     [[nodiscard]] string get_optype() const { return optype; }
     [[nodiscard]] vector<int> get_args() const { return args; }
-
-    ifstream & if_input_file  = ifstream(input_file, ios::binary);
-    ofstream & of_output_file = ofstream(output_file, ios::binary);
 private:
     void get_imgdata();
     void write_out(int level);
-    void min_min() const;
+    void min_min();
+    void min_max() ;
+    void max_min() ;
+    void max_max() ;
     string input_file;
     string output_file;
+    ifstream if_input_file;
+    ofstream of_output_file;
     string optype;
     vector<int> args;
     int argc;

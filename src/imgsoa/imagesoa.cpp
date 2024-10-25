@@ -227,7 +227,9 @@ int ImageSOA::resize() const {
   }
 
   string format;
-  unsigned int width = 0, height = 0, maxval = 0;
+  unsigned int width = 0;
+  unsigned int height = 0;
+  unsigned int maxval = 0;
   input_file >> format >> width >> height >> maxval;
   input_file.ignore(1);
 
@@ -240,128 +242,136 @@ int ImageSOA::resize() const {
     // leemos la imagen y la almacenamos en memoria
     soa_rgb_small image;
     for (unsigned int i = 0; i < width * height; i++) {
-      char r = 0, g = 0, b = 0;
-      input_file.read(&r, sizeof(r));
-      image.r.push_back(r);
-      input_file.read(&g, sizeof(g));
-      image.g.push_back(g);
-      input_file.read(&b, sizeof(b));
-      image.b.push_back(b);
+      char red = 0;
+      char grn = 0;
+      char blu = 0;
+      input_file.read(&red, sizeof(red));
+      image.r.push_back(red);
+      input_file.read(&grn, sizeof(grn));
+      image.g.push_back(grn);
+      input_file.read(&blu, sizeof(blu));
+      image.b.push_back(blu);
     }
     for (int y_prime = 0; y_prime < new_height; y_prime++) {
       for (int x_prime = 0; x_prime < new_width; x_prime++) {
         // Por como funcionan las operaciones de coma flotante, hay que redondear el valor
         // según una cierta precisión. Si no, la imagen final generará píxeles corruptos.
-        double const x = round(x_prime * (static_cast<double>(width) / new_width));
-        double const y = round(y_prime * (static_cast<double>(height) / new_height));
+        double const equis = round(x_prime * (static_cast<double>(width) / new_width));
+        double const ygreek = round(y_prime * (static_cast<double>(height) / new_height));
 
-        auto xl = static_cast<unsigned int>(floor(x)), xh = static_cast<unsigned int>(ceil(x));
-        auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
+        auto xlength = static_cast<unsigned int>(floor(equis));
+        auto xheight = static_cast<unsigned int>(ceil(equis));
+        auto ylength = static_cast<unsigned int>(floor(ygreek));
+        auto yheight = static_cast<unsigned int>(ceil(ygreek));
 
-        xh = min(xh, width - 1);
-        xl = min(xl, width - 1);
-        yh = min(yh, height - 1);
-        yl = min(yl, height - 1);
+        xheight = min(xheight, width - 1);
+        xlength = min(xlength, width - 1);
+        yheight = min(yheight, height - 1);
+        ylength = min(ylength, height - 1);
 
         // Obtenemos los 4 pixeles más cercanos
-        rgb_small const p1 = {.r = image.r[static_cast<unsigned long>(yl) * width + xl],
-                              .g = image.g[static_cast<unsigned long>(yl) * width + xl],
-                              .b = image.b[static_cast<unsigned long>(yl) * width + xl]};
+        rgb_small const p_1 = {.r = image.r[(static_cast<unsigned long>(ylength) * width) + xlength],
+                              .g = image.g[(static_cast<unsigned long>(ylength) * width) + xlength],
+                              .b = image.b[(static_cast<unsigned long>(ylength) * width) + xlength]};
 
-        rgb_small const p2 = {.r = image.r[static_cast<unsigned long>(yl) * width + xh],
-                              .g = image.g[static_cast<unsigned long>(yl) * width + xh],
-                              .b = image.b[static_cast<unsigned long>(yl) * width + xh]};
+        rgb_small const p_2 = {.r = image.r[(static_cast<unsigned long>(ylength) * width) + xheight],
+                              .g = image.g[(static_cast<unsigned long>(ylength) * width) + xheight],
+                              .b = image.b[(static_cast<unsigned long>(ylength) * width) + xheight]};
 
-        rgb_small const p3 = {.r = image.r[static_cast<unsigned long>(yh) * width + xl],
-                              .g = image.g[static_cast<unsigned long>(yh) * width + xl],
-                              .b = image.b[static_cast<unsigned long>(yh) * width + xl]};
+        rgb_small const p_3 = {.r = image.r[(static_cast<unsigned long>(yheight) * width) + xlength],
+                              .g = image.g[(static_cast<unsigned long>(yheight) * width) + xlength],
+                              .b = image.b[(static_cast<unsigned long>(yheight) * width) + xlength]};
 
-        rgb_small const p4 = {.r = image.r[static_cast<unsigned long>(yh) * width + xh],
-                              .g = image.g[static_cast<unsigned long>(yh) * width + xh],
-                              .b = image.b[static_cast<unsigned long>(yh) * width + xh]};
+        rgb_small const p_4 = {.r = image.r[(static_cast<unsigned long>(yheight) * width) + xheight],
+                              .g = image.g[(static_cast<unsigned long>(yheight) * width) + xheight],
+                              .b = image.b[(static_cast<unsigned long>(yheight) * width) + xheight]};
 
         // Interpolación en el eje x
-        double const t     = x - xl;
-        rgb_small const c1 = {.r = static_cast<char>((1 - t) * p1.r + t * p2.r),
-                              .g = static_cast<char>((1 - t) * p1.g + t * p2.g),
-                              .b = static_cast<char>((1 - t) * p1.b + t * p2.b)};
+        double const t_param     = equis - xlength;
+        rgb_small const c_1 = {.r = static_cast<char>(((1 - t_param) * p_1.r) + (t_param * p_2.r)),
+                              .g = static_cast<char>(((1 - t_param) * p_1.g) + (t_param * p_2.g)),
+                              .b = static_cast<char>(((1 - t_param) * p_1.b) + (t_param * p_2.b))};
 
-        rgb_small const c2 = {.r = static_cast<char>((1 - t) * p3.r + t * p4.r),
-                              .g = static_cast<char>((1 - t) * p3.g + t * p4.g),
-                              .b = static_cast<char>((1 - t) * p3.b + t * p4.b)};
+        rgb_small const c_2 = {.r = static_cast<char>(((1 - t_param) * p_3.r) + (t_param * p_4.r)),
+                              .g = static_cast<char>(((1 - t_param) * p_3.g) + (t_param * p_4.g)),
+                              .b = static_cast<char>(((1 - t_param) * p_3.b) + (t_param * p_4.b))};
 
         // Interpolación en el eje y
-        double const u    = y - yl;
-        rgb_small const c = {.r = static_cast<char>((1 - u) * c1.r + u * c2.r),
-                             .g = static_cast<char>((1 - u) * c1.g + u * c2.g),
-                             .b = static_cast<char>((1 - u) * c1.b + u * c2.b)};
+        double const u_param    = ygreek - ylength;
+        rgb_small const c_param = {.r = static_cast<char>(((1 - u_param) * c_1.r) + (u_param * c_2.r)),
+                             .g = static_cast<char>(((1 - u_param) * c_1.g) + (u_param * c_2.g)),
+                             .b = static_cast<char>(((1 - u_param) * c_1.b) + (u_param * c_2.b))};
 
         // Escribir el pixel interpolado
-        output_file.write(&c.r, sizeof(c.r));
-        output_file.write(&c.g, sizeof(c.g));
-        output_file.write(&c.b, sizeof(c.b));
+        output_file.write(&c_param.r, sizeof(c_param.r));
+        output_file.write(&c_param.g, sizeof(c_param.g));
+        output_file.write(&c_param.b, sizeof(c_param.b));
       }
     }
   } else if (maxval <= MAX_LEVEL) {
     soa_rgb_big image;
     for (unsigned int i = 0; i < width * height; i++) {
-      uint16_t r = 0, g = 0, b = 0;
-      r = read_binary_16(input_file);
-      g = read_binary_16(input_file);
-      b = read_binary_16(input_file);
+      uint16_t red = 0;
+      uint16_t grn = 0;
+      uint16_t blu = 0;
+      red = read_binary_16(input_file);
+      grn = read_binary_16(input_file);
+      blu = read_binary_16(input_file);
 
-      image.r.push_back(r);
-      image.g.push_back(g);
-      image.b.push_back(b);
+      image.r.push_back(red);
+      image.g.push_back(grn);
+      image.b.push_back(blu);
     }
     for (int y_prime = 0; y_prime < new_height; y_prime++) {
       for (int x_prime = 0; x_prime < new_width; x_prime++) {
-        double const x = round(x_prime * (static_cast<double>(width) / new_width));
-        double const y = round(y_prime * (static_cast<double>(height) / new_height));
+        double const equis = round(x_prime * (static_cast<double>(width) / new_width));
+        double const ygreek = round(y_prime * (static_cast<double>(height) / new_height));
 
-        auto xl = static_cast<unsigned int>(floor(x)), xh = static_cast<unsigned int>(ceil(x));
-        auto yl = static_cast<unsigned int>(floor(y)), yh = static_cast<unsigned int>(ceil(y));
+        auto xlength = static_cast<unsigned int>(floor(equis));
+        auto xheight = static_cast<unsigned int>(ceil(equis));
+        auto ylength = static_cast<unsigned int>(floor(ygreek));
+        auto yheight = static_cast<unsigned int>(ceil(ygreek));
 
-        xh = min(xh, width - 1);
-        xl = min(xl, width - 1);
-        yh = min(yh, height - 1);
-        yl = min(yl, height - 1);
+        xheight = min(xheight, width - 1);
+        xlength = min(xlength, width - 1);
+        yheight = min(yheight, height - 1);
+        ylength = min(ylength, height - 1);
 
         // Obtenemos los 4 pixeles más cercanos
-        rgb_big const p1 = {.r = image.r[static_cast<unsigned long>(yl) * width + xl],
-                            .g = image.g[static_cast<unsigned long>(yl) * width + xl],
-                            .b = image.b[static_cast<unsigned long>(yl) * width + xl]};
+        rgb_big const p_1 = {.r = image.r[(static_cast<unsigned long>(ylength) * width) + xlength],
+                            .g = image.g[(static_cast<unsigned long>(ylength) * width) + xlength],
+                            .b = image.b[(static_cast<unsigned long>(ylength) * width) + xlength]};
 
-        rgb_big const p2 = {.r = image.r[static_cast<unsigned long>(yl) * width + xh],
-                            .g = image.g[static_cast<unsigned long>(yl) * width + xh],
-                            .b = image.b[static_cast<unsigned long>(yl) * width + xh]};
+        rgb_big const p_2 = {.r = image.r[(static_cast<unsigned long>(ylength) * width) + xheight],
+                            .g = image.g[(static_cast<unsigned long>(ylength) * width) + xheight],
+                            .b = image.b[(static_cast<unsigned long>(ylength) * width) + xheight]};
 
-        rgb_big const p3 = {.r = image.r[static_cast<unsigned long>(yh) * width + xl],
-                            .g = image.g[static_cast<unsigned long>(yh) * width + xl],
-                            .b = image.b[static_cast<unsigned long>(yh) * width + xl]};
+        rgb_big const p_3 = {.r = image.r[(static_cast<unsigned long>(yheight) * width) + xlength],
+                            .g = image.g[(static_cast<unsigned long>(yheight) * width) + xlength],
+                            .b = image.b[(static_cast<unsigned long>(yheight) * width) + xlength]};
 
-        rgb_big const p4 = {.r = image.r[static_cast<unsigned long>(yh) * width + xh],
-                            .g = image.g[static_cast<unsigned long>(yh) * width + xh],
-                            .b = image.b[static_cast<unsigned long>(yh) * width + xh]};
+        rgb_big const p_4 = {.r = image.r[(static_cast<unsigned long>(yheight) * width) + xheight],
+                            .g = image.g[(static_cast<unsigned long>(yheight) * width) + xheight],
+                            .b = image.b[(static_cast<unsigned long>(yheight) * width) + xheight]};
 
         // Interpolación en el eje x
-        double const t   = x - xl;
-        rgb_big const c1 = {.r = static_cast<uint16_t>((1 - t) * p1.r + t * p2.r),
-                            .g = static_cast<uint16_t>((1 - t) * p1.g + t * p2.g),
-                            .b = static_cast<uint16_t>((1 - t) * p1.b + t * p2.b)};
+        double const t_param   = equis - xlength;
+        rgb_big const c_1 = {.r = static_cast<uint16_t>(((1 - t_param) * p_1.r) + (t_param * p_2.r)),
+                            .g = static_cast<uint16_t>(((1 - t_param) * p_1.g) + (t_param * p_2.g)),
+                            .b = static_cast<uint16_t>(((1 - t_param) * p_1.b) + (t_param * p_2.b))};
 
-        rgb_big const c2 = {.r = static_cast<uint16_t>((1 - t) * p3.r + t * p4.r),
-                            .g = static_cast<uint16_t>((1 - t) * p3.g + t * p4.g),
-                            .b = static_cast<uint16_t>((1 - t) * p3.b + t * p4.b)};
+        rgb_big const c_2 = {.r = static_cast<uint16_t>(((1 - t_param) * p_3.r) + (t_param * p_4.r)),
+                            .g = static_cast<uint16_t>(((1 - t_param) * p_3.g) + (t_param * p_4.g)),
+                            .b = static_cast<uint16_t>(((1 - t_param) * p_3.b) + (t_param * p_4.b))};
 
-        double const u  = y - yl;
-        rgb_big const c = {.r = static_cast<uint16_t>((1 - u) * c1.r + u * c2.r),
-                           .g = static_cast<uint16_t>((1 - u) * c1.g + u * c2.g),
-                           .b = static_cast<uint16_t>((1 - u) * c1.b + u * c2.b)};
+        double const u_param  = ygreek - ylength;
+        rgb_big const c_param = {.r = static_cast<uint16_t>(((1 - u_param) * c_1.r) + (u_param * c_2.r)),
+                           .g = static_cast<uint16_t>(((1 - u_param) * c_1.g) + (u_param * c_2.g)),
+                           .b = static_cast<uint16_t>(((1 - u_param) * c_1.b) + (u_param * c_2.b))};
 
-        write_binary_16(output_file, c.r);
-        write_binary_16(output_file, c.g);
-        write_binary_16(output_file, c.b);
+        write_binary_16(output_file, c_param.r);
+        write_binary_16(output_file, c_param.g);
+        write_binary_16(output_file, c_param.b);
       }
     }
   } else {
@@ -386,7 +396,9 @@ int ImageSOA::compress() const {
   }
 
   string format;
-  unsigned int width = 0, height = 0, maxval = 0;
+  unsigned int width = 0;
+  unsigned int height = 0;
+  unsigned int maxval = 0;
   input_file >> format >> width >> height >> maxval;
   input_file.ignore(1);
 
@@ -400,30 +412,32 @@ int ImageSOA::compress() const {
     AVLTree tree;
     soa_rgb_small image;
     for (unsigned int i = 0; i < width * height; i++) {
-      char r = 0, g = 0, b = 0;
-      input_file.read(&r, sizeof(r));
-      input_file.read(&g, sizeof(g));
-      input_file.read(&b, sizeof(b));
+      char red = 0;
+      char grn = 0;
+      char blu = 0;
+      input_file.read(&red, sizeof(red));
+      input_file.read(&grn, sizeof(grn));
+      input_file.read(&blu, sizeof(blu));
 
       if (i == 0) {  // Si es el primer elemento
-        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
-                                          static_cast<unsigned char>(g) << BYTE |
-                                          static_cast<unsigned char>(b);
+        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
+                                          static_cast<unsigned char>(grn) << BYTE |
+                                          static_cast<unsigned char>(blu);
         element const elem = {.color = concatenated, .index = 0};
         tree.insert(elem);
-        image.r.push_back(r);
-        image.g.push_back(g);
-        image.b.push_back(b);
+        image.r.push_back(red);
+        image.g.push_back(grn);
+        image.b.push_back(blu);
       } else {  // Si no es el primer elemento
         // Comprobamos si el color ya está en el árbol
-        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
-                                          static_cast<unsigned char>(g) << BYTE |
-                                          static_cast<unsigned char>(b);
+        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
+                                          static_cast<unsigned char>(grn) << BYTE |
+                                          static_cast<unsigned char>(blu);
         element const elem = {.color = concatenated, .index = i};
         if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
-          image.r.push_back(r);
-          image.g.push_back(g);
-          image.b.push_back(b);
+          image.r.push_back(red);
+          image.g.push_back(grn);
+          image.b.push_back(blu);
         }
       }
     }
@@ -456,42 +470,48 @@ int ImageSOA::compress() const {
     input_file.ignore(1);
     if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
       for (unsigned int i = 0; i < width * height; i++) {
-        char r = 0, g = 0, b = 0;
-        input_file.read(&r, sizeof(r));
-        input_file.read(&g, sizeof(g));
-        input_file.read(&b, sizeof(b));
+        char red = 0;
+        char grn = 0;
+        char blu = 0;
+        input_file.read(&red, sizeof(red));
+        input_file.read(&grn, sizeof(grn));
+        input_file.read(&blu, sizeof(blu));
 
-        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
-                                          static_cast<unsigned char>(g) << BYTE |
-                                          static_cast<unsigned char>(b);
+        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
+                                          static_cast<unsigned char>(grn) << BYTE |
+                                          static_cast<unsigned char>(blu);
         element const elem = tree.search(concatenated);
         write_binary_8(output_file, static_cast<unsigned char>(elem.index));
       }
     } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
       for (unsigned int i = 0; i < width * height; i++) {
-        char r = 0, g = 0, b = 0;
-        input_file.read(&r, sizeof(r));
-        input_file.read(&g, sizeof(g));
-        input_file.read(&b, sizeof(b));
+        char red = 0;
+        char grn = 0;
+        char blu = 0;
+        input_file.read(&red, sizeof(red));
+        input_file.read(&grn, sizeof(grn));
+        input_file.read(&blu, sizeof(blu));
 
-        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
-                                          static_cast<unsigned char>(g) << BYTE |
-                                          static_cast<unsigned char>(b);
+        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
+                                          static_cast<unsigned char>(grn) << BYTE |
+                                          static_cast<unsigned char>(blu);
         element const elem = tree.search(concatenated);
         write_binary_16(output_file, static_cast<uint16_t>(elem.index));
       }
     } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
       for (unsigned int i = 0; i < width * height; i++) {
-        char r = 0, g = 0, b = 0;
-        input_file.read(&r, sizeof(r));
-        input_file.read(&g, sizeof(g));
-        input_file.read(&b, sizeof(b));
+        char red = 0;
+        char grn = 0;
+        char blu = 0;
+        input_file.read(&red, sizeof(red));
+        input_file.read(&grn, sizeof(grn));
+        input_file.read(&blu, sizeof(blu));
 
-        unsigned int const concatenated = static_cast<unsigned char>(r) << 2 * BYTE |
-                                          static_cast<unsigned char>(g) << BYTE |
-                                          static_cast<unsigned char>(b);
+        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
+                                          static_cast<unsigned char>(grn) << BYTE |
+                                          static_cast<unsigned char>(blu);
         element const elem = tree.search(concatenated);
-        write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+        write_binary_32(output_file, elem.index);
       }
     }
   }
