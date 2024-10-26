@@ -390,6 +390,7 @@ int ImageSOA::cutfreq() {
      * no depende de su posición en la imagen sino de sus valores RGB.
      * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
      */
+  //Hola
     return 0;
   }
 

@@ -184,6 +184,9 @@ int Image::info() const {
 /**
  * Función para leer el archivo de entrada y escribir los atributos de la superclase.
  */
+
+
+//Hola
 void Image::get_imgdata() {
   ifstream input_file(this->input_file, ios::binary);
 
