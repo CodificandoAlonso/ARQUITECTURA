@@ -264,7 +264,7 @@ map<string, int> ImageSOA::load_and_map_8(){
 }
 
 
-vector<pair<string, __uint8_t>> same_bgr_vector(vector<pair<string, int>> father_vector, int value, int counter) {
+vector<pair<string, __uint8_t>> same_bgr_vector(vector<pair<string, int>> father_vector, int value, size_t counter) {
     //Value será 1 para blue, 2 para green y 3 para red
     vector<pair<string, __uint8_t>> color_vector;
     __uint8_t color = 0;
@@ -281,12 +281,40 @@ vector<pair<string, __uint8_t>> same_bgr_vector(vector<pair<string, int>> father
 }
 
 
+int check_and_delete(vector<pair<string, __uint8_t>> color_vector, vector<pair<string, int>> left_elems, int color, vector<pair<string, string>> Deleteitems) {
+  //1 para azul, 0 para verde
+  size_t meanwhile = 1;
+  while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
+  if (meanwhile == 1) {
+    __uint8_t value0 = 0;
+    __uint8_t value1 = 0;
+    if(color ==1) {
+      value0 = extractgreen(left_elems[0].first);
+      value1 = extractgreen(left_elems[1].first);
+    }
+    else {
+      value0 = extractred(left_elems[0].first);
+      value1 = extractred(left_elems[1].first);
+    }
+    if (value0 - value1> 0) {
+      Deleteitems.emplace_back(color_vector[0].first, "");
+      color_vector.erase(color_vector.begin());
+    } else {
+      Deleteitems.emplace_back(color_vector[1].first, "");
+      color_vector.erase(color_vector.begin() + 1);
+    }
+    return 0;
+  }
+  return static_cast<int>(meanwhile);
+}
 
 
 
 
-int ImageSOA::cutfreq(){
 
+
+
+int ImageSOA::cutfreq() {
   if (not obtain_args()) {
     cerr << "Error al abrir los archivos de entrada"
          << "\n";
@@ -298,15 +326,12 @@ int ImageSOA::cutfreq(){
   map<string, int> myMap = load_and_map_8();
   this->if_input_file.close();
 
+  //Convierto myMap a vector de pares y ordeno
   vector<pair<string, int>> myVector(myMap.begin(), myMap.end());
-
-  ranges::sort(myVector, [](auto const & op1, auto const & op2) {
-    return op1.second < op2.second;
-  });
-
+  ranges::sort(myVector, [](auto const & op1, auto const & op2) {return op1.second < op2.second;});
 
   vector<pair<string, int>> VectorDelete;
-  auto elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+  size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.push_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
@@ -319,111 +344,56 @@ int ImageSOA::cutfreq(){
   int const pivot  = VectorDelete[elems_to_delete - 1].second;
   int elem_deleted = 0;
   vector<pair<string, string>> Deleteitems;
-  for (auto & iterator : VectorDelete) {
-    if (iterator.second < pivot) {
-      Deleteitems.emplace_back(iterator.first, "");
+  for (auto & [fst, snd] : VectorDelete) {
+    if (snd < pivot) {
+      Deleteitems.emplace_back(fst, "");
       elem_deleted++;
     }
   }
   int const new_n = static_cast<int>(elems_to_delete);
-  int num_left    = new_n - elem_deleted;
-  auto new_e_d    = static_cast<long int>(elem_deleted);  //elem_deleted
+  int num_left          = new_n - elem_deleted;
+  const auto new_e_d    = static_cast<long int>(elem_deleted);  //elem_deleted
 
-  vector left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
+  vector const left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
 
-  /*
-  vector<pair<string, __uint8_t>> bluevalues;
-  __uint8_t blue = 0;
-  for (auto & iterator : left_elems) {
-    blue = extractblue(iterator.first);
-    bluevalues.emplace_back(iterator.first, blue);
-  }
-  ranges::sort(bluevalues, [](auto const & op1, auto const & op2) {
-    return get<1>(op1) > get<1>(op2);
-  });
-  */
-  int const size = static_cast<int>(left_elems.size());
-  auto bluevalues = same_bgr_vector(left_elems, 1, size);
+  auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
 
   while (num_left > 0) {
     if (bluevalues[0].second == bluevalues[1].second) {
-      size_t meanwhile = 1;
-      while (bluevalues[meanwhile].second == bluevalues[meanwhile + 1].second) { meanwhile++; }
-      if (meanwhile == 1) {
-        // Hay que comparar el gree n del elemento 0 y del 1
-        __uint8_t const green0 = extractgreen(left_elems[0].first);
-        __uint8_t const green1 = extractgreen(left_elems[1].first);
-        if (green0 - green1 > 0) {
-          Deleteitems.emplace_back(bluevalues[0].first, "");
-          bluevalues.erase(bluevalues.begin());
-          num_left--;
-        } else {
-          Deleteitems.emplace_back(bluevalues[1].first, "");
-          bluevalues.erase(bluevalues.begin() + 1);
-          num_left--;
-        }
-      } else {
-        /*
-        __uint8_t green = 0;
-        vector<tuple<string, __uint8_t, __uint8_t>> greenvalues;
-        for (size_t i = 0; i <= meanwhile; i++) {
-          green = extractgreen(bluevalues[i].first);
-          greenvalues.emplace_back(bluevalues[i].first, bluevalues[i].second, green);
-        }
-
-        ranges::sort(greenvalues, [](auto const & a, auto const & b) {
-          return get<2>(a) > get<2>(b);
-        });
-        */
-        auto const int_meanwhile = static_cast<int>(meanwhile);
-        auto greenvalues = same_bgr_vector(left_elems, 2, int_meanwhile);
-
+      int my_meanwhile = check_and_delete(bluevalues,left_elems, 1, Deleteitems);
+      if (my_meanwhile >0){
+        auto greenvalues = same_bgr_vector(left_elems, 2, static_cast<size_t>(my_meanwhile));
         if (greenvalues[0].second == greenvalues[1].second) {
-          size_t meanwhile = 1;
-          while (greenvalues[meanwhile].second == greenvalues[meanwhile + 1].second) {
-            meanwhile++;
-          }
-          if (meanwhile == 1) {
-            __uint8_t const red1 = extractred(get<0>(greenvalues[1]));
-            __uint8_t const red0 = extractred(get<0>(greenvalues[0]));
-            if (red1 - red0 > 0) {
-              Deleteitems.emplace_back(get<0>(greenvalues[1]), "");
-              greenvalues.erase(greenvalues.begin() + 1);
-
-            } else {
-              Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
-              greenvalues.erase(greenvalues.begin());
-            }
-            num_left--;
-          } else {
-            cout << "Tengo que ver a cual mato rojo cabron"
-                 << "\n";
+          my_meanwhile = check_and_delete(greenvalues,left_elems, 0, Deleteitems);
+          if (my_meanwhile >0) {
+            auto redvalues = same_bgr_vector(left_elems, 3, static_cast<size_t>(my_meanwhile));
+            Deleteitems.emplace_back(redvalues[0].first, "");
             num_left--;
           }
-
+          else {num_left--;}
         } else {
-          Deleteitems.emplace_back(get<0>(greenvalues[0]), "");
+          Deleteitems.emplace_back(greenvalues[0].first, "");
           greenvalues.erase(greenvalues.begin());
           num_left--;
         }
       }
-    } else {
+      else {num_left--;}
+    }
+    else {
       Deleteitems.emplace_back(bluevalues[0].first, "");
       bluevalues.erase(bluevalues.begin());
       num_left--;
     }
   }
+    /*
+     * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
+     * no depende de su posición en la imagen sino de sus valores RGB.
+     * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
+     */
+    return 0;
+  }
 
-  /*
-   * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
-   * no depende de su posición en la imagen sino de sus valores RGB.
-   * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
-   */
-
-  return 0;
-}
-
-int ImageSOA::compress() const {
+int ImageSOA::compress() {
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
