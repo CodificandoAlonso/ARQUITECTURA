@@ -4,9 +4,9 @@
 
 #include "AVLTree.hpp"
 
+#include <cmath>
 #include <gsl/gsl>
 #include <iostream>
-#include <cmath>
 #include <queue>
 #include <stack>
 
@@ -14,34 +14,34 @@ int AVLTree::height(Node const * node) {
   return node == nullptr ? 0 : node->height;
 }
 
-int AVLTree::max(int const a, int const b) {
-  return a > b ? a : b;
+int AVLTree::max(int const param_a, int const param_b) {
+  return param_a > param_b ? param_a : param_b;
 }
 
-Node * AVLTree::rotate_left(Node * x) {
-  Node * y  = x->right;
-  Node * T2 = y->left;
+Node * AVLTree::rotate_left(Node * param_x) {
+  Node * param_y = param_x->right;
+  Node * T_2     = param_y->left;
 
-  y->left  = x;
-  x->right = T2;
+  param_y->left  = param_x;
+  param_x->right = T_2;
 
-  x->height = max(height(x->left), height(x->right)) + 1;
-  y->height = max(height(y->left), height(y->right)) + 1;
+  param_x->height = max(height(param_x->left), height(param_x->right)) + 1;
+  param_y->height = max(height(param_y->left), height(param_y->right)) + 1;
 
-  return y;
+  return param_y;
 }
 
-Node * AVLTree::rotate_right(Node * y) {
-  Node * x  = y->left;
-  Node * T2 = x->right;
+Node * AVLTree::rotate_right(Node * value_y) {
+  Node * value_x = value_y->left;
+  Node * T_2     = value_x->right;
 
-  x->right = y;
-  y->left  = T2;
+  value_x->right = value_y;
+  value_y->left  = T_2;
 
-  y->height = max(height(y->left), height(y->right)) + 1;
-  x->height = max(height(x->left), height(x->right)) + 1;
+  value_y->height = max(height(value_y->left), height(value_y->right)) + 1;
+  value_x->height = max(height(value_x->left), height(value_x->right)) + 1;
 
-  return x;
+  return value_x;
 }
 
 int AVLTree::get_balance(Node const * node) {
@@ -143,26 +143,25 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
   return node;
 }
 
-element AVLTree::search(unsigned long const color) {
+element AVLTree::search(unsigned long const color) const {
   Node const * current = root;
 
   while (current != nullptr) {
     if (color == current->color) {
-      return element{.color=current->color, .index=current->index};
-    } else if (color < current->color) {
+      return element{.color = current->color, .index = current->index};
+    }
+    if (color < current->color) {
       current = current->left;
     } else {
       current = current->right;
     }
   }
   std::cout << "Element not found\n";
-  return element{.color=0, .index=0};
+  return element{.color = 0, .index = 0};
 }
 
-
-
 int AVLTree::insert(element const elem) {
-  Node * node = static_cast<gsl::owner<Node *>>(insert(root, elem));
+  Node * node = gsl::owner<Node *>(insert(root, elem));
   if (node == nullptr) { return -1; }
   root = node;
   return 0;
@@ -172,16 +171,16 @@ void AVLTree::print() {
   // Impresión del arbol en anchura
   if (root == nullptr) { return; }
 
-  std::queue<Node *> q;
-  q.push(root);
+  std::queue<Node *> que;
+  que.push(root);
 
-  while (!q.empty()) {
-    Node * current = q.front();
-    q.pop();
+  while (!que.empty()) {
+    Node const * current = que.front();
+    que.pop();
 
     std::cout << "Color: " << current->color << " Index: " << current->index << "\n";
 
-    if (current->left != nullptr) { q.push(current->left); }
-    if (current->right != nullptr) { q.push(current->right); }
+    if (current->left != nullptr) { que.push(current->left); }
+    if (current->right != nullptr) { que.push(current->right); }
   }
 }

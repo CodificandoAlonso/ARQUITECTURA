@@ -10,10 +10,10 @@
 #include <cstdint>
 
 using namespace std;
-
+uint8_t read_binary_8(ifstream  & input);
 uint16_t read_binary_16(ifstream & input);
 
-void write_binary_8(ofstream & output, uint8_t value);
+void write_binary_8(ofstream  &output, uint8_t value);
 
 void write_binary_16(ofstream & output, uint16_t value);
 
@@ -21,7 +21,7 @@ void write_binary_32(ofstream & output, uint32_t value);
 
 unsigned short merge16(unsigned char op1,unsigned char op2);
 
-unsigned short swap16(unsigned short op);
+unsigned short swap16(unsigned short opr);
 
 string mix3char(char ch1, char ch2, char ch3);
 __uint8_t extractblue(const string& rgb);
