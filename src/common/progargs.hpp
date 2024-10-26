@@ -12,6 +12,7 @@ using namespace std;
 
 class Image {
 public:
+    //Hola
     Image(int argc, vector<string> const & argv);
   static bool check_info(int argc, string const & option);
     bool check_maxval(int argc, vector<string> const & argv, string const & option);
