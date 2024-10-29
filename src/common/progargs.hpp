@@ -21,6 +21,8 @@ class Image {
     [[nodiscard]] int check_args();
     [[nodiscard]] int info() const;
     int maxlevel();
+    void write_out(int level);
+    void get_imgdata();
 
     [[nodiscard]] string get_input_file() const { return input_file; }
 
@@ -30,9 +32,15 @@ class Image {
 
     [[nodiscard]] vector<int> get_args() const { return args; }
 
+    [[nodiscard]] string get_format() const { return format; }
+
+    [[nodiscard]] int get_width() const { return width; }
+
+    [[nodiscard]] int get_height() const { return height; }
+
+    [[nodiscard]] int get_maxval() const { return maxval; }
+
   private:
-    void get_imgdata();
-    void write_out(int level);
     void min_min();
     void max_min();
     void min_max();

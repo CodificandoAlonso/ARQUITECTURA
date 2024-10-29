@@ -51,8 +51,7 @@ int ImageSOA::process_operation() {
 }
 
 int ImageSOA::resize(){
-
-  obtain_args();
+  get_imgdata();
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -62,17 +61,14 @@ int ImageSOA::resize(){
     return -1;
   }
 
-  string format;
-  unsigned int width = 0;
-  unsigned int height = 0;
-  unsigned int maxval = 0;
-  input_file >> format >> width >> height >> maxval;
-  input_file.ignore(1);
+  write_out(get_maxval());
 
   int const new_width  = this->get_args()[0];
   int const new_height = this->get_args()[1];
 
-  output_file << format << " " << new_width << " " << new_height << " " << maxval << "\n";
+  unsigned int const width  = this->get_width();
+  unsigned int const height = this->get_height();
+  unsigned int const maxval = this->get_maxval();
 
   if (maxval <= MIN_LEVEL) {
     // leemos la imagen y la almacenamos en memoria
@@ -221,25 +217,7 @@ int ImageSOA::resize(){
   return 0;
 }
 
-bool ImageSOA::obtain_args() {
-  ifstream input_file(this->get_input_file(), ios::binary);
-  if (!input_file) { return false; }
-
-  string format;
-  int width  = 0;
-  int height = 0;
-  int maxval = 0;
-
-  input_file >> format >> width >> height >> maxval;
-  input_file.ignore(1);
-  this->if_input_file = move(input_file);
-  this->format        = format;
-  this->width         = width;
-  this->height        = height;
-  this->maxval        = maxval;
-  return true;
-}
-
+/*
 map<string, int> ImageSOA::load_and_map_8(){
   soa_rgb_small mysoa;
   map <string, int> myMap;
@@ -263,7 +241,6 @@ map<string, int> ImageSOA::load_and_map_8(){
   return myMap;
 }
 
-
 vector<pair<string, __uint8_t>> same_bgr_vector(vector<pair<string, int>> father_vector, int value, size_t counter) {
     //Value será 1 para blue, 2 para green y 3 para red
     vector<pair<string, __uint8_t>> color_vector;
@@ -279,7 +256,6 @@ vector<pair<string, __uint8_t>> same_bgr_vector(vector<pair<string, int>> father
     });
   return color_vector;
 }
-
 
 int check_and_delete(vector<pair<string, __uint8_t>> color_vector, vector<pair<string, int>> left_elems, int color, vector<pair<string, string>> Deleteitems) {
   //1 para azul, 0 para verde
@@ -307,12 +283,6 @@ int check_and_delete(vector<pair<string, __uint8_t>> color_vector, vector<pair<s
   }
   return static_cast<int>(meanwhile);
 }
-
-
-
-
-
-
 
 int ImageSOA::cutfreq() {
   if (not obtain_args()) {
@@ -385,14 +355,9 @@ int ImageSOA::cutfreq() {
       num_left--;
     }
   }
-    /*
-     * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
-     * no depende de su posición en la imagen sino de sus valores RGB.
-     * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
-     */
-  //Hola
     return 0;
   }
+*/
 
 int ImageSOA::compress() {
   ifstream input_file(this->get_input_file(), ios::binary);
@@ -537,6 +502,3 @@ int ImageSOA::compress() {
   output_file.close();
   return 0;
 }
-
-
-

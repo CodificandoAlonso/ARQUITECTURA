@@ -277,13 +277,13 @@ void Image::max_min() {
     int const new_g = grn;
     int const new_b = blu;
 
-    red = static_cast<unsigned char>(new_r * this->get_args()[0] / maxval);
-    grn = static_cast<unsigned char>(new_g * this->get_args()[0] / maxval);
-    blu = static_cast<unsigned char>(new_b * this->get_args()[0] / maxval);
+    auto r_8 = static_cast<unsigned char>(new_r * this->get_args()[0] / maxval);
+    auto g_8 = static_cast<unsigned char>(new_g * this->get_args()[0] / maxval);
+    auto b_8 = static_cast<unsigned char>(new_b * this->get_args()[0] / maxval);
 
-    write_binary_8(this->of_output_file, red);
-    write_binary_8(this->of_output_file, grn);
-    write_binary_8(this->of_output_file, blu);
+    write_binary_8(this->of_output_file, r_8);
+    write_binary_8(this->of_output_file, g_8);
+    write_binary_8(this->of_output_file, b_8);
   }
 }
 
