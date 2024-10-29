@@ -23,7 +23,7 @@ unsigned short merge16(unsigned char op1,unsigned char op2);
 
 unsigned short swap16(unsigned short opr);
 
-string mix3char(char ch1, char ch2, char ch3);
+string mix3char(unsigned char ch1, unsigned char ch2, unsigned char ch3);
 __uint8_t extractblue(const string& rgb);
 __uint8_t extractgreen(const string& rgb);
 __uint8_t extractred(const string& rgb);
