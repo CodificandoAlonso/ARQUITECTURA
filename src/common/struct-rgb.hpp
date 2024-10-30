@@ -9,9 +9,9 @@
 using namespace std;
 
 struct rgb_small {
-    char r;
-    char g;
-    char b;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 };
 
 struct rgb_big {
@@ -24,7 +24,6 @@ struct soa_rgb_small {
     vector<unsigned char> r;
     vector<unsigned char> g;
     vector<unsigned char> b;
-    void print(unsigned int index);
 };
 
 struct soa_rgb_big {
