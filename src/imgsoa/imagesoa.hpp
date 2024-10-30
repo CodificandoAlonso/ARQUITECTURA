@@ -34,6 +34,8 @@ class ImageSOA : public Image {
         check_colors_to_delete(deque<pair<string, string>> Deleteitems, int num_left,
                                deque<pair<string, unsigned char>> const & left_elems,
                                deque<pair<string, __uint8_t>> bluevalues);
+    void cutfreq_min(map<__uint32_t, __uint8_t> myMap);
+    void cutfreq_max(map<__uint64_t, __uint8_t> myMapBIG);
     [[nodiscard]] int cutfreq();
     int resize_min(ofstream & output_file);
     soa_rgb_small read_image_rgb_small(ifstream & input_file) const;
