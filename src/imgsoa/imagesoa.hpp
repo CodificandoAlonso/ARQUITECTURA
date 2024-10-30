@@ -6,7 +6,7 @@
 #define IMAGESOA_HPP
 
 #include "common/progargs.hpp"
-
+#include <deque>
 #include <common/struct-rgb.hpp>
 #include <map>
 #include <vector>
@@ -18,9 +18,20 @@ class ImageSOA : public Image {
     int process_operation();
 
   private:
-    map<string, int> load_and_map_8();
+    bool obtain_args();
+    static deque<pair<string, __uint8_t>> same_bgr_vector(deque<pair<string, __uint8_t>> father_vector,
+      int value, size_t counter);
+    static int check_and_delete(deque<pair<string, __uint8_t>> &color_vector, deque<pair<string, __uint8_t>> left_elems,
+      int color,
+        deque<pair<string, string>> &Deleteitems);
+    map<string, __uint8_t> load_and_map_8();
     [[nodiscard]] int resize();
     [[nodiscard]] int compress();
+    static void delete_from_deque(deque<pair<string, __uint8_t>> &deque_general, size_t index);
+    static size_t search_in_blue(deque<pair<string, __uint8_t>> & pairs, string & first);
+    static deque<pair<string, string>> check_colors_to_delete(deque<pair<string, string>> Deleteitems, int num_left,
+                                const deque<pair<string, unsigned char>>& left_elems,
+                                deque<pair<string, __uint8_t>> bluevalues);
     [[nodiscard]] int cutfreq();
 };
 

@@ -58,10 +58,10 @@ unsigned short merge16(unsigned char op1, unsigned char op2) {
  */
 
 
-string mix3char(const char ch1, const char ch2, const char ch3) {
-      bitset<BYTE> const byte1(static_cast<unsigned char>(ch1));
-      bitset<BYTE> const byte2(static_cast<unsigned char>(ch2));
-      bitset<BYTE> const byte3(static_cast<unsigned char>(ch3));
+string mix3char(const unsigned char ch1, const unsigned char ch2, const unsigned char ch3) {
+      bitset<BYTE> const byte1(ch1);
+      bitset<BYTE> const byte2(ch2);
+      bitset<BYTE> const byte3(ch3);
     return byte1.to_string() + byte2.to_string() + byte3.to_string();
 
 }

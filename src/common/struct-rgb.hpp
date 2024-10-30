@@ -21,9 +21,9 @@ struct rgb_big {
 };
 
 struct soa_rgb_small {
-    vector<char> r;
-    vector<char> g;
-    vector<char> b;
+    vector<unsigned char> r;
+    vector<unsigned char> g;
+    vector<unsigned char> b;
     void print(unsigned int index);
 };
 
