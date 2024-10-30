@@ -16,6 +16,7 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
+
   private:
     bool obtain_args();
     static deque<pair<string, __uint8_t>> same_bgr_vector(deque<pair<string, __uint8_t>> father_vector,
@@ -32,14 +33,6 @@ class ImageSOA : public Image {
                                 const deque<pair<string, unsigned char>>& left_elems,
                                 deque<pair<string, __uint8_t>> bluevalues);
     [[nodiscard]] int cutfreq();
-    string input_file;
-    string output_file;
-    ifstream if_input_file;
-    ofstream of_output_file;
-    string format ;
-    int width =0;
-    int height =0 ;
-    int maxval=0;
 };
 
 #endif  // IMAGESOA_HPP

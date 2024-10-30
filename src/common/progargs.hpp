@@ -11,28 +11,40 @@
 using namespace std;
 
 class Image {
-public:
-    //Hola
+  public:
     Image(int argc, vector<string> const & argv);
-  static bool check_info(int argc, string const & option);
-    bool check_maxval(int argc, vector<string> const & argv, string const & option);
-  bool check_resize(int argc, vector<string> const & argv, string const & option);
-    bool check_cutfreq(int argc, vector<string> const & argv, string const & option);
-    int check_args();
+    static bool info_constraints(int argc);
+    bool maxval_constraints(int argc, vector<string> const & argv);
+    bool resize_constraints(int argc, vector<string> const & argv);
+    bool cutfreq_constraints(int argc, vector<string> const & argv);
+    static bool compress_constraints(int argc);
+    [[nodiscard]] int check_args();
     [[nodiscard]] int info() const;
     int maxlevel();
-    [[nodiscard]] string get_input_file() const{ return input_file; }
+    void write_out(int level);
+    void get_imgdata();
+
+    [[nodiscard]] string get_input_file() const { return input_file; }
+
     [[nodiscard]] string get_output_file() const { return output_file; }
+
     [[nodiscard]] string get_optype() const { return optype; }
+
     [[nodiscard]] vector<int> get_args() const { return args; }
 
-private:
-    void get_imgdata();
-    void write_out(int level);
+    [[nodiscard]] string get_format() const { return format; }
+
+    [[nodiscard]] int get_width() const { return width; }
+
+    [[nodiscard]] int get_height() const { return height; }
+
+    [[nodiscard]] int get_maxval() const { return maxval; }
+
+  private:
     void min_min();
-    void max_min() ;
-    void min_max() ;
-    void max_max() ;
+    void max_min();
+    void min_max();
+    void max_max();
     string input_file;
     string output_file;
     ifstream if_input_file;
@@ -41,10 +53,10 @@ private:
     vector<int> args;
     int argc;
     vector<string> argv;
-    string format ;
-    int width =0;
-    int height =0 ;
-    int maxval=0;
+    string format;
+    int width  = 0;
+    int height = 0;
+    int maxval = 0;
 };
 
-#endif //PROGARGS_HPP
+#endif  // PROGARGS_HPP

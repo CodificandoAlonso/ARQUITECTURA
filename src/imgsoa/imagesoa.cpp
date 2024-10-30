@@ -52,11 +52,8 @@ int ImageSOA::process_operation() {
 }
 
 
-int ImageSOA::resize() {
-  return 0;
-}
-  /*
-  obtain_args();
+int ImageSOA::resize(){
+  get_imgdata();
   ifstream input_file(this->get_input_file(), ios::binary);
   ofstream output_file(this->get_output_file(), ios::binary);
 
@@ -66,17 +63,14 @@ int ImageSOA::resize() {
     return -1;
   }
 
-  string format;
-  unsigned int width = 0;
-  unsigned int height = 0;
-  unsigned int maxval = 0;
-  input_file >> format >> width >> height >> maxval;
-  input_file.ignore(1);
+  write_out(get_maxval());
 
   int const new_width  = this->get_args()[0];
   int const new_height = this->get_args()[1];
 
-  output_file << format << " " << new_width << " " << new_height << " " << maxval << "\n";
+  unsigned int const width  = this->get_width();
+  unsigned int const height = this->get_height();
+  unsigned int const maxval = this->get_maxval();
 
   if (maxval <= MIN_LEVEL) {
     // leemos la imagen y la almacenamos en memoria
@@ -224,7 +218,7 @@ int ImageSOA::resize() {
   output_file.close();
   return 0;
 }
-*/
+
 bool ImageSOA::obtain_args() {
   ifstream input_file(this->get_input_file(), ios::binary);
   if (!input_file) { return false; }
@@ -245,6 +239,7 @@ bool ImageSOA::obtain_args() {
 }
 
 map<string, __uint8_t> ImageSOA::load_and_map_8(){
+
   soa_rgb_small mysoa;
   map <string, __uint8_t> myMap;
   unsigned char red = 0;
@@ -270,8 +265,6 @@ map<string, __uint8_t> ImageSOA::load_and_map_8(){
   return myMap;
 }
 
-
-
 deque<pair<string, __uint8_t>> ImageSOA::same_bgr_vector(deque<pair<string, __uint8_t>>
                                           father_vector, const int value, const size_t counter) {
     //Value será 1 para blue, 2 para green y 3 para red
@@ -288,7 +281,6 @@ deque<pair<string, __uint8_t>> ImageSOA::same_bgr_vector(deque<pair<string, __ui
     });
   return color_vector;
 }
-
 
 
 int ImageSOA::check_and_delete(deque<pair<string, __uint8_t>> &color_vector, deque<pair<string,
@@ -319,7 +311,6 @@ int ImageSOA::check_and_delete(deque<pair<string, __uint8_t>> &color_vector, deq
   }
   return static_cast<int>(meanwhile);
 }
-
 
 void ImageSOA::delete_from_deque(deque<pair<string, __uint8_t>> &deque_general, size_t index) {
   swap(deque_general[0], deque_general[index]);
@@ -376,7 +367,6 @@ deque<pair<string, string>> ImageSOA::check_colors_to_delete(deque<pair<string, 
   }
 return Deleteitems;
 }
-
 
 int ImageSOA::cutfreq() {
   if (not obtain_args()) {
@@ -435,8 +425,10 @@ int ImageSOA::cutfreq() {
      * no depende de su posición en la imagen sino de sus valores RGB.
      * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
      */
+
     return 0;
   }
+*/
 
 
 
@@ -595,9 +587,3 @@ int ImageSOA::compress() {
   output_file.close();
   return 0;
 }
-
-
-
-
-
-
