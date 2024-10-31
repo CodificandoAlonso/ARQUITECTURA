@@ -101,9 +101,9 @@ bool Image::compress_constraints(int const argc) {
   // Si la opción es compress, el número de argumentos debe ser exactamente tres.
   if (argc != 4) {
     cerr << "Error: Invalid extra arguments for compress: " << argc << '\n';
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 /**
