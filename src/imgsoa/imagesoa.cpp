@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include<unordered_map>
 #include <string>
 #include <sys/stat.h>
 #include <utility>
@@ -41,7 +42,11 @@ int ImageSOA::process_operation() {
   } else if (this->get_optype() == "resize") {
     // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
-  } else {
+  } else if (this->get_optype() == "cutfreq") {
+    if (cutfreq() < 0) {return -1;}
+  }
+
+  else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
     return -1;
   }
@@ -197,9 +202,8 @@ int ImageSOA::resize() {
 
 
 
-map<__uint32_t, __uint8_t> ImageSOA::load_and_map_8(int width, ifstream input_file, int height) {
-  map<__uint32_t, __uint8_t> myMap;
-  soa_rgb_small mysoa;
+unordered_map<__uint32_t, __uint16_t> ImageSOA::load_and_map_8(int width, ifstream input_file, int height) {
+  unordered_map<__uint32_t, __uint16_t> myMap;
   unsigned char red = 0;
   unsigned char grn = 0;
   unsigned char blu = 0;
@@ -207,47 +211,49 @@ map<__uint32_t, __uint8_t> ImageSOA::load_and_map_8(int width, ifstream input_fi
     red = read_binary_8(input_file);
     grn = read_binary_8(input_file);
     blu = read_binary_8(input_file);
-    if (__uint32_t const rgb = packRGB(red, grn, blu); myMap.contains(rgb)) {
-      myMap[{rgb}]++;
+    if (__uint32_t const rgb = packRGB(red, grn, blu);myMap.contains(rgb)  ) {
+      myMap[rgb]++;
     } else {
-      myMap[{rgb}] = 1;
+      myMap[rgb] = 1;
     }
-    mysoa.r.push_back(red);
-    mysoa.g.push_back(grn);
-    mysoa.b.push_back(blu);
+    this->soa_small.r.push_back(red);
+    this->soa_small.g.push_back(grn);
+    this->soa_small.b.push_back(blu);
   }
   return myMap;
 }
 
-map<__uint64_t, __uint8_t> ImageSOA::load_and_map_8BIG(int width, ifstream input_file,
+unordered_map<__uint64_t, __uint16_t> ImageSOA::load_and_map_8BIG(int width, ifstream input_file,
         int height){
-    soa_rgb_big mysoa;
     unsigned short red = 0;
     unsigned short grn = 0;
     unsigned short blu = 0;
-    map<__uint64_t, __uint8_t> myMap;
+    unordered_map<__uint64_t, __uint16_t> myMap;
     for(int i=0; i< width * height; i++) {
       red = read_binary_16(input_file);
       grn = read_binary_16(input_file);
       blu = read_binary_16(input_file);
-      if (__uint64_t const rgb = packRGBBIG(red, grn, blu); myMap.contains(rgb)) {
+      if (__uint64_t const rgb = packRGBIG(red, grn, blu); myMap.contains(rgb)) {
         myMap[{rgb}]++;
       } else {
         myMap[{rgb}] = 1;
       }
-      mysoa.r.push_back(red);
-      mysoa.g.push_back(grn);
-      mysoa.b.push_back(blu);
+      cout << "PORRO";
+      /*
+      this->soa_big.r.push_back(red);
+      this->soa_big.g.push_back(grn);
+      this->soa_big.b.push_back(blu);
+      */
       }
   return myMap;
 }
 
-deque<pair<string, __uint8_t>> ImageSOA::same_bgr_vector(deque<pair<string, __uint8_t>>
+deque<pair<__uint32_t, __uint16_t>> ImageSOA::same_bgr_vector(deque<pair<__uint32_t, __uint16_t>>
                                           father_vector, const int value, const size_t counter) {
     //Value será 1 para blue, 2 para green y 3 para red
-    deque<pair<string, __uint8_t>> color_vector;
+    deque<pair<__uint32_t, __uint16_t>> color_vector;
     __uint8_t color = 0;
-    for (size_t i = 0; i < counter; i++) {
+    for (size_t i = 0; i <= counter; i++) {
         if(value ==1){color = extractblue(father_vector[i].first);}
         if(value ==2){color = extractgreen(father_vector[i].first);}
         if(value ==3){color = extractred(father_vector[i].first);}
@@ -260,8 +266,10 @@ deque<pair<string, __uint8_t>> ImageSOA::same_bgr_vector(deque<pair<string, __ui
 }
 
 
-int ImageSOA::check_and_delete(deque<pair<string, __uint8_t>> &color_vector, deque<pair<string,
-                      __uint8_t>> left_elems, int color, deque<pair<string, string>> &Deleteitems) {
+int ImageSOA::check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
+                               unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+                               deque<pair<__uint32_t, __uint16_t>> &bluevalues) {
+  size_t my_index = 0;
   //1 para azul, 0 para verde
   size_t meanwhile = 1;
   while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
@@ -269,53 +277,61 @@ int ImageSOA::check_and_delete(deque<pair<string, __uint8_t>> &color_vector, deq
     __uint8_t value0 = 0;
     __uint8_t value1 = 0;
     if(color ==1) {
-      value0 = extractgreen(left_elems[0].first);
-      value1 = extractgreen(left_elems[1].first);
+      value0 = extractgreen(color_vector[0].first);
+      value1 = extractgreen(color_vector[1].first);
     }
     else {
-      value0 = extractred(left_elems[0].first);
-      value1 = extractred(left_elems[1].first);
+      value0 = extractred(color_vector[0].first);
+      value1 = extractred(color_vector[1].first);
     }
     if (value0 - value1> 0) {
-      Deleteitems.emplace_back(color_vector[0].first, "");
-      color_vector.pop_front();
+      Deleteitems[{color_vector[0].first}] = 0;
+      //color_vector.pop_front();
+      my_index = search_in_blue(bluevalues, color_vector[0].first);
+      delete_from_deque(bluevalues, my_index);
     } else {
-      Deleteitems.emplace_back(color_vector[1].first, "");
-      swap(color_vector[0], color_vector[1]);
-      color_vector.pop_front();
+      Deleteitems[{color_vector[1].first}] = 0;
+      my_index = search_in_blue(bluevalues, color_vector[1].first);
+      delete_from_deque(bluevalues, my_index);
     }
     return 0;
   }
   return static_cast<int>(meanwhile);
 }
 
-void ImageSOA::delete_from_deque(deque<pair<string, __uint8_t>> &deque_general, size_t index) {
+void ImageSOA::delete_from_deque(deque<pair<__uint32_t, __uint16_t>> &deque_general, size_t index) {
   swap(deque_general[0], deque_general[index]);
   deque_general.pop_front();
 }
 
-size_t ImageSOA::search_in_blue(deque<pair<string, unsigned char>> & pairs, string & first) {
+size_t ImageSOA::search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs, __uint32_t & first) {
   for (size_t i = 0; i < pairs.size(); i++) {
     if (pairs[i].first == first) { return i; }
   }
   return 0;
 }
 
-deque<pair<string, string>>
-    ImageSOA::check_colors_to_delete(deque<pair<string, string>> Deleteitems, int num_left,
-                                     deque<pair<string, unsigned char>> const & left_elems,
-                                     deque<pair<string, __uint8_t>> bluevalues) {
+
+unordered_map<__uint32_t, __uint32_t> ImageSOA::check_colors_to_delete(
+                                    unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
+                                     deque<pair<__uint32_t, __uint16_t>> bluevalues) {
   size_t my_index = 0;
   while (num_left > 0) {
     if (bluevalues[0].second == bluevalues[1].second) {
-      if (int my_meanwhile = check_and_delete(bluevalues, left_elems, 1, Deleteitems);
+      if (int my_meanwhile = check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
           my_meanwhile > 0) {
-        auto greenvalues = same_bgr_vector(left_elems, 2, static_cast<size_t>(my_meanwhile));
+        if (my_meanwhile < num_left) {
+          auto iterator = static_cast<size_t>(my_meanwhile);
+          for(size_t iii = 0; iii< iterator;iii++) {
+            Deleteitems[bluevalues[0].first] = 0;
+            bluevalues.pop_front();
+            num_left --;}}
+        auto greenvalues = same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
         if (greenvalues[0].second == greenvalues[1].second) {
-          my_meanwhile = check_and_delete(greenvalues, left_elems, 0, Deleteitems);
+          my_meanwhile = check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
           if (my_meanwhile > 0) {
-            auto redvalues = same_bgr_vector(left_elems, 3, static_cast<size_t>(my_meanwhile));
-            Deleteitems.emplace_back(redvalues[0].first, "");
+            auto redvalues = same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
+            Deleteitems[{redvalues[0].first}] = 0;
             my_index = search_in_blue(bluevalues, redvalues[0].first);
             delete_from_deque(bluevalues, my_index);
             num_left--;
@@ -323,7 +339,7 @@ deque<pair<string, string>>
             num_left--;
           }
         } else {
-          Deleteitems.emplace_back(greenvalues[0].first, "");
+          Deleteitems[{greenvalues[0].first}] = 0;
           my_index = search_in_blue(bluevalues, greenvalues[0].first);
           delete_from_deque(bluevalues, my_index);
           num_left--;
@@ -332,23 +348,27 @@ deque<pair<string, string>>
         num_left--;
       }
     } else {
-      Deleteitems.emplace_back(bluevalues[0].first, "");
+      Deleteitems[{bluevalues[0].first}] = 0;
       bluevalues.pop_front();
       num_left--;
     }
   }
+
   return Deleteitems;
 }
 
-void ImageSOA::cutfreq_min(map<__uint32_t, __uint8_t> myMap) {
+
+
+void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   // Convierto myMap a vector de pares y ordeno
-  vector<pair<__uint32_t, __uint8_t>> myVector(myMap.begin(), myMap.end());
+
+  vector<pair< __uint32_t, __uint16_t>> myVector(myMap.begin(), myMap.end());
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
   });
 
   // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
-  vector<pair<string, __uint8_t>> VectorDelete;
+  vector<pair<__uint32_t, __uint16_t>> VectorDelete;
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
@@ -363,10 +383,10 @@ void ImageSOA::cutfreq_min(map<__uint32_t, __uint8_t> myMap) {
 
   int const pivot  = VectorDelete[elems_to_delete - 1].second;
   int elem_deleted = 0;
-  deque<pair<string, string>> Deleteitems;
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
   for (auto & [fst, snd] : VectorDelete) {
     if (snd < pivot) {
-      Deleteitems.emplace_back(fst, "");
+      Deleteitems[{fst}] = 0;
       elem_deleted++;
     }
   }
@@ -379,15 +399,19 @@ void ImageSOA::cutfreq_min(map<__uint32_t, __uint8_t> myMap) {
 
   auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
   // Para saber que elemento de bluevalues utilizar
-  Deleteitems = check_colors_to_delete(Deleteitems, num_left, left_elems, bluevalues);
-
+  Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
     /*
      * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
      * no depende de su posición en la imagen sino de sus valores RGB.
      * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
-     */}
-void ImageSOA::cutfreq_max(map<__uint64_t, __uint8_t> myMapBIG) {
-  cout << "Pinga";
+     */
+  cout << "PINGAAAAA" << "\n";
+}
+
+void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t>  myMapBIG) {
+  constexpr __uint32_t TUSMUERTOS = 33;
+  myMapBIG[{TUSMUERTOS}] = TUSMUERTOS;
+  cout << "Pinga" << myMapBIG[0] << "\n";
 }
 
 int ImageSOA::cutfreq()  {
@@ -409,11 +433,12 @@ int ImageSOA::cutfreq()  {
   int const height = this->get_height();
   int const maxval = this->get_maxval();
   //ofstream output_file(this->get_output_file(), ios::binary);
-  map<__uint32_t, __uint8_t> myMap;
-  map<__uint64_t, __uint8_t> myMapBIG;
+  unordered_map<__uint32_t, __uint16_t> myMap;
+  unordered_map<__uint64_t, __uint16_t> myMapBIG;
   if (maxval == MIN_LEVEL) {
     myMap = load_and_map_8(width, move(input_file), height);
     cutfreq_min(myMap);
+    cout << "Pinga";
   }
   else {
     myMapBIG = load_and_map_8BIG(width, move(input_file), height);
@@ -432,145 +457,7 @@ int ImageSOA::cutfreq()  {
 
 
 int ImageSOA::compress() {
-
-  get_imgdata();
-  ifstream input_file(this->get_input_file(), ios::binary);
-  ofstream output_file(this->get_output_file(), ios::binary);
-
-  if (!input_file || !output_file) {
-    cerr << "Error al abrir los archivos de entrada/salida"
-         << "\n";
-    return -1;
-  }
-
-  int const width  = this->get_width();
-  int const height = this->get_height();
-  int const maxval = this->get_maxval();
-  auto const width_height = static_cast<unsigned int>(width * height);
-  if (maxval <= MIN_LEVEL) {
-    /*
-     * Usaremos un árbol AVL como si fuera un catálogo de colores para almacenar los colores
-     * DISTINTOS de la imagen. Éstos también se almacenan un struct_soa, para recorrelo
-     * posteriormente. Esta implementación hará que la complejidad de esta operación sea
-     * O(n log(n)), donde n es el número de píxeles de la imagen.
-     */
-    AVLTree tree;
-
-    soa_rgb_small image;
-    for (unsigned int i = 0; i < width_height; i++) {
-      __uint8_t red = 0;
-      __uint8_t grn = 0;
-      __uint8_t blu = 0;
-      red = read_binary_8(input_file);
-      grn = read_binary_8(input_file);
-      blu = read_binary_8(input_file);
-      if (i == 0) {  // Si es el primer elemento
-        unsigned int const concatenated = red << 2 * BYTE |
-                                          grn << BYTE |
-                                          blu;
-        element const elem = {.color = concatenated, .index = 0};
-        tree.insert(elem);
-        image.r.push_back(red);
-        image.g.push_back(grn);
-        image.b.push_back(blu);
-    }
-    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      cerr << "Error: demasiados colores distintos."
-           << "\n";
-      return -1;
-    }
-    // Ahora ya sabemos cuántos colores distintos hay en la imagen. Los escribimos
-    output_file << "C6"
-                << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
-    for (unsigned int i = 0; i < image.r.size(); i++) {
-      /*
-      output_file.write(&image.r[i], sizeof(image.r[i]));
-      output_file.write(&image.g[i], sizeof(image.g[i]));
-      output_file.write(&image.b[i], sizeof(image.b[i]));
-      */
-      write_binary_8(output_file, image.r[i]);
-      write_binary_8(output_file, image.g[i]);
-      write_binary_8(output_file, image.b[i]);
-    }
-    /*
-     * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
-     * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
-     * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
-     * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
-     * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
-     * 4. Si hay más, no lo soportamos.
-     */
-
-
-
-
-
-    unsigned long int const num_colors = image.r.size();
-    // Hay que volver a abrir el archivo para volver a leerlo
-    input_file.close();
-    /*
-    ifstream input_file(this->get_input_file(), ios::binary);
-    input_file >> format >> width >> height >> maxval;
-    input_file.ignore(1);
-    */
-    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-      for (unsigned int i = 0; i < width * height; i++) {
-        char red = 0;
-        char grn = 0;
-        char blu = 0;
-        input_file.read(&red, sizeof(red));
-        input_file.read(&grn, sizeof(grn));
-        input_file.read(&blu, sizeof(blu));
-
-        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
-                                          static_cast<unsigned char>(grn) << BYTE |
-                                          static_cast<unsigned char>(blu);
-        element const elem = tree.search(concatenated);
-        write_binary_8(output_file, static_cast<unsigned char>(elem.index));
-      }
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-      for (unsigned int i = 0; i < width * height; i++) {
-        char red = 0;
-        char grn = 0;
-        char blu = 0;
-        input_file.read(&red, sizeof(red));
-        input_file.read(&grn, sizeof(grn));
-        input_file.read(&blu, sizeof(blu));
-
-        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
-                                          static_cast<unsigned char>(grn) << BYTE |
-                                          static_cast<unsigned char>(blu);
-        element const elem = tree.search(concatenated);
-        write_binary_16(output_file, static_cast<uint16_t>(elem.index));
-      }
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      for (unsigned int i = 0; i < width * height; i++) {
-        char red = 0;
-        char grn = 0;
-        char blu = 0;
-        input_file.read(&red, sizeof(red));
-        input_file.read(&grn, sizeof(grn));
-        input_file.read(&blu, sizeof(blu));
-
-        unsigned int const concatenated = static_cast<unsigned char>(red) << 2 * BYTE |
-                                          static_cast<unsigned char>(grn) << BYTE |
-                                          static_cast<unsigned char>(blu);
-        element const elem = tree.search(concatenated);
-        write_binary_32(output_file, elem.index);
-      }
-    }
-  }
-
-  else if (maxval <= MAX_LEVEL) {
-    ;
-  } else {
-    cerr << "Error: maxval no soportado"
-         << "\n";
-    return -1;
-  }
-
-  input_file.close();
-  output_file.close();
+  return 0;
 }
 
 
