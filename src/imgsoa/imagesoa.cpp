@@ -4,10 +4,10 @@
 
 #include "imagesoa.hpp"
 
+#include "common/AVLTree.hpp"
 #include "common/binario.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
-#include "common/AVLTree.hpp"
 
 #include <algorithm>
 #include <array>
@@ -57,8 +57,12 @@ array<rgb_small, 4> ImageSOA::obtain_square(soa_rgb_small const & image,
   auto xheight = static_cast<unsigned long>(args[1]);
   auto ylength = static_cast<unsigned long>(args[2]);
   auto yheigth = static_cast<unsigned long>(args[3]);
-
   auto width = static_cast<unsigned long>(args[4]);
+
+  xlength = min(xlength, width - 1);
+  xheight = min(xheight, width - 1);
+  ylength = min(ylength, (image.r.size() / width) - 1);
+  yheigth = min(yheigth, (image.r.size() / width) - 1);
 
   // Obtenemos los 4 pixeles más cercanos
   rgb_small const p_1 = {.r = image.r[(ylength * width) + xlength],
@@ -134,29 +138,25 @@ soa_rgb_big ImageSOA::read_image_rgb_big(ifstream & input_file) const {
 
 int ImageSOA::resize_min(ofstream & output_file) {
   ifstream input_file = ifstream(this->get_input_file(), ios::binary);
-  std::string dummy;
-  std::getline(input_file, dummy);
-
-  int const width      = this->get_width();
-  int const height     = this->get_height();
+  string format;
+  int width  = 0;
+  int height = 0;
+  int maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
   int const new_width  = this->get_args()[0];
   int const new_height = this->get_args()[1];
 
   soa_rgb_small const image = read_image_rgb_small(input_file);
   for (int y_prime = 0; y_prime < new_height; y_prime++) {
     for (int x_prime = 0; x_prime < new_width; x_prime++) {
-      double const equis  = floor(x_prime * (static_cast<double>(width) / new_width));
-      double const ygreek = floor(y_prime * (static_cast<double>(height) / new_height));
+      double const equis  = x_prime * static_cast<double>(width - 1) / (new_width - 1);
+      double const ygreek = y_prime * static_cast<double>(height - 1) / (new_height - 1);
 
       auto xlength = static_cast<unsigned int>(floor(equis));
       auto xheight = static_cast<unsigned int>(ceil(equis));
       auto ylength = static_cast<unsigned int>(floor(ygreek));
       auto yheight = static_cast<unsigned int>(ceil(ygreek));
-
-      xheight = min(xheight, static_cast<unsigned int>(width - 1));
-      xlength = min(xlength, static_cast<unsigned int>(width - 1));
-      yheight = min(yheight, static_cast<unsigned int>(height - 1));
-      ylength = min(ylength, static_cast<unsigned int>(height - 1));
 
       array<unsigned int, FIVE> const args = {xlength, xheight, ylength, yheight,
                                               static_cast<unsigned int>(width)};
