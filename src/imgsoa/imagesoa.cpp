@@ -428,8 +428,8 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   }
   int const width  = this->get_width();
   int const height = this->get_height();
-  ofstream output_file(this->get_output_file(), ios::binary);
   write_out(this->get_maxval());
+  ofstream output_file = this->get_of_output_file();
   auto const iter = static_cast<size_t>(width * height);
 
   for(size_t pene = 0; pene < iter; pene ++){
@@ -463,15 +463,13 @@ void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t>  myMapBIG) {
 int ImageSOA::cutfreq()  {
 
   get_imgdata();
-  ifstream input_file(this->get_input_file(), ios::binary);
+  ifstream input_file = this->get_if_input_file();
 
   if (!input_file) {
     cerr << "Error al abrir los archivos de entrada/salida"
          << "\n";
     return -1;
   }
-
-  write_out(get_maxval());
 
 
   int const width  = this->get_width();
@@ -489,10 +487,6 @@ int ImageSOA::cutfreq()  {
     myMapBIG = load_and_map_8BIG(width, move(input_file), height);
     cutfreq_max(myMapBIG);
   }
-  input_file.close();
-
-  cutfreq_min(myMap);
-
     return 0;
   }
 
