@@ -176,6 +176,7 @@ int ImageSOA::resize_min(ofstream & output_file) {
       write_binary_8(output_file, c_param.g);
       write_binary_8(output_file, c_param.b);
     }
+
   }
   return 0;
 }
