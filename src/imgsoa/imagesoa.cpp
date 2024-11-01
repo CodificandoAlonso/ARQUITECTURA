@@ -18,8 +18,10 @@
 #include <map>
 #include<unordered_map>
 #include <string>
+#include <math.h>
 #include <sys/stat.h>
 #include <utility>
+#include <limits>
 #include <vector>
 
 static constexpr int MAX_LEVEL = 65535;
@@ -400,12 +402,55 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
+
+  for(auto& Delitem : Deleteitems) {
+    double distance = sqrt(3*pow(MIN_LEVEL,2));
+    double new_distance = 0;
+    for(const auto& storage : myMap) {
+      __uint8_t const check_red = extractred(storage.first);
+      __uint8_t const check_grn = extractgreen(storage.first);
+      __uint8_t const check_blu = extractblue(storage.first);
+      if (__uint32_t const rgb =
+                      packRGB(check_red, check_grn, check_blu);not Deleteitems.contains(rgb)) {
+        __uint8_t const actual_red = extractred(Delitem.first);
+        __uint8_t const actual_grn = extractgreen(Delitem.first);
+        __uint8_t const actual_blu = extractblue(Delitem.first);
+
+        new_distance = sqrt(pow(actual_red -check_red, 2) +
+                                pow(actual_grn -check_grn, 2) +pow(actual_blu - check_blu,2) );
+        if (new_distance < distance) {
+          distance = new_distance;
+          Delitem.second = rgb;
+        }
+      }
+    }
+  }
+  int const width  = this->get_width();
+  int const height = this->get_height();
+  ofstream output_file(this->get_output_file(), ios::binary);
+  write_out(this->get_maxval());
+  auto const iter = static_cast<size_t>(width * height);
+
+  for(size_t pene = 0; pene < iter; pene ++){
+    __uint8_t red = this->soa_small.r[pene];
+    __uint8_t grn = this->soa_small.g[pene];
+    __uint8_t blu = this->soa_small.b[pene];
+    if (const __uint32_t rgb = packRGB(red, grn, blu); Deleteitems.contains(rgb)) {
+      red = extractred(Deleteitems[rgb]);
+      grn = extractgreen(Deleteitems[rgb]);
+      blu = extractblue(Deleteitems[rgb]);
+    }
+    write_binary_8(output_file, red);
+    write_binary_8(output_file, grn);
+    write_binary_8(output_file, blu);
+  }
+  output_file.close();
+
     /*
      * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
      * no depende de su posición en la imagen sino de sus valores RGB.
      * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
      */
-  cout << "PINGAAAAA" << "\n";
 }
 
 void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t>  myMapBIG) {
@@ -418,9 +463,8 @@ int ImageSOA::cutfreq()  {
 
   get_imgdata();
   ifstream input_file(this->get_input_file(), ios::binary);
-  ofstream output_file(this->get_output_file(), ios::binary);
 
-  if (!input_file || !output_file) {
+  if (!input_file) {
     cerr << "Error al abrir los archivos de entrada/salida"
          << "\n";
     return -1;

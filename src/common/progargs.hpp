@@ -40,6 +40,7 @@ class Image {
 
     [[nodiscard]] int get_maxval() const { return maxval; }
 
+    [[nodiscard]] ifstream get_if_input_file() const { return if_input_file; }
   private:
     void min_min();
     void max_min();
