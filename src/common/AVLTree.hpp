@@ -5,6 +5,9 @@
 #ifndef AVLTREE_HPP
 #define AVLTREE_HPP
 
+#include <gsl/gsl>
+#include <stack>
+
 struct element {
     unsigned long color;
     unsigned int index;
@@ -31,6 +34,13 @@ class AVLTree {
     static Node * rotate_left(Node * param_x);
     static int get_balance(Node const * node);
     static Node * insert(Node * node, element elem);
+    static Node * rotateWithParent(std::array<Node *, 2> nodes, std::stack<Node *> & path,
+                                     Node * newSubRoot);
+    static Node * handleImbalance(Node * root, Node * current, std::stack<Node *> & path,
+                                           element elem);
+    static gsl::owner<Node *> rebalanceTree(Node * node, std::stack<Node *> & path,
+                                                     element elem);
+    static Node * insertNode(Node * node, element elem, std::stack<Node *> & path);
 
   public:
     AVLTree() = default;

@@ -4,6 +4,7 @@
 
 #include "AVLTree.hpp"
 
+#include <array>
 #include <cmath>
 #include <gsl/gsl>
 #include <iostream>
@@ -51,21 +52,29 @@ int AVLTree::get_balance(Node const * node) {
 gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
   if (node == nullptr) { return static_cast<gsl::owner<Node *>>(new Node(elem)); }
 
+  std::stack<Node *> path;
+  Node * insertedNode = insertNode(node, elem, path);
+  if (insertedNode == nullptr) {
+    return nullptr;  // Elemento ya existe en el árbol
+  }
+
+  return rebalanceTree(node, path, elem);
+}
+
+// Función para insertar el nodo y registrar el camino de inserción
+Node * AVLTree::insertNode(Node * node, element const elem, std::stack<Node *> & path) {
   Node * current = node;
   Node * parent  = nullptr;
-
-  std::stack<Node *> path;
 
   while (current != nullptr) {
     parent = current;
     path.push(parent);
-
     if (elem.color < current->color) {
       current = current->left;
     } else if (elem.color > current->color) {
       current = current->right;
     } else {
-      return nullptr;
+      return nullptr;  // Elemento duplicado, no se inserta
     }
   }
 
@@ -75,6 +84,12 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
     parent->right = static_cast<gsl::owner<Node *>>(new Node(elem));
   }
 
+  return parent;
+}
+
+// Función para re-balancear el árbol después de la inserción
+gsl::owner<Node *> AVLTree::rebalanceTree(Node * node, std::stack<Node *> & path,
+                                          element const elem) {
   while (!path.empty()) {
     Node * current = path.top();
     path.pop();
@@ -83,64 +98,54 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
 
     int const balance = get_balance(current);
 
-    if (balance > 1) {  // Caso izquierda
-      if (elem.color < current->left->color) {
-        // Caso 1: Desbalanceo izquierda-izquierda
-        if (!path.empty()) {
-          Node * parent = path.top();
-          if (parent->left == current) {
-            parent->left = rotate_right(current);
-          } else {
-            parent->right = rotate_right(current);
-          }
-        } else {
-          node = rotate_right(current);
-        }
-      } else {
-        // Caso 3: Desbalanceo izquierda-derecha
-        current->left = rotate_left(current->left);
-        if (!path.empty()) {
-          Node * parent = path.top();
-          if (parent->left == current) {
-            parent->left = rotate_right(current);
-          } else {
-            parent->right = rotate_right(current);
-          }
-        } else {
-          node = rotate_right(current);
-        }
-      }
-    } else if (balance < -1) {  // Caso derecha
-      if (elem.color > current->right->color) {
-        // Caso 2: Desbalanceo derecha-derecha
-        if (!path.empty()) {
-          Node * parent = path.top();
-          if (parent->right == current) {
-            parent->right = rotate_left(current);
-          } else {
-            parent->left = rotate_left(current);
-          }
-        } else {
-          node = rotate_left(current);
-        }
-      } else {
-        // Caso 4: Desbalanceo derecha-izquierda
-        current->right = rotate_right(current->right);
-        if (!path.empty()) {
-          Node * parent = path.top();
-          if (parent->right == current) {
-            parent->right = rotate_left(current);
-          } else {
-            parent->left = rotate_left(current);
-          }
-        } else {
-          node = rotate_left(current);
-        }
-      }
-    }
+    if (balance > 1 || balance < -1) { node = handleImbalance(node, current, path, elem); }
   }
 
   return node;
+}
+
+// Función para manejar los cuatro tipos de desbalance (LL, LR, RR, RL)
+Node * AVLTree::handleImbalance(Node * root, Node * current, std::stack<Node *> & path,
+                                element const elem) {
+  int const balance                 = get_balance(current);
+  std::array<Node *, 2> const nodes = {root, current};
+
+  if (balance > 1) {
+    if (elem.color < current->left->color) {
+      return rotateWithParent(nodes, path, rotate_right(current));
+    }
+    current->left = rotate_left(current->left);
+    return rotateWithParent(nodes, path, rotate_right(current));
+  }
+  if (balance < -1) {
+    if (elem.color > current->right->color) {
+      return rotateWithParent(nodes, path, rotate_left(current));
+    }
+    current->right = rotate_right(current->right);
+    return rotateWithParent(nodes, path, rotate_left(current));
+  }
+
+  return root;
+}
+
+// Función auxiliar para realizar la rotación en el nodo padre
+Node * AVLTree::rotateWithParent(std::array<Node *, 2> nodes, std::stack<Node *> & path,
+                                 Node * newSubRoot) {
+  Node *& root   = nodes[0];
+  Node * current = nodes[1];
+
+  if (!path.empty()) {
+    Node * parent = path.top();
+    if (parent->left == current) {
+      parent->left = newSubRoot;
+    } else {
+      parent->right = newSubRoot;
+    }
+  } else {
+    root = newSubRoot;
+  }
+
+  return root;
 }
 
 element AVLTree::search(unsigned long const color) const {
@@ -161,8 +166,8 @@ element AVLTree::search(unsigned long const color) const {
 }
 
 int AVLTree::insert(element const elem) {
-  Node * node = gsl::owner<Node *>(insert(root, elem));
-  if (node == nullptr) { return -1; }   
+  gsl::owner<Node *> node = insert(root, elem);
+  if (node == nullptr) { return -1; }
   root = node;
   return 0;
 }
