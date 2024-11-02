@@ -35,6 +35,15 @@ class ImageSOA : public Image {
                                                             int height);
 
     [[nodiscard]] int resize();
+    int resize_min(ofstream & output_file);
+    static array<rgb_small, 4> rsz_obtain_square_min(soa_rgb_small const & image,
+                                                     array<unsigned int, CINCO> args);
+    static rgb_small rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
+                                         double t_param);
+    int resize_max(ofstream & output_file);
+    static array<rgb_big, 4> rsz_obtain_square_max(soa_rgb_big const & image,
+                                                   array<unsigned int, CINCO> args);
+    static rgb_big rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param);
     [[nodiscard]] int compress();
     int compress_min();
     int compress_max();
@@ -49,15 +58,8 @@ class ImageSOA : public Image {
     void cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap);
     static void cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG);
     [[nodiscard]] int cutfreq();
-    void cp_export_min(ofstream output_file, unsigned int width, unsigned int height, AVLTree tree,
-                       soa_rgb_small image);
-    int compress_min(ifstream input_file);
-    int resize_min(ofstream & output_file);
     soa_rgb_small read_image_rgb_small(ifstream & input_file) const;
     soa_rgb_big read_image_rgb_big(ifstream & input_file) const;
-    static array<rgb_small, 4> obtain_square(soa_rgb_small const & image,
-                                             array<unsigned int, CINCO> args);
-    static rgb_small interpolate(double u_param, array<rgb_small, 4> square, double t_param);
     soa_rgb_small soa_small;
     soa_rgb_small soa_big;
 };
