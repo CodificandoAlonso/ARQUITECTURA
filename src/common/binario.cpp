@@ -8,8 +8,10 @@
 #include <cstdint>
 #include <fstream>
 
-static constexpr int BYTE_2 = 16;
+static constexpr unsigned char BYTE_2 = 16;
 static constexpr unsigned char BYTE = 8;
+static constexpr unsigned char BYTE_4 = 32;
+static constexpr unsigned char FFF = 0xFF;
 using namespace std;
 
 uint8_t read_binary_8(ifstream & input) {
@@ -65,7 +67,7 @@ string mix3char(const unsigned char ch1, const unsigned char ch2, const unsigned
     return byte1.to_string() + byte2.to_string() + byte3.to_string();
 
 }
-
+/*
 __uint8_t extractblue(const string& rgb) {
   const string blue = rgb.substr(rgb.size() - BYTE, BYTE);
   bitset<BYTE> const bluebinary(blue);
@@ -86,11 +88,36 @@ __uint8_t extractred(const string& rgb) {
   auto const redint = static_cast<__uint8_t>(redbinary.to_ulong());
   return redint;
 }
+*/
 
 unsigned short swap16(unsigned short opr) {
   return static_cast<unsigned short>((opr >> BYTE) | (opr << BYTE));
 }
 
+
+uint64_t packRGBIG(uint16_t red, uint16_t grn, uint16_t blu) {
+  return (static_cast<uint64_t>(red) << BYTE_4) | (static_cast<uint64_t>(grn) << BYTE_2) | blu;
+}
+
+
+
+uint32_t packRGB(uint8_t const red, uint8_t const grn, uint8_t const blu) {
+  return static_cast<uint32_t>(red) << BYTE_2 | static_cast<uint32_t>(grn) << BYTE | blu;
+}
+
+
+
+uint8_t extractred(uint32_t const color) {
+  return color >> BYTE_2 & FFF;
+}
+
+uint8_t extractgreen(uint32_t color) {
+  return color >> BYTE & FFF;
+}
+
+uint8_t extractblue(uint32_t color) {
+  return color & FFF;
+}
 
 
 

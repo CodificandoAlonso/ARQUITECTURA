@@ -162,7 +162,7 @@ element AVLTree::search(unsigned long const color) const {
 
 int AVLTree::insert(element const elem) {
   Node * node = gsl::owner<Node *>(insert(root, elem));
-  if (node == nullptr) { return -1; }
+  if (node == nullptr) { return -1; }   
   root = node;
   return 0;
 }
