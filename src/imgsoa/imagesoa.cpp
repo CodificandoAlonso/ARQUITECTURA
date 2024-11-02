@@ -4,10 +4,10 @@
 
 #include "imagesoa.hpp"
 
+#include "common/AVLTree.hpp"
 #include "common/binario.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
-#include "common/AVLTree.hpp"
 
 #include <algorithm>
 #include <array>
@@ -44,9 +44,10 @@ int ImageSOA::process_operation() {
     if (resize() < 0) { return -1; }
   } else if (this->get_optype() == "cutfreq") {
     if (cutfreq() < 0) {return -1;}
-  }
-
-  else {
+  } else if (this->get_optype() == "compress") {
+    // Implementación de la operación de compresión usando AOS (Array of Structures)
+    if (compress() < 0) { return -1; }
+  } else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
     return -1;
   }
@@ -62,8 +63,12 @@ array<rgb_small, 4> ImageSOA::obtain_square(soa_rgb_small const & image,
   auto xheight = static_cast<unsigned long>(args[1]);
   auto ylength = static_cast<unsigned long>(args[2]);
   auto yheigth = static_cast<unsigned long>(args[3]);
+  auto width   = static_cast<unsigned long>(args[4]);
 
-  auto width = static_cast<unsigned long>(args[4]);
+  xlength = min(xlength, width - 1);
+  xheight = min(xheight, width - 1);
+  ylength = min(ylength, (image.r.size() / width) - 1);
+  yheigth = min(yheigth, (image.r.size() / width) - 1);
 
   // Obtenemos los 4 pixeles más cercanos
   rgb_small const p_1 = {.r = image.r[(ylength * width) + xlength],
@@ -139,29 +144,25 @@ soa_rgb_big ImageSOA::read_image_rgb_big(ifstream & input_file) const {
 
 int ImageSOA::resize_min(ofstream & output_file) {
   ifstream input_file = ifstream(this->get_input_file(), ios::binary);
-  std::string dummy;
-  std::getline(input_file, dummy);
-
-  int const width      = this->get_width();
-  int const height     = this->get_height();
+  string format;
+  int width  = 0;
+  int height = 0;
+  int maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
   int const new_width  = this->get_args()[0];
   int const new_height = this->get_args()[1];
 
   soa_rgb_small const image = read_image_rgb_small(input_file);
   for (int y_prime = 0; y_prime < new_height; y_prime++) {
     for (int x_prime = 0; x_prime < new_width; x_prime++) {
-      double const equis  = floor(x_prime * (static_cast<double>(width) / new_width));
-      double const ygreek = floor(y_prime * (static_cast<double>(height) / new_height));
+      double const equis  = x_prime * static_cast<double>(width - 1) / (new_width - 1);
+      double const ygreek = y_prime * static_cast<double>(height - 1) / (new_height - 1);
 
       auto xlength = static_cast<unsigned int>(floor(equis));
       auto xheight = static_cast<unsigned int>(ceil(equis));
       auto ylength = static_cast<unsigned int>(floor(ygreek));
       auto yheight = static_cast<unsigned int>(ceil(ygreek));
-
-      xheight = min(xheight, static_cast<unsigned int>(width - 1));
-      xlength = min(xlength, static_cast<unsigned int>(width - 1));
-      yheight = min(yheight, static_cast<unsigned int>(height - 1));
-      ylength = min(ylength, static_cast<unsigned int>(height - 1));
 
       array<unsigned int, FIVE> const args = {xlength, xheight, ylength, yheight,
                                               static_cast<unsigned int>(width)};
@@ -200,8 +201,6 @@ int ImageSOA::resize() {
   output_file.close();
   return 0;
 }
-
-
 
 unordered_map<__uint32_t, __uint16_t> ImageSOA::load_and_map_8(int width, ifstream input_file, int height) {
   unordered_map<__uint32_t, __uint16_t> myMap;
@@ -491,6 +490,137 @@ int ImageSOA::cutfreq()  {
 
 
 int ImageSOA::compress() {
+  get_imgdata();
+  ifstream input_file(this->get_input_file(), ios::binary);
+  ofstream output_file(this->get_output_file(), ios::binary);
+
+  if (!input_file || !output_file) {
+    cerr << "Error al abrir los archivos de entrada/salida"
+         << "\n";
+    return -1;
+  }
+
+  string format;
+  unsigned int width  = 0;
+  unsigned int height = 0;
+  unsigned int maxval = 0;
+  input_file >> format >> width >> height >> maxval;
+  input_file.ignore(1);
+
+  if (maxval <= MIN_LEVEL) {
+    /*
+     * Usaremos un árbol AVL como si fuera un catálogo de colores para almacenar los colores
+     * DISTINTOS de la imagen. Éstos también se almacenan un struct_soa, para recorrelo
+     * posteriormente. Esta implementación hará que la complejidad de esta operación sea
+     * O(n log(n)), donde n es el número de píxeles de la imagen.
+     */
+    AVLTree tree;
+    soa_rgb_small image;
+    for (unsigned int i = 0; i < width * height; i++) {
+      unsigned char red = 0;
+      unsigned char grn = 0;
+      unsigned char blu = 0;
+      red               = read_binary_8(input_file);
+      grn               = read_binary_8(input_file);
+      blu               = read_binary_8(input_file);
+
+      if (i == 0) {  // Si es el primer elemento
+        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        element const elem              = {.color = concatenated, .index = 0};
+        tree.insert(elem);
+        image.r.push_back(red);
+        image.g.push_back(grn);
+        image.b.push_back(blu);
+      } else {  // Si no es el primer elemento
+        // Comprobamos si el color ya está en el árbol
+        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        element const elem              = {.color = concatenated, .index = i};
+        if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
+          image.r.push_back(red);
+          image.g.push_back(grn);
+          image.b.push_back(blu);
+        }
+      }
+    }
+    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      cerr << "Error: demasiados colores distintos."
+           << "\n";
+      return -1;
+    }
+    // Ahora ya sabemos cuántos colores distintos hay en la imagen. Los escribimos
+    output_file << "C6"
+                << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
+    for (unsigned int i = 0; i < image.r.size(); i++) {
+      write_binary_8(output_file, image.r[i]);
+      write_binary_8(output_file, image.g[i]);
+      write_binary_8(output_file, image.b[i]);
+    }
+    /*
+     * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
+     * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
+     * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
+     * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
+     * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
+     * 4. Si hay más, no lo soportamos.
+     */
+    unsigned long int const num_colors = image.r.size();
+    // Hay que volver a abrir el archivo para volver a leerlo
+    input_file.close();
+    ifstream input_file(this->get_input_file(), ios::binary);
+    input_file >> format >> width >> height >> maxval;
+    input_file.ignore(1);
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        unsigned char red = 0;
+        unsigned char grn = 0;
+        unsigned char blu = 0;
+        red               = read_binary_8(input_file);
+        grn               = read_binary_8(input_file);
+        blu               = read_binary_8(input_file);
+
+        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        element const elem = tree.search(concatenated);
+        write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+      }
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        unsigned char red = 0;
+        unsigned char grn = 0;
+        unsigned char blu = 0;
+        red               = read_binary_8(input_file);
+        grn               = read_binary_8(input_file);
+        blu               = read_binary_8(input_file);
+
+        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        element const elem = tree.search(concatenated);
+        write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+      }
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      for (unsigned int i = 0; i < width * height; i++) {
+        unsigned char red = 0;
+        unsigned char grn = 0;
+        unsigned char blu = 0;
+        red               = read_binary_8(input_file);
+        grn               = read_binary_8(input_file);
+        blu               = read_binary_8(input_file);
+
+        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        element const elem = tree.search(concatenated);
+        write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+      }
+    }
+  }
+
+  else if (maxval <= MAX_LEVEL) {
+    ;
+  } else {
+    cerr << "Error: maxval no soportado"
+         << "\n";
+    return -1;
+  }
+
+  input_file.close();
+  output_file.close();
   return 0;
 }
 
