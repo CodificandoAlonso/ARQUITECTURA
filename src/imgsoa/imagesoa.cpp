@@ -478,137 +478,174 @@ int ImageSOA::cutfreq() {
   return 0;
 }
 
-int ImageSOA::compress() {
-  get_imgdata();
+void ImageSOA::cp_export_min(ofstream & output_file, AVLTree tree, soa_rgb_small const & image) {
+  /*
+   * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
+   * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
+   * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
+   * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
+   * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
+   * 4. Si hay más, no lo soportamos.
+   */
+  unsigned long int const num_colors = image.r.size();
+  // Hay que volver a abrir el archivo para volver a leerlo
+  ifstream input_file_rep(this->get_input_file(), ios::binary);
+  string format;
+  int maxval          = 0;
+  unsigned int width  = 0;
+  unsigned int height = 0;
+  input_file_rep >> format >> width >> height >> maxval;
+  input_file_rep.ignore(1);
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned char red = 0;
+    unsigned char grn = 0;
+    unsigned char blu = 0;
+    red               = read_binary_8(input_file_rep);
+    grn               = read_binary_8(input_file_rep);
+    blu               = read_binary_8(input_file_rep);
+
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem              = tree.search(concatenated);
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+    }
+  }
+  input_file_rep.close();
+}
+
+void ImageSOA::cp_export_max(ofstream & output_file, AVLTree tree, soa_rgb_big const & image) {
+  unsigned long int const num_colors = image.r.size();
+  ifstream input_file_rep(this->get_input_file(), ios::binary);
+  string format;
+  int maxval          = 0;
+  unsigned int width  = 0;
+  unsigned int height = 0;
+  input_file_rep >> format >> width >> height >> maxval;
+  input_file_rep.ignore(1);
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned short red = 0;
+    unsigned short grn = 0;
+    unsigned short blu = 0;
+    red                = read_binary_16(input_file_rep);
+    grn                = read_binary_16(input_file_rep);
+    blu                = read_binary_16(input_file_rep);
+
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem              = tree.search(concatenated);
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+    }
+  }
+  input_file_rep.close();
+}
+
+int ImageSOA::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
-
-  if (!input_file || !output_file) {
-    cerr << "Error al abrir los archivos de entrada/salida"
+  auto width  = static_cast<unsigned int>(this->get_width());
+  auto height = static_cast<unsigned int>(this->get_height());
+  AVLTree tree;
+  soa_rgb_small image;
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned char red               = 0;
+    unsigned char grn               = 0;
+    unsigned char blu               = 0;
+    red                             = read_binary_8(input_file);
+    grn                             = read_binary_8(input_file);
+    blu                             = read_binary_8(input_file);
+    long unsigned int const index   = image.r.size();
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
+    if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
+      image.r.push_back(red);
+      image.g.push_back(grn);
+      image.b.push_back(blu);
+    }
+  }
+  if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+    cerr << "Error: demasiados colores distintos."
          << "\n";
     return -1;
   }
+  output_file << "C6"
+              << " " << width << " " << height << " " << this->get_maxval() << " " << image.r.size()
+              << "\n";
+  for (unsigned int i = 0; i < image.r.size(); i++) {
+    write_binary_8(output_file, image.r[i]);
+    write_binary_8(output_file, image.g[i]);
+    write_binary_8(output_file, image.b[i]);
+  }
+  cp_export_min(output_file, tree, image);
+  input_file.close();
+  output_file.close();
+  return 0;
+}
 
+int ImageSOA::compress_max() {
+  ifstream input_file = this->get_if_input_file();
+  ofstream output_file(this->get_output_file(), ios::binary);
   auto width  = static_cast<unsigned int>(this->get_width());
   auto height = static_cast<unsigned int>(this->get_height());
+  AVLTree tree;
+  soa_rgb_big image;
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned short red              = 0;
+    unsigned short grn              = 0;
+    unsigned short blu              = 0;
+    red                             = read_binary_16(input_file);
+    grn                             = read_binary_16(input_file);
+    blu                             = read_binary_16(input_file);
+    long unsigned int const index   = image.r.size();
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
+    if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
+      image.r.push_back(red);
+      image.g.push_back(grn);
+      image.b.push_back(blu);
+    }
+  }
+  if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+    cerr << "Error: demasiados colores distintos."
+         << "\n";
+    return -1;
+  }
+  output_file << "C6"
+              << " " << width << " " << height << " " << this->get_maxval() << " " << image.r.size()
+              << "\n";
+  for (unsigned int i = 0; i < image.r.size(); i++) {
+    write_binary_16(output_file, image.r[i]);
+    write_binary_16(output_file, image.g[i]);
+    write_binary_16(output_file, image.b[i]);
+  }
+  cp_export_max(output_file, tree, image);
+  input_file.close();
+  output_file.close();
+  return 0;
+}
+
+int ImageSOA::compress() {
+  get_imgdata();
+
   auto maxval = static_cast<unsigned int>(this->get_maxval());
 
   if (maxval <= MIN_LEVEL) {
-    /*
-     * Usaremos un árbol AVL como si fuera un catálogo de colores para almacenar los colores
-     * DISTINTOS de la imagen. Éstos también se almacenan un struct_soa, para recorrelo
-     * posteriormente. Esta implementación hará que la complejidad de esta operación sea
-     * O(n log(n)), donde n es el número de píxeles de la imagen.
-     */
-    AVLTree tree;
-    soa_rgb_small image;
-    for (unsigned int i = 0; i < width * height; i++) {
-      unsigned char red = 0;
-      unsigned char grn = 0;
-      unsigned char blu = 0;
-      red               = read_binary_8(input_file);
-      grn               = read_binary_8(input_file);
-      blu               = read_binary_8(input_file);
-
-      if (i == 0) {  // Si es el primer elemento
-        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        element const elem              = {.color = concatenated, .index = 0};
-        tree.insert(elem);
-        image.r.push_back(red);
-        image.g.push_back(grn);
-        image.b.push_back(blu);
-      } else {  // Si no es el primer elemento
-        // Comprobamos si el color ya está en el árbol
-        long unsigned int const index   = image.r.size();
-        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
-        if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
-          image.r.push_back(red);
-          image.g.push_back(grn);
-          image.b.push_back(blu);
-        }
-      }
-    }
-    if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      cerr << "Error: demasiados colores distintos."
-           << "\n";
-      return -1;
-    }
-    // Ahora ya sabemos cuántos colores distintos hay en la imagen. Los escribimos
-    output_file << "C6"
-                << " " << width << " " << height << " " << maxval << " " << image.r.size() << "\n";
-    for (unsigned int i = 0; i < image.r.size(); i++) {
-      write_binary_8(output_file, image.r[i]);
-      write_binary_8(output_file, image.g[i]);
-      write_binary_8(output_file, image.b[i]);
-    }
-    /*
-     * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
-     * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
-     * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
-     * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
-     * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
-     * 4. Si hay más, no lo soportamos.
-     */
-    unsigned long int const num_colors = image.r.size();
-    // Hay que volver a abrir el archivo para volver a leerlo
-    input_file.close();
-    ifstream input_file(this->get_input_file(), ios::binary);
-    string format;
-    input_file >> format >> width >> height >> maxval;
-    input_file.ignore(1);
-    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-      for (unsigned int i = 0; i < width * height; i++) {
-        unsigned char red = 0;
-        unsigned char grn = 0;
-        unsigned char blu = 0;
-        red               = read_binary_8(input_file);
-        grn               = read_binary_8(input_file);
-        blu               = read_binary_8(input_file);
-
-        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        element const elem              = tree.search(concatenated);
-        write_binary_8(output_file, static_cast<unsigned char>(elem.index));
-      }
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-      for (unsigned int i = 0; i < width * height; i++) {
-        unsigned char red = 0;
-        unsigned char grn = 0;
-        unsigned char blu = 0;
-        red               = read_binary_8(input_file);
-        grn               = read_binary_8(input_file);
-        blu               = read_binary_8(input_file);
-
-        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        element const elem              = tree.search(concatenated);
-        write_binary_16(output_file, static_cast<uint16_t>(elem.index));
-      }
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      for (unsigned int i = 0; i < width * height; i++) {
-        unsigned char red = 0;
-        unsigned char grn = 0;
-        unsigned char blu = 0;
-        red               = read_binary_8(input_file);
-        grn               = read_binary_8(input_file);
-        blu               = read_binary_8(input_file);
-
-        unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        element const elem              = tree.search(concatenated);
-        write_binary_32(output_file, static_cast<uint32_t>(elem.index));
-      }
-    }
-  }
-
-  else if (maxval <= MAX_LEVEL) {
-    ;
+    if (compress_min() < 0) { return -1; }
+  } else if (maxval <= MAX_LEVEL) {
+    if (compress_max() < 0) { return -1; }
   } else {
     cerr << "Error: maxval no soportado"
          << "\n";
     return -1;
   }
 
-  input_file.close();
-  output_file.close();
   return 0;
 }
 
