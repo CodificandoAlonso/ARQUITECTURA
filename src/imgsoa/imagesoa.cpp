@@ -18,12 +18,10 @@
 #include <map>
 #include<unordered_map>
 #include <string>
-#include <math.h>
 #include <sys/stat.h>
 #include <utility>
-#include <limits>
 #include <vector>
-
+static constexpr double calc_index = 10;
 static constexpr int MAX_LEVEL = 65535;
 static constexpr int MIN_LEVEL = 255;
 static constexpr int BYTE      = 8;
@@ -339,8 +337,7 @@ unordered_map<__uint32_t, __uint32_t> ImageSOA::check_colors_to_delete(
             delete_from_deque(bluevalues, my_index);
             num_left--;
           } else {
-            num_left--;
-          }
+            num_left--;}
         } else {
           Deleteitems[{greenvalues[0].first}] = 0;
           my_index = search_in_blue(bluevalues, greenvalues[0].first);
@@ -356,10 +353,8 @@ unordered_map<__uint32_t, __uint32_t> ImageSOA::check_colors_to_delete(
       num_left--;
     }
   }
-
   return Deleteitems;
 }
-
 
 
 void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
@@ -418,7 +413,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
         __uint8_t const actual_blu = extractblue(Delitem.first);
 
         new_distance = sqrt(pow(actual_red -check_red, 2) +
-                                pow(actual_grn -check_grn, 2) +pow(actual_blu - check_blu,2) );
+                            pow(actual_grn -check_grn, 2) +pow(actual_blu - check_blu,2) );
         if (new_distance < distance) {
           distance = new_distance;
           Delitem.second = rgb;
@@ -432,10 +427,10 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   ofstream output_file = this->get_of_output_file();
   auto const iter = static_cast<size_t>(width * height);
 
-  for(size_t pene = 0; pene < iter; pene ++){
-    __uint8_t red = this->soa_small.r[pene];
-    __uint8_t grn = this->soa_small.g[pene];
-    __uint8_t blu = this->soa_small.b[pene];
+  for(size_t counter = 0; counter < iter; counter ++){
+    __uint8_t red = this->soa_small.r[counter];
+    __uint8_t grn = this->soa_small.g[counter];
+    __uint8_t blu = this->soa_small.b[counter];
     if (const __uint32_t rgb = packRGB(red, grn, blu); Deleteitems.contains(rgb)) {
       red = extractred(Deleteitems[rgb]);
       grn = extractgreen(Deleteitems[rgb]);
