@@ -50,8 +50,9 @@ int ImageAOS::process_operation() {
   return 0;
 }
 
-array<rgb_small, 4> ImageAOS::rsz_obtain_square_min(vector<rgb_small> const & image,
-                                                    array<unsigned int, FIVE> args) {
+template <typename T>
+array<T, 4> ImageAOS::rsz_obtain_square(vector<T> const & image,
+                                        array<unsigned int, FIVE> args) const{
   auto xlength = static_cast<unsigned long>(args[0]);
   auto xheight = static_cast<unsigned long>(args[1]);
   auto ylength = static_cast<unsigned long>(args[2]);
@@ -63,72 +64,31 @@ array<rgb_small, 4> ImageAOS::rsz_obtain_square_min(vector<rgb_small> const & im
   ylength = min(ylength, (image.size() / width) - 1);
   yheigth = min(yheigth, (image.size() / width) - 1);
 
-  rgb_small const p_1 = image[(ylength * width) + xlength];
-  rgb_small const p_2 = image[(ylength * width) + xheight];
-  rgb_small const p_3 = image[(yheigth * width) + xlength];
-  rgb_small const p_4 = image[(yheigth * width) + xheight];
+  T const p_1 = image[(ylength * width) + xlength];
+  T const p_2 = image[(ylength * width) + xheight];
+  T const p_3 = image[(yheigth * width) + xlength];
+  T const p_4 = image[(yheigth * width) + xheight];
 
-  array<rgb_small, 4> const square = {p_1, p_2, p_3, p_4};
+  array<T, 4> const square = {p_1, p_2, p_3, p_4};
   return square;
 }
 
-array<rgb_big, 4> ImageAOS::rsz_obtain_square_max(vector<rgb_big> const & image,
-                                                  array<unsigned int, FIVE> args) {
-  auto xlength = static_cast<unsigned long>(args[0]);
-  auto xheight = static_cast<unsigned long>(args[1]);
-  auto ylength = static_cast<unsigned long>(args[2]);
-  auto yheigth = static_cast<unsigned long>(args[3]);
-  auto width   = static_cast<unsigned long>(args[4]);
-
-  xlength = min(xlength, width - 1);
-  xheight = min(xheight, width - 1);
-  ylength = min(ylength, (image.size() / width) - 1);
-  yheigth = min(yheigth, (image.size() / width) - 1);
-
-  rgb_big const p_1 = image[(ylength * width) + xlength];
-  rgb_big const p_2 = image[(ylength * width) + xheight];
-  rgb_big const p_3 = image[(yheigth * width) + xlength];
-  rgb_big const p_4 = image[(yheigth * width) + xheight];
-
-  array<rgb_big, 4> const square = {p_1, p_2, p_3, p_4};
-  return square;
-}
-
-rgb_small ImageAOS::rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
-                                        double t_param) {
-  rgb_small const c_1 = {
+template<typename T>
+T ImageAOS::rsz_interpolate(double u_param, array<T, 4> square, double t_param) {
+  T const c_1 = {
     .r = static_cast<unsigned char>(((1 - t_param) * square[0].r) + (t_param * square[1].r)),
     .g = static_cast<unsigned char>(((1 - t_param) * square[0].g) + (t_param * square[1].g)),
     .b = static_cast<unsigned char>(((1 - t_param) * square[0].b) + (t_param * square[1].b))};
 
-  rgb_small const c_2 = {
+  T const c_2 = {
     .r = static_cast<unsigned char>(((1 - t_param) * square[2].r) + (t_param * square[3].r)),
     .g = static_cast<unsigned char>(((1 - t_param) * square[2].g) + (t_param * square[3].g)),
     .b = static_cast<unsigned char>(((1 - t_param) * square[2].b) + (t_param * square[3].b))};
 
-  rgb_small const c_param = {
+  T const c_param = {
     .r = static_cast<unsigned char>(((1 - u_param) * c_1.r) + (u_param * c_2.r)),
     .g = static_cast<unsigned char>(((1 - u_param) * c_1.g) + (u_param * c_2.g)),
     .b = static_cast<unsigned char>(((1 - u_param) * c_1.b) + (u_param * c_2.b))};
-
-  return c_param;
-}
-
-rgb_big ImageAOS::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param) {
-  rgb_big const c_1 = {
-    .r = static_cast<unsigned short>(((1 - t_param) * square[0].r) + (t_param * square[1].r)),
-    .g = static_cast<unsigned short>(((1 - t_param) * square[0].g) + (t_param * square[1].g)),
-    .b = static_cast<unsigned short>(((1 - t_param) * square[0].b) + (t_param * square[1].b))};
-
-  rgb_big const c_2 = {
-    .r = static_cast<unsigned short>(((1 - t_param) * square[2].r) + (t_param * square[3].r)),
-    .g = static_cast<unsigned short>(((1 - t_param) * square[2].g) + (t_param * square[3].g)),
-    .b = static_cast<unsigned short>(((1 - t_param) * square[2].b) + (t_param * square[3].b))};
-
-  rgb_big const c_param = {
-    .r = static_cast<unsigned short>(((1 - u_param) * c_1.r) + (u_param * c_2.r)),
-    .g = static_cast<unsigned short>(((1 - u_param) * c_1.g) + (u_param * c_2.g)),
-    .b = static_cast<unsigned short>(((1 - u_param) * c_1.b) + (u_param * c_2.b))};
 
   return c_param;
 }
@@ -176,11 +136,11 @@ int ImageAOS::resize_min(ofstream & output_file) {
       auto yheight = static_cast<unsigned int>(ceil(ygreek));
 
       array const args = {xlength, xheight, ylength, yheight, static_cast<unsigned int>(width)};
-      array<rgb_small, 4> const square = rsz_obtain_square_min(image, args);
+      array<rgb_small, 4> const square = rsz_obtain_square(image, args);
 
       double const t_param    = equis - xlength;
       double const u_param    = ygreek - ylength;
-      rgb_small const c_param = rsz_interpolate_min(u_param, square, t_param);
+      rgb_small const c_param = rsz_interpolate(u_param, square, t_param);
       write_binary_8(output_file, c_param.r);
       write_binary_8(output_file, c_param.g);
       write_binary_8(output_file, c_param.b);
@@ -208,11 +168,11 @@ int ImageAOS::resize_max(ofstream & output_file) {
       auto yheight = static_cast<unsigned int>(ceil(ygreek));
 
       array const args = {xlength, xheight, ylength, yheight, static_cast<unsigned int>(width)};
-      array<rgb_big, 4> const square = rsz_obtain_square_max(image, args);
+      array<rgb_big, 4> const square = rsz_obtain_square(image, args);
 
       double const t_param  = equis - xlength;
       double const u_param  = ygreek - ylength;
-      rgb_big const c_param = rsz_interpolate_max(u_param, square, t_param);
+      rgb_big const c_param = rsz_interpolate(u_param, square, t_param);
       write_binary_16(output_file, swap16(c_param.r));
       write_binary_16(output_file, swap16(c_param.g));
       write_binary_16(output_file, swap16(c_param.b));

@@ -23,16 +23,15 @@ class ImageAOS : public Image {
   private:
     [[nodiscard]] int resize();
     int resize_min(ofstream & output_file);
-    static array<rgb_small, 4> rsz_obtain_square_min(vector<rgb_small> const & image,
-                                                     array<unsigned int, FIVE> args);
-    static rgb_small rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
-                                         double t_param);
     int resize_max(ofstream & output_file);
-    static array<rgb_big, 4> rsz_obtain_square_max(vector<rgb_big> const & image,
-                                                   array<unsigned int, FIVE> args);
-    static rgb_big rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param);
     vector<rgb_small> read_image_rgb_small(ifstream & input_file) const;
     vector<rgb_big> read_image_rgb_big(ifstream & input_file) const;
+
+    template<typename T>
+    array<T, 4> rsz_obtain_square(vector<T> const & image, array<unsigned int, FIVE> args) const;
+
+    template<typename T>
+    static T rsz_interpolate(double u_param, array<T, 4> square, double t_param);
 };
 
 #endif  // IMAGEAOS_HPP
