@@ -59,6 +59,10 @@ unsigned short merge16(unsigned char op1, unsigned char op2) {
  * obtendremos 0x3412.
  */
 
+unsigned short swap16(unsigned short opr) {
+  return static_cast<unsigned short>((opr >> BYTE) | (opr << BYTE));
+}
+
 
 string mix3char(const unsigned char ch1, const unsigned char ch2, const unsigned char ch3) {
       bitset<BYTE> const byte1(ch1);
@@ -89,11 +93,6 @@ __uint8_t extractred(const string& rgb) {
   return redint;
 }
 */
-
-unsigned short swap16(unsigned short opr) {
-  return static_cast<unsigned short>((opr >> BYTE) | (opr << BYTE));
-}
-
 
 uint64_t packRGBIG(uint16_t red, uint16_t grn, uint16_t blu) {
   return (static_cast<uint64_t>(red) << BYTE_4) | (static_cast<uint64_t>(grn) << BYTE_2) | blu;
