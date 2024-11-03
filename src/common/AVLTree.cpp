@@ -56,8 +56,16 @@ Node * AVLTree::rotate_right(Node * value_y) {
   return value_x;
 }
 
+Node * AVLTree::get_rotate_right(Node * param_x) {
+  return rotate_right(param_x);
+}
+
 int AVLTree::get_balance(Node const * node) {
-  return node == nullptr ? 0 : height(node->left) - height(node->right);
+  return node == nullptr ? 0 : getHeight(node->left) - getHeight(node->right);
+}
+
+int AVLTree::get_get_balance(Node const * node) {
+  return get_balance(node);
 }
 
 gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {

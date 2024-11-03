@@ -41,6 +41,8 @@ class AVLTree {
     [[nodiscard]] Node* getRoot() const { return root; }
     static int getMax(int param_a, int param_b);
     static Node * get_rotate_left(Node * param_x);
+    static Node * get_rotate_right(Node * param_x);
+    static int get_get_balance(Node const * node);
 };
 
 #endif  // AVLTREE_HPP
