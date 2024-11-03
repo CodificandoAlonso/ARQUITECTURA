@@ -14,7 +14,7 @@
 #include <vector>
 
 using namespace std;
-static int constexpr CINCO = 5;
+static int constexpr FIVE = 5;
 
 class ImageSOA : public Image {
   public:
@@ -22,7 +22,6 @@ class ImageSOA : public Image {
     int process_operation();
 
   private:
-    bool obtain_args();
     static deque<pair<__uint32_t, __uint16_t>>
         same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int value,
                         size_t counter);
@@ -37,12 +36,12 @@ class ImageSOA : public Image {
     [[nodiscard]] int resize();
     int resize_min(ofstream & output_file);
     static array<rgb_small, 4> rsz_obtain_square_min(soa_rgb_small const & image,
-                                                     array<unsigned int, CINCO> args);
+                                                     array<unsigned int, FIVE> args);
     static rgb_small rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
                                          double t_param);
     int resize_max(ofstream & output_file);
     static array<rgb_big, 4> rsz_obtain_square_max(soa_rgb_big const & image,
-                                                   array<unsigned int, CINCO> args);
+                                                   array<unsigned int, FIVE> args);
     static rgb_big rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param);
     [[nodiscard]] int compress();
     int compress_min();

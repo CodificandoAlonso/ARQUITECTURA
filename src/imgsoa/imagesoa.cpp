@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 static constexpr double calc_index = 10;
 static constexpr int MAX_LEVEL     = 65535;
 static constexpr int MIN_LEVEL     = 255;
@@ -92,7 +93,7 @@ array<rgb_small, 4> ImageSOA::rsz_obtain_square_min(soa_rgb_small const & image,
 }
 
 array<rgb_big, 4> ImageSOA::rsz_obtain_square_max(soa_rgb_big const & image,
-                                                  array<unsigned int, CINCO> args) {
+                                                  array<unsigned int, FIVE> args) {
   auto xlength = static_cast<unsigned long>(args[0]);
   auto xheight = static_cast<unsigned long>(args[1]);
   auto ylength = static_cast<unsigned long>(args[2]);
