@@ -37,6 +37,10 @@ class AVLTree {
     int insert(element elem);
     [[nodiscard]] element search(unsigned long color) const;
     void print();
+    static int getHeight(Node const * node) ;
+    [[nodiscard]] Node* getRoot() const { return root; }
+    static int getMax(int param_a, int param_b);
+    static Node * get_rotate_left(Node * param_x);
 };
 
 #endif  // AVLTREE_HPP

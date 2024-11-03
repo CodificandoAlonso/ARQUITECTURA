@@ -14,8 +14,16 @@ int AVLTree::height(Node const * node) {
   return node == nullptr ? 0 : node->height;
 }
 
+int AVLTree::getHeight(Node const * node) {
+  return height(node);
+}
+
 int AVLTree::max(int const param_a, int const param_b) {
   return param_a > param_b ? param_a : param_b;
+}
+
+int AVLTree::getMax(int const param_a, int const param_b) {
+  return max(param_a, param_b);
 }
 
 Node * AVLTree::rotate_left(Node * param_x) {
@@ -29,6 +37,10 @@ Node * AVLTree::rotate_left(Node * param_x) {
   param_y->height = max(height(param_y->left), height(param_y->right)) + 1;
 
   return param_y;
+}
+
+Node * AVLTree::get_rotate_left(Node * param_x) {
+  return rotate_left(param_x);
 }
 
 Node * AVLTree::rotate_right(Node * value_y) {

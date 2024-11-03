@@ -1,12 +1,19 @@
 # Executable for all unit tests with list of sources
 # For example, you may have one ∗_test.cpp for each ∗.cpp in common
+
+find_package(GTest REQUIRED)
+
 add_executable(utest-common
-        one_test.cpp
-        test-common_1.cpp
-        test-common_2.cpp)
+        AVLTree_test.cpp
+        binario_test.cpp
+        progargs_test.cpp
+        struct-rgb_test.cpp
+)
 # Library dependencies
 target_link_libraries (utest-common
         PRIVATE
         common
         GTest::gtest_main
+        gmock
+        GTest::gmock_main
         Microsoft.GSL::GSL)
