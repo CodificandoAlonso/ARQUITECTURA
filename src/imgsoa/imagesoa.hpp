@@ -30,6 +30,8 @@ class ImageSOA : public Image {
                                 deque<pair<__uint32_t, __uint16_t>> & bluevalues);
     unordered_map<__uint32_t, __uint16_t> load_and_map_8(int width, ifstream input_file,
                                                          int height);
+    static vector<__uint32_t> sort_and_map_keys(unordered_map<__uint32_t, __uint16_t> const & myMap,
+                                         unordered_map<__uint32_t, size_t> & color_to_index);
     unordered_map<__uint64_t, __uint16_t> load_and_map_8BIG(int width, ifstream input_file,
                                                             int height);
 
@@ -54,6 +56,9 @@ class ImageSOA : public Image {
     static unordered_map<__uint32_t, __uint32_t>
         check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
                                deque<pair<__uint32_t, __uint16_t>> bluevalues);
+    static __uint32_t get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
+                                 unordered_map<__uint32_t, __uint32_t> const & Deleteitems);
+
     void cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap);
     static void cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG);
     [[nodiscard]] int cutfreq();

@@ -30,6 +30,6 @@ __uint8_t extractred(__uint32_t color);
 
 uint64_t packRGBIG(uint16_t red, uint16_t grn, uint16_t blu);
 uint32_t packRGB(uint8_t red, uint8_t grn, uint8_t blu);
-
-
+double distance_to_black(__uint32_t color);
+double get_distance(__uint32_t item_1, __uint32_t item_2);
 #endif //BINARIO_HPP

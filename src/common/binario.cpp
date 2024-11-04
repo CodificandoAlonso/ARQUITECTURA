@@ -7,6 +7,7 @@
 #include <bitset>
 #include <cstdint>
 #include <fstream>
+#include <cmath>
 
 static constexpr unsigned char BYTE_2 = 16;
 static constexpr unsigned char BYTE = 8;
@@ -119,10 +120,24 @@ uint8_t extractblue(uint32_t color) {
   return color & FFF;
 }
 
+double distance_to_black(__uint32_t const color) {
+  __uint8_t const red = color >> BYTE_2 & FFF;
+  __uint8_t const grn = color >> BYTE & FFF;
+  __uint8_t const blu = color & FFF;
+  return sqrt(pow(red,2) + pow(grn, 2) + pow(blu, 2));
+}
 
 
+double get_distance(__uint32_t item_1, __uint32_t item_2) {
+  __uint8_t const red1 = extractred(item_1);
+  __uint8_t const grn1 = extractgreen(item_1);
+  __uint8_t const blu1 = extractblue(item_1);
+  __uint8_t const red2 = extractred(item_2);
+  __uint8_t const grn2 = extractgreen(item_2);
+  __uint8_t const blu2 = extractblue(item_2);
+  return sqrt(pow(red1-red2, 2)+ pow(grn1-grn2, 2)+ pow(blu1-blu2, 2));
 
-
+}
 
 
 
