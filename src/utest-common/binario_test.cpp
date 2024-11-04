@@ -278,3 +278,15 @@ TEST_F(BinaryTest, ExtractGreenIncorrecto) {
   uint8_t const green = extractgreen(color);
   EXPECT_NE(green, 0x12);
 }
+
+TEST_F(BinaryTest, ExtractBlueCorrecto) {
+  constexpr uint32_t color = 0x123456;
+  uint8_t const blue = extractblue(color);
+  EXPECT_EQ(blue, 0x56);
+}
+
+TEST_F(BinaryTest, ExtractBlueIncorrecto) {
+  constexpr uint32_t color = 0x123456;
+  uint8_t const blue = extractblue(color);
+  EXPECT_NE(blue, 0x34);
+}
