@@ -4,7 +4,6 @@
 
 #include "imageaos.hpp"
 #include "common/progargs.hpp"
-#include "common/mtdata.hpp"
 #include "common/binario.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
