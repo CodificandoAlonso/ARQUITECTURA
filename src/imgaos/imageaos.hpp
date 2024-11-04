@@ -33,6 +33,11 @@ class ImageAOS : public Image {
     static rgb_big rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param);
     vector<rgb_small> read_image_rgb_small(ifstream & input_file) const;
     vector<rgb_big> read_image_rgb_big(ifstream & input_file) const;
+    [[nodiscard]] int compress();
+    int compress_min();
+    int compress_max();
+    void cp_export_min(ofstream & output_file, AVLTree tree, vector<rgb_small> const & image);
+    void cp_export_max(ofstream & output_file, AVLTree tree, vector<rgb_big> const & image);
 };
 
 #endif  // IMAGEAOS_HPP

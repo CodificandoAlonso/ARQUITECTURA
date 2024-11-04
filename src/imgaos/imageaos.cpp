@@ -12,14 +12,12 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <deque>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <sys/stat.h>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 static int const MAX_LEVEL = 65535;
@@ -43,6 +41,9 @@ int ImageAOS::process_operation() {
   } else if (this->get_optype() == "resize") {
     // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
+  } else if (this->get_optype() == "compress") {
+    // Implementación de la operación de compresión usando AOS (Array of Structures)
+    if (compress() < 0) { return -1; }
   } else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
     return -1;
@@ -248,6 +249,149 @@ int ImageAOS::resize() {
   }
 
   output_file.close();
+  return 0;
+}
+
+void ImageAOS::cp_export_min(ofstream & output_file, AVLTree tree,
+                             vector<rgb_small> const & image) {
+  unsigned long int const num_colors = image.size();
+  ifstream input_file_rep(this->get_input_file(), ios::binary);
+  string format;
+  int maxval          = 0;
+  unsigned int width  = 0;
+  unsigned int height = 0;
+  input_file_rep >> format >> width >> height >> maxval;
+  input_file_rep.ignore(1);
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned char const red = read_binary_8(input_file_rep);
+    unsigned char const grn = read_binary_8(input_file_rep);
+    unsigned char const blu = read_binary_8(input_file_rep);
+
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem              = tree.search(concatenated);
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+    }
+  }
+  input_file_rep.close();
+}
+
+void ImageAOS::cp_export_max(ofstream & output_file, AVLTree tree, vector<rgb_big> const & image) {
+  unsigned long int const num_colors = image.size();
+  ifstream input_file_rep(this->get_input_file(), ios::binary);
+  string format;
+  int maxval          = 0;
+  unsigned int width  = 0;
+  unsigned int height = 0;
+  input_file_rep >> format >> width >> height >> maxval;
+  input_file_rep.ignore(1);
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned short const red = read_binary_16(input_file_rep);
+    unsigned short const grn = read_binary_16(input_file_rep);
+    unsigned short const blu = read_binary_16(input_file_rep);
+
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem              = tree.search(concatenated);
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(elem.index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+    }
+  }
+  input_file_rep.close();
+}
+
+int ImageAOS::compress_min() {
+  ifstream input_file = this->get_if_input_file();
+  ofstream output_file(this->get_output_file(), ios::binary);
+  auto width  = static_cast<unsigned int>(this->get_width());
+  auto height = static_cast<unsigned int>(this->get_height());
+  AVLTree tree;
+  vector<rgb_small> image;
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned char const red         = read_binary_8(input_file);
+    unsigned char const grn         = read_binary_8(input_file);
+    unsigned char const blu         = read_binary_8(input_file);
+    long unsigned int const index   = image.size();
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
+    if (tree.insert(elem) == 0) { image.push_back({.r = red, .g = grn, .b = blu}); }
+  }
+  if (image.size() > static_cast<unsigned long int>(pow(2, 3 * BYTE))) {
+    cerr << "Error: demasiados colores distintos."
+         << "\n";
+    return -1;
+  }
+  output_file << "C6"
+              << " " << width << " " << height << " " << this->get_maxval() << " " << image.size()
+              << "\n";
+  for (auto & pixel : image) {
+    write_binary_8(output_file, pixel.r);
+    write_binary_8(output_file, pixel.g);
+    write_binary_8(output_file, pixel.b);
+  }
+  cp_export_min(output_file, tree, image);
+  input_file.close();
+  output_file.close();
+  return 0;
+}
+
+int ImageAOS::compress_max() {
+  ifstream input_file = this->get_if_input_file();
+  ofstream output_file(this->get_output_file(), ios::binary);
+  auto width  = static_cast<unsigned int>(this->get_width());
+  auto height = static_cast<unsigned int>(this->get_height());
+  AVLTree tree;
+  vector<rgb_big> image;
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned short const red        = read_binary_16(input_file);
+    unsigned short const grn        = read_binary_16(input_file);
+    unsigned short const blu        = read_binary_16(input_file);
+    long unsigned int const index   = image.size();
+    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
+    if (tree.insert(elem) == 0) { image.push_back({.r = red, .g = grn, .b = blu}); }
+  }
+  if (image.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+    cerr << "Error: demasiados colores distintos."
+         << "\n";
+    return -1;
+  }
+  output_file << "C6"
+              << " " << width << " " << height << " " << this->get_maxval() << " " << image.size()
+              << "\n";
+  for (auto & pixel : image) {
+    write_binary_16(output_file, pixel.r);
+    write_binary_16(output_file, pixel.g);
+    write_binary_16(output_file, pixel.b);
+  }
+  cp_export_max(output_file, tree, image);
+  input_file.close();
+  output_file.close();
+  return 0;
+}
+
+int ImageAOS::compress() {
+  get_imgdata();
+
+  auto maxval = static_cast<unsigned int>(this->get_maxval());
+
+  if (maxval <= MIN_LEVEL) {
+    if (compress_min() < 0) { return -1; }
+  } else if (maxval <= MAX_LEVEL) {
+    if (compress_max() < 0) { return -1; }
+  } else {
+    cerr << "Error: maxval no soportado"
+         << "\n";
+    return -1;
+  }
+
   return 0;
 }
 
