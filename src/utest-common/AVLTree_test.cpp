@@ -122,7 +122,7 @@ TEST_F(AVLTreeTest, RotacionDerecha1) {
 
   EXPECT_EQ(tree.getHeight(root), 3);
   EXPECT_EQ(tree.getHeight(left), 2);
-  EXPECT_EQ(tree.getHeight(right), 1);#include "common/mtdata.hpp"
+  EXPECT_EQ(tree.getHeight(right), 1);
 
   Node const * newRoot = AVLTree::get_rotate_right(root);
   EXPECT_EQ(tree.getHeight(newRoot), 3);
