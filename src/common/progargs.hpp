@@ -14,7 +14,7 @@
   class Image {
     public:
       Image(int argc, const std::vector<std::string>& argv);
-      bool info_constraints(int argc);
+      static bool info_constraints(int argc);
       bool maxval_constraints(int argc, const std::vector<std::string>& argv);
       bool resize_constraints(int argc, const std::vector<std::string>& argv);
       bool cutfreq_constraints(int argc, const std::vector<std::string>& argv);

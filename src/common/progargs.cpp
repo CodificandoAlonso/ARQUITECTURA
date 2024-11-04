@@ -42,10 +42,6 @@ const std::vector<std::string>& Image::getArgv() const {
   return argv;
 }
 
-const std::unique_ptr<Image>& Image::getImage() {
-  return image;
-}
-
 bool Image::maxval_constraints(int const argc, vector<string> const & argv) {
   // Si la opción es maxlevel, el número de argumentos debe ser exactamente cuatro. El cuarto
   // argumento debe ser un número entero entre los valores 0 y 65535.
