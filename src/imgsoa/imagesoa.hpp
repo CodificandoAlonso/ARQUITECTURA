@@ -20,17 +20,6 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
-    std::string get_input_file() {
-      return this->input_file;
-    }
-    std::string get_output_file() {
-        return this->output_file;
-      }
-    int (*get_compress())();
-
-    std::string get_optype() const {
-      return this->optype;
-    }
 
 
   private:

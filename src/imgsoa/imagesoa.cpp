@@ -16,18 +16,19 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <sys/stat.h>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <ranges>
 
 static constexpr double calc_index = 10;
 static constexpr int MAX_LEVEL     = 65535;
 static constexpr int MIN_LEVEL     = 255;
 static constexpr int BYTE          = 8;
-static constexpr size_t CIEN       = 10000;
+static constexpr size_t CIEN       = 20000;
 
 using namespace std;
 
@@ -533,17 +534,9 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
 
   auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
 
-
-  for (auto const & [fst, snd] : bluevalues) {
-    unsigned const char red = extractred(fst);
-    unsigned const char grn = extractgreen(fst);
-    unsigned const char blu = extractblue(fst);
-    cout << "("<< int(red) <<", " << int(grn) << ", "<< int(blu) << "): " << int(snd) << "\n";
-  }
-
-
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
+
   /*
   for (auto & Delitem : Deleteitems) {
     double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
@@ -560,7 +553,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
           not Deleteitems.contains(rgb)) {
         new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
                             pow(actual_blu - check_blu, 2));
-        if (new_distance <= distance) {
+        if (new_distance < distance) {
           distance       = new_distance;
           Delitem.second = rgb;
         }
@@ -569,20 +562,25 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   }
   */
 
+
   cout << "PINGA" << "\n";
+
   /*
   for (auto & Delitem : Deleteitems) {
       size_t const index1 = color_to_index[Delitem.first];
       Delitem.second = get_aitems(index1, sorted_colors, Deleteitems);
     }
   */
+
   unordered_map<__uint32_t, __uint8_t> toSave;
-  for(auto & Pinga : myMap) {
-    if(!Deleteitems.contains(Pinga.first)) {
-     toSave[Pinga.first] = 0;
+  //Me recorro las keys de myMap
+  for (auto const & key : myMap | views::keys) {
+    if (!Deleteitems.contains(key)) {
+    toSave[key] = 0;
     }
-  }
-  /*
+    }
+
+
   for (auto & Delitem : Deleteitems) {
     double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
     double new_distance        = 0;
@@ -590,10 +588,10 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
     __uint8_t const actual_grn = extractgreen(Delitem.first);
     __uint8_t const actual_blu = extractblue(Delitem.first);
 
-    for (auto const & storage : toSave) {
-      __uint8_t const check_red = extractred(storage.first);
-      __uint8_t const check_grn = extractgreen(storage.first);
-      __uint8_t const check_blu = extractblue(storage.first);
+    for (auto const & key : toSave | views::keys) {
+      __uint8_t const check_red = extractred(key);
+      __uint8_t const check_grn = extractgreen(key);
+      __uint8_t const check_blu = extractblue(key);
         new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
                             pow(actual_blu - check_blu, 2));
         if (new_distance <= distance) {
@@ -602,7 +600,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
         }
     }
   }
-  */
+
   int const width  = this->get_width();
   int const height = this->get_height();
   write_out(this->get_maxval());
