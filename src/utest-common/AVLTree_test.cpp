@@ -2,6 +2,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "common/AVLTree.hpp"
+#include <string>
+using namespace std;
 
 class AVLTreeTest : public ::testing::Test {
   protected:
@@ -14,9 +16,9 @@ TEST_F(AVLTreeTest, AlturaDeNodoNulo) {
 }
 
 TEST_F(AVLTreeTest, AlturaDe1Nodo) {
-  constexpr element elem = {.color=0xFFFFFF, .index=1};
-  std::unique_ptr<Node> const singleNode = std::make_unique<Node>(elem);
-  EXPECT_EQ(tree.getHeight(singleNode.get()), 1);
+  constexpr element elem = {.color = 0xFFFFFF, .index = 1};
+  tree.insert(elem);
+  EXPECT_EQ(tree.getHeight(tree.getRoot()), 1);
 }
 
 TEST_F(AVLTreeTest, Alturade1ArbolCon3Nodos) {
@@ -253,17 +255,15 @@ TEST_F(AVLTreeTest, ImprimirArbol2Nodos) {
 
   testing::internal::CaptureStdout();
   tree.print();
-  std::string const output = testing::internal::GetCapturedStdout();
+  string const output = testing::internal::GetCapturedStdout();
 
-  std::string const expected_output = "Color: 0 Index: 1\nColor: 16777215 Index: 2\n";
+  string const expected_output = "Color: 0 Index: 1\nColor: 16777215 Index: 2\n";
   EXPECT_EQ(output, expected_output);
 }
 
 TEST_F(AVLTreeTest, ImprimirArbolVacio) {
   testing::internal::CaptureStdout();
   tree.print();
-  std::string const output = testing::internal::GetCapturedStdout();
-
-  std::string const expected_output;
+  string const output = testing::internal::GetCapturedStdout();string const expected_output;
   EXPECT_EQ(output, expected_output);
 }

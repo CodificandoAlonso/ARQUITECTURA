@@ -10,6 +10,7 @@
 #include <iostream>
 #include <queue>
 #include <stack>
+using namespace std;
 
 int AVLTree::height(Node const * node) {
   return node == nullptr ? 0 : node->height;
@@ -72,7 +73,7 @@ int AVLTree::get_get_balance(Node const * node) {
 gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
   if (node == nullptr) { return static_cast<gsl::owner<Node *>>(new Node(elem)); }
 
-  std::stack<Node *> path;
+  stack<Node *> path;
   Node * insertedNode = insertNode(node, elem, path);
   if (insertedNode == nullptr) {
     return nullptr;  // Elemento ya existe en el árbol
@@ -82,7 +83,7 @@ gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {
 }
 
 // Función para insertar el nodo y registrar el camino de inserción
-Node * AVLTree::insertNode(Node * node, element const elem, std::stack<Node *> & path) {
+Node * AVLTree::insertNode(Node * node, element const elem, stack<Node *> & path) {
   Node * current = node;
   Node * parent  = nullptr;
 
@@ -108,7 +109,7 @@ Node * AVLTree::insertNode(Node * node, element const elem, std::stack<Node *> &
 }
 
 // Función para re-balancear el árbol después de la inserción
-gsl::owner<Node *> AVLTree::rebalanceTree(Node * node, std::stack<Node *> & path,
+gsl::owner<Node *> AVLTree::rebalanceTree(Node * node, stack<Node *> & path,
                                           element const elem) {
   while (!path.empty()) {
     Node * current = path.top();
@@ -125,10 +126,10 @@ gsl::owner<Node *> AVLTree::rebalanceTree(Node * node, std::stack<Node *> & path
 }
 
 // Función para manejar los cuatro tipos de desbalance (LL, LR, RR, RL)
-Node * AVLTree::handleImbalance(Node * root, Node * current, std::stack<Node *> & path,
+Node * AVLTree::handleImbalance(Node * root, Node * current, stack<Node *> & path,
                                 element const elem) {
   int const balance                 = get_balance(current);
-  std::array<Node *, 2> const nodes = {root, current};
+  array<Node *, 2> const nodes = {root, current};
 
   if (balance > 1) {
     if (elem.color < current->left->color) {
@@ -149,7 +150,7 @@ Node * AVLTree::handleImbalance(Node * root, Node * current, std::stack<Node *> 
 }
 
 // Función auxiliar para realizar la rotación en el nodo padre
-Node * AVLTree::rotateWithParent(std::array<Node *, 2> nodes, std::stack<Node *> & path,
+Node * AVLTree::rotateWithParent(array<Node *, 2> nodes, stack<Node *> & path,
                                  Node * newSubRoot) {
   Node *& root   = nodes[0];
   Node * current = nodes[1];
@@ -181,7 +182,7 @@ element AVLTree::search(unsigned long const color) const {
       current = current->right;
     }
   }
-  std::cout << "Element not found\n";
+  cout << "Element not found\n";
   return element{.color = 0, .index = 0};
 }
 
@@ -196,14 +197,14 @@ void AVLTree::print() {
   // Impresión del arbol en anchura
   if (root == nullptr) { return; }
 
-  std::queue<Node *> que;
+  queue<Node *> que;
   que.push(root);
 
   while (!que.empty()) {
     Node const * current = que.front();
     que.pop();
 
-    std::cout << "Color: " << current->color << " Index: " << current->index << "\n";
+    cout << "Color: " << current->color << " Index: " << current->index << "\n";
 
     if (current->left != nullptr) { que.push(current->left); }
     if (current->right != nullptr) { que.push(current->right); }

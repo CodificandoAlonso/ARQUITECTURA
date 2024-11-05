@@ -13,11 +13,11 @@
 
   class Image {
     public:
-      Image(int argc, const std::vector<std::string>& argv);
+      Image(int argc, const std::vector<string>& argv);
       static bool info_constraints(int argc);
-      bool maxval_constraints(int argc, const std::vector<std::string>& argv);
-      bool resize_constraints(int argc, const std::vector<std::string>& argv);
-      bool cutfreq_constraints(int argc, const std::vector<std::string>& argv);
+      bool maxval_constraints(int argc, const std::vector<string>& argv);
+      bool resize_constraints(int argc, const std::vector<string>& argv);
+      bool cutfreq_constraints(int argc, const std::vector<string>& argv);
       static bool compress_constraints(int argc);
       [[nodiscard]] int check_args();
       [[nodiscard]] int info() const;
@@ -44,7 +44,7 @@
       [[nodiscard]] ifstream get_if_input_file() { return move(if_input_file); }
       [[nodiscard]] ofstream get_of_output_file() { return move(of_output_file); }
 
-      const std::vector<std::string>& getArgv() const;
+      const vector<string>& getArgv() const;
 
       static const unique_ptr<Image>& getImage();
 
@@ -65,7 +65,7 @@
       int width  = 0;
       int height = 0;
       int maxval = 0;
-      std::unique_ptr<Image> image;
+      unique_ptr<Image> image;
   };
 
   #endif  // PROGARGS_HPP

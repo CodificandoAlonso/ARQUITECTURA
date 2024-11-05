@@ -14,8 +14,8 @@ using namespace std;
 
 class ImageTest : public ::testing::Test {
   private:
-  std::unique_ptr<Image> image;
-  std::vector<std::string> argv;
+  unique_ptr<Image> image;
+  vector<string> argv;
 
   protected:
   ImageTest() : image(nullptr), argv({"imtool-soa", "input.ppm", "output.ppm", "info"}) {}
@@ -33,13 +33,12 @@ class ImageTest : public ::testing::Test {
     return image.get();
   }
 
-  void setArgv(std::vector<std::string> const& newArgv) {
+  void setArgv(vector<string> const& newArgv) {
     argv = newArgv;
   }
 };
 
 TEST_F(ImageTest, InfoConstraintsArgumentosCorrectos) {
-  // Custom setup for this test
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "info"});
   SetUp();
   EXPECT_FALSE(getImage()->info_constraints(static_cast<int>(getImage()->getArgv().size())));
@@ -50,7 +49,7 @@ TEST_F(ImageTest, InfoConstraintsArgumentosInferiorAlPermitido) {
   SetUp();
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, InfoConstraintsArgumentosSuperiorAlPermitido) {
@@ -58,7 +57,7 @@ TEST_F(ImageTest, InfoConstraintsArgumentosSuperiorAlPermitido) {
   SetUp();
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  },runtime_error);
 }
 
 TEST_F(ImageTest, MaxValConstraintsCorrecto) {
@@ -72,7 +71,7 @@ TEST_F(ImageTest, MaxValConstraintsNumeroArgumentosIncorrecto) {
   SetUp();
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, MaxValConstraintsNumeroArgumentosCorrectosNumeroNoEntre0Y65535) {
@@ -80,7 +79,7 @@ TEST_F(ImageTest, MaxValConstraintsNumeroArgumentosCorrectosNumeroNoEntre0Y65535
   SetUp();
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, ResizeConstraintsCorrecto) {
@@ -94,21 +93,21 @@ TEST_F(ImageTest, ResizeConstraintsNumeroArgumentosIncorrecto) {
   SetUp();
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, ImageTest_ResizeConstraintsInvalidWidth) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "-100", "100"});
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, ImageTest_ImageTest_ResizeConstraintsInvalidHeigth_Test) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "100", "-100"});
   EXPECT_THROW({
     getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, CutfreqConstraintsCorrecto) {
@@ -122,7 +121,7 @@ TEST_F(ImageTest, CutfreqConstraintsNumeroArgumentosIncorrecto) {
   SetUp();
   EXPECT_THROW({
     getImage()->cutfreq_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest,  CutfreqConstraintsCutfreqInvalido) {
@@ -130,7 +129,7 @@ TEST_F(ImageTest,  CutfreqConstraintsCutfreqInvalido) {
   SetUp();
   EXPECT_THROW({
     getImage()->cutfreq_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, std::runtime_error);
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, CompressConstraintsCorrecto) {
@@ -138,3 +137,19 @@ TEST_F(ImageTest, CompressConstraintsCorrecto) {
   SetUp();
   EXPECT_FALSE(getImage()->compress_constraints(static_cast<int>(getImage()->getArgv().size())));
 }
+
+TEST_F(ImageTest, CompressConstraintsNumeroArgumentosIncorrecto) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.cppm", "compress", "extra"});
+  SetUp();
+  EXPECT_THROW({
+    getImage()->compress_constraints(static_cast<int>(getImage()->getArgv().size()));
+  }, runtime_error);
+}
+
+TEST_F(ImageTest, CheckArgsInfoCorrecto) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "info"});
+  SetUp();
+  EXPECT_FALSE(getImage()->check_args());
+}
+
+TEST_F(ImageTest, C)

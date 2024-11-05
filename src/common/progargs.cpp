@@ -101,8 +101,7 @@ bool Image::cutfreq_constraints(int const argc, vector<string> const & argv) {
 bool Image::compress_constraints(int const argc) {
   // Si la opción es compress, el número de argumentos debe ser exactamente 4.
   if (argc != 4) {
-    cerr << "Error: Invalid extra arguments for compress: " << argc << '\n';
-    return true;
+    throw std::runtime_error("Error: Invalid number of arguments for compress: " + std::to_string(argc));
   }
   return false;
 }
