@@ -16,8 +16,8 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <string>
 #include <math.h>
+#include <string>
 #include <sys/stat.h>
 #include <unordered_map>
 #include <utility>
@@ -27,8 +27,7 @@ static constexpr double calc_index = 10;
 static constexpr int MAX_LEVEL     = 65535;
 static constexpr int MIN_LEVEL     = 255;
 static constexpr int BYTE          = 8;
-static constexpr int FIVE          = 5;
-static constexpr size_t CIEN = 10000;
+static constexpr size_t CIEN       = 10000;
 
 using namespace std;
 
@@ -313,18 +312,18 @@ unordered_map<__uint32_t, __uint16_t> ImageSOA::load_and_map_8(int width, ifstre
   }
   return myMap;
 }
-vector<__uint32_t> ImageSOA::sort_and_map_keys(const unordered_map<__uint32_t, __uint16_t>& myMap,
-                                          unordered_map<__uint32_t, size_t>& color_to_index) {
+
+vector<__uint32_t> ImageSOA::sort_and_map_keys(unordered_map<__uint32_t, __uint16_t> const & myMap,
+                                               unordered_map<__uint32_t, size_t> & color_to_index) {
   // Crear un vector de claves (colores) de myMap
   vector<__uint32_t> sorted_colors;
-  for (const auto& entry : myMap) {
-    sorted_colors.push_back(entry.first);
-  }
+  for (auto const & entry : myMap) { sorted_colors.push_back(entry.first); }
 
   // Ordenar el vector de colores por distancia al negro
-  ranges::sort(sorted_colors.begin(), sorted_colors.end(), [](const __uint32_t& fst, const __uint32_t& scnd) {
-      return distance_to_black(fst) < distance_to_black(scnd);
-  });
+  ranges::sort(sorted_colors.begin(), sorted_colors.end(),
+               [](__uint32_t const & fst, __uint32_t const & scnd) {
+                 return distance_to_black(fst) < distance_to_black(scnd);
+               });
 
   // Mapear cada color a su índice en el vector ordenado
   for (size_t item = 0; item < sorted_colors.size(); ++item) {
@@ -333,7 +332,6 @@ vector<__uint32_t> ImageSOA::sort_and_map_keys(const unordered_map<__uint32_t, _
 
   return sorted_colors;
 }
-
 
 unordered_map<__uint64_t, __uint16_t> ImageSOA::load_and_map_8BIG(int width, ifstream input_file,
                                                                   int height) {
@@ -407,7 +405,7 @@ int ImageSOA::check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vecto
     }
     return 0;
   }
-  return static_cast<int>(meanwhile +1);
+  return static_cast<int>(meanwhile + 1);
 }
 
 void ImageSOA::delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
@@ -447,60 +445,51 @@ unordered_map<__uint32_t, __uint32_t>
               Deleteitems[{redvalues[0].first}] = 0;
               my_index                          = search_in_blue(bluevalues, redvalues[0].first);
               delete_from_deque(bluevalues, my_index);
-              num_left--;
-            } else {
-              num_left--;
-            }
-          } else {
+              num_left--;}
+            else {
+              num_left--;}}
+          else {
             Deleteitems[{greenvalues[0].first}] = 0;
             my_index                            = search_in_blue(bluevalues, greenvalues[0].first);
             delete_from_deque(bluevalues, my_index);
-            num_left--;
-          }
-        }
+            num_left--;}}
       } else {
-        num_left--;
-      }
+        num_left--;}
     } else {
       Deleteitems[{bluevalues[0].first}] = 0;
       bluevalues.pop_front();
-      num_left--;
-    }
-  }
+      num_left--;}}
   return Deleteitems;
 }
 
-__uint32_t ImageSOA::get_aitems(size_t index, const vector<__uint32_t>& sorted_colors, const unordered_map<__uint32_t, __uint32_t>& Deleteitems) {
+__uint32_t ImageSOA::get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
+                                unordered_map<__uint32_t, __uint32_t> const & Deleteitems) {
   size_t const max_index = sorted_colors.size() - 1;
   double min_distance = sqrt(3 * pow(MIN_LEVEL, 2));  // Inicialmente la distancia máxima posible
   __uint32_t closest_color = sorted_colors[index];
   // Avanzar hacia adelante
-    for (size_t i = 1; i <= CIEN && index + i <= max_index; ++i) {
-      __uint32_t const candidate = sorted_colors[index + i];
-      if (!Deleteitems.contains(candidate)) {
-        double const new_distance = get_distance(sorted_colors[index], candidate);
-        if (new_distance < min_distance) {
-          min_distance = new_distance;
-          closest_color = candidate;
-        }
+  for (size_t i = 1; i <= CIEN && index + i <= max_index; ++i) {
+    __uint32_t const candidate = sorted_colors[index + i];
+    if (!Deleteitems.contains(candidate)) {
+      double const new_distance = get_distance(sorted_colors[index], candidate);
+      if (new_distance < min_distance) {
+        min_distance  = new_distance;
+        closest_color = candidate;
       }
     }
-    for (size_t i = 1; i <= CIEN && index >= i; ++i) {
-      __uint32_t const candidate = sorted_colors[index - i];
-      if (!Deleteitems.contains(candidate)) {
-        double const new_distance = get_distance(sorted_colors[index], candidate);
-        if (new_distance < min_distance) {
-          min_distance = new_distance;
-          closest_color = candidate;
-        }
+  }
+  for (size_t i = 1; i <= CIEN && index >= i; ++i) {
+    __uint32_t const candidate = sorted_colors[index - i];
+    if (!Deleteitems.contains(candidate)) {
+      double const new_distance = get_distance(sorted_colors[index], candidate);
+      if (new_distance < min_distance) {
+        min_distance  = new_distance;
+        closest_color = candidate;
       }
     }
+  }
   return closest_color;
 }
-
-
-
-
 
 void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   // Convierto myMap a vector de pares y ordeno
@@ -509,7 +498,6 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
   });
-
 
   unordered_map<__uint32_t, size_t> color_to_index;
   auto sorted_colors = sort_and_map_keys(myMap, color_to_index);
@@ -544,14 +532,22 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   deque const left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
 
   auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
+
+
+  for (auto const & [fst, snd] : bluevalues) {
+    unsigned const char red = extractred(fst);
+    unsigned const char grn = extractgreen(fst);
+    unsigned const char blu = extractblue(fst);
+    cout << "("<< int(red) <<", " << int(grn) << ", "<< int(blu) << "): " << int(snd) << "\n";
+  }
+
+
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
-
-
-
+  /*
   for (auto & Delitem : Deleteitems) {
-    double distance     = sqrt(3 * pow(MIN_LEVEL, 2));
-    double new_distance = 0;
+    double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
+    double new_distance        = 0;
     __uint8_t const actual_red = extractred(Delitem.first);
     __uint8_t const actual_grn = extractgreen(Delitem.first);
     __uint8_t const actual_blu = extractblue(Delitem.first);
@@ -562,7 +558,6 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
       __uint8_t const check_blu = extractblue(storage.first);
       if (__uint32_t const rgb = packRGB(check_red, check_grn, check_blu);
           not Deleteitems.contains(rgb)) {
-
         new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
                             pow(actual_blu - check_blu, 2));
         if (new_distance <= distance) {
@@ -572,18 +567,48 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
       }
     }
   }
+  */
+
+  cout << "PINGA" << "\n";
   /*
   for (auto & Delitem : Deleteitems) {
       size_t const index1 = color_to_index[Delitem.first];
       Delitem.second = get_aitems(index1, sorted_colors, Deleteitems);
     }
   */
+  unordered_map<__uint32_t, __uint8_t> toSave;
+  for(auto & Pinga : myMap) {
+    if(!Deleteitems.contains(Pinga.first)) {
+     toSave[Pinga.first] = 0;
+    }
+  }
+  /*
+  for (auto & Delitem : Deleteitems) {
+    double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
+    double new_distance        = 0;
+    __uint8_t const actual_red = extractred(Delitem.first);
+    __uint8_t const actual_grn = extractgreen(Delitem.first);
+    __uint8_t const actual_blu = extractblue(Delitem.first);
+
+    for (auto const & storage : toSave) {
+      __uint8_t const check_red = extractred(storage.first);
+      __uint8_t const check_grn = extractgreen(storage.first);
+      __uint8_t const check_blu = extractblue(storage.first);
+        new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
+                            pow(actual_blu - check_blu, 2));
+        if (new_distance <= distance) {
+          distance       = new_distance;
+          Delitem.second = packRGB(check_red, check_grn, check_blu);
+        }
+    }
+  }
+  */
   int const width  = this->get_width();
   int const height = this->get_height();
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
 
-  auto const iter      = static_cast<size_t>(width * height);
+  auto const iter = static_cast<size_t>(width * height);
 
   for (size_t counter = 0; counter < iter; counter++) {
     __uint8_t red = this->soa_small.r[counter];
@@ -630,11 +655,12 @@ int ImageSOA::cutfreq() {
   unordered_map<__uint32_t, __uint16_t> myMap;
   unordered_map<__uint64_t, __uint16_t> myMapBIG;
   if (maxval == MIN_LEVEL) {
-    myMap = load_and_map_8(width, move(input_file), height);
+    myMap                        = load_and_map_8(width, move(input_file), height);
     size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMap.size()) {
       cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "
-              "pixeles unicos" << "\n";
+              "pixeles unicos"
+           << "\n";
       return -1;
     }
     cutfreq_min(myMap);
