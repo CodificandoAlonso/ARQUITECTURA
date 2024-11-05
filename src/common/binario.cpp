@@ -60,6 +60,10 @@ unsigned short merge16(unsigned char op1, unsigned char op2) {
  * obtendremos 0x3412.
  */
 
+unsigned short swap16(unsigned short opr) {
+  return static_cast<unsigned short>((opr >> BYTE) | (opr << BYTE));
+}
+
 
 string mix3char(const unsigned char ch1, const unsigned char ch2, const unsigned char ch3) {
       bitset<BYTE> const byte1(ch1);
@@ -68,35 +72,9 @@ string mix3char(const unsigned char ch1, const unsigned char ch2, const unsigned
     return byte1.to_string() + byte2.to_string() + byte3.to_string();
 
 }
-/*
-__uint8_t extractblue(const string& rgb) {
-  const string blue = rgb.substr(rgb.size() - BYTE, BYTE);
-  bitset<BYTE> const bluebinary(blue);
-  auto const blueint = static_cast<__uint8_t>(bluebinary.to_ulong());
-  return blueint;
-}
-
-__uint8_t extractgreen(const string& rgb) {
-  const string green = rgb.substr(rgb.size() - BYTE_2, BYTE);
-  bitset<BYTE> const greenbinary(green);
-  auto const greenint = static_cast<__uint8_t>(greenbinary.to_ulong());
-  return greenint;
-}
-
-__uint8_t extractred(const string& rgb) {
-  const string red = rgb.substr(0, BYTE);
-  bitset<BYTE> const redbinary(red);
-  auto const redint = static_cast<__uint8_t>(redbinary.to_ulong());
-  return redint;
-}
-*/
-
-unsigned short swap16(unsigned short opr) {
-  return static_cast<unsigned short>((opr >> BYTE) | (opr << BYTE));
-}
 
 
-uint64_t packRGBIG(uint16_t red, uint16_t grn, uint16_t blu) {
+uint64_t packRGBIG(uint16_t const red, uint16_t const grn, uint16_t const blu) {
   return (static_cast<uint64_t>(red) << BYTE_4) | (static_cast<uint64_t>(grn) << BYTE_2) | blu;
 }
 
@@ -112,11 +90,11 @@ uint8_t extractred(uint32_t const color) {
   return color >> BYTE_2 & FFF;
 }
 
-uint8_t extractgreen(uint32_t color) {
+uint8_t extractgreen(uint32_t const color) {
   return color >> BYTE & FFF;
 }
 
-uint8_t extractblue(uint32_t color) {
+uint8_t extractblue(uint32_t const color) {
   return color & FFF;
 }
 
@@ -138,7 +116,4 @@ double get_distance(__uint32_t item_1, __uint32_t item_2) {
   return sqrt(pow(red1-red2, 2)+ pow(grn1-grn2, 2)+ pow(blu1-blu2, 2));
 
 }
-
-
-
 

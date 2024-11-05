@@ -15,8 +15,16 @@ int AVLTree::height(Node const * node) {
   return node == nullptr ? 0 : node->height;
 }
 
+int AVLTree::getHeight(Node const * node) {
+  return height(node);
+}
+
 int AVLTree::max(int const param_a, int const param_b) {
   return param_a > param_b ? param_a : param_b;
+}
+
+int AVLTree::getMax(int const param_a, int const param_b) {
+  return max(param_a, param_b);
 }
 
 Node * AVLTree::rotate_left(Node * param_x) {
@@ -32,6 +40,10 @@ Node * AVLTree::rotate_left(Node * param_x) {
   return param_y;
 }
 
+Node * AVLTree::get_rotate_left(Node * param_x) {
+  return rotate_left(param_x);
+}
+
 Node * AVLTree::rotate_right(Node * value_y) {
   Node * value_x = value_y->left;
   Node * T_2     = value_x->right;
@@ -45,8 +57,16 @@ Node * AVLTree::rotate_right(Node * value_y) {
   return value_x;
 }
 
+Node * AVLTree::get_rotate_right(Node * param_x) {
+  return rotate_right(param_x);
+}
+
 int AVLTree::get_balance(Node const * node) {
-  return node == nullptr ? 0 : height(node->left) - height(node->right);
+  return node == nullptr ? 0 : getHeight(node->left) - getHeight(node->right);
+}
+
+int AVLTree::get_get_balance(Node const * node) {
+  return get_balance(node);
 }
 
 gsl::owner<Node *> AVLTree::insert(Node * node, element const elem) {

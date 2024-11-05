@@ -20,6 +20,18 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
+    std::string get_input_file() {
+      return this->input_file;
+    }
+    std::string get_output_file() {
+        return this->output_file;
+      }
+    int (*get_compress())();
+
+    std::string get_optype() const {
+      return this->optype;
+    }
+
 
   private:
     static deque<pair<__uint32_t, __uint16_t>>
@@ -66,6 +78,10 @@ class ImageSOA : public Image {
     soa_rgb_big read_image_rgb_big(ifstream & input_file) const;
     soa_rgb_small soa_small;
     soa_rgb_small soa_big;
+
+    std::string input_file;
+    std::string output_file;
+    std::string optype;
 };
 
 #endif  // IMAGESOA_HPP
