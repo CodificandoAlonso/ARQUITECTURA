@@ -20,6 +20,9 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
+    void set_input_file(const std::string& inputFile);
+    void set_output_file(const std::string& outputFile);
+    int (*get_compress())();
 
   private:
     bool obtain_args();
@@ -50,6 +53,9 @@ class ImageSOA : public Image {
     static rgb_small interpolate(double u_param, array<rgb_small, 4> square, double t_param);
     soa_rgb_small soa_small;
     soa_rgb_small soa_big;
+
+    std::string input_file;
+    std::string output_file;
 };
 
 #endif  // IMAGESOA_HPP

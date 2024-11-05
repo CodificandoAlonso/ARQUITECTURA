@@ -31,6 +31,13 @@ using namespace std;
 
 ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
 
+void ImageSOA::set_input_file(const std::string& inputFile) {
+  input_file = inputFile;
+}
+
+void ImageSOA::set_output_file(const std::string& outputFile) {
+  output_file = outputFile;
+
 int ImageSOA::process_operation() {
   // Primera operación: leer los metadatos de la imagen de entrada. Como
   // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
