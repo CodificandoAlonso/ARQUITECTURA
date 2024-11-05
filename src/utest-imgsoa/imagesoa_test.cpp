@@ -7,7 +7,7 @@ protected:
     ImageSOA *imageSOA;
 
     void SetUp() override {
-        std::vector<std::string> args = {"imtool-soa", "input.ppm", "output.ppm", "compress"};
+        std::vector<std::string> args = {"imtool-soa", "/home/jadmin/CLionProjects/ARQUITECTURA/src/data/outputs/maxlevel/deer-small-255.ppm", "/home/jadmin/CLionProjects/ARQUITECTURA/src/data/outputs/maxlevel/deer-small-255.cppm", "compress"};
         imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
     }
 
