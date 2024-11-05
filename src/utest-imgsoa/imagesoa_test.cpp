@@ -14,6 +14,7 @@ protected:
     void TearDown() override {
         delete imageSOA;
     }
+
 };
 
 TEST_F(ImageSOATest, CompressOperation) {
