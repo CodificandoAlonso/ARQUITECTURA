@@ -4,11 +4,10 @@
 
 class ImageSOATest : public ::testing::Test {
 protected:
-    ImageSOA* imageSOA;
-    ImageSOATest() : imageSOA(nullptr) {}
+    ImageSOA *imageSOA;
 
     void SetUp() override {
-        std::vector<std::string> args = {"program", "info", "input.ppm", "output.ppm"};
+        std::vector<std::string> args = {"imtool-soa", "input.ppm", "output.ppm", "compress"};
         imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
     }
 
@@ -17,7 +16,7 @@ protected:
     }
 };
 
-TEST_F(ImageSOATest, ProcessOperationInfo) {
-    EXPECT_EQ(imageSOA->get_optype(), "info");
-    EXPECT_EQ(imageSOA->process_operation(), 0);
-};
+TEST_F(ImageSOATest, CompressOperation) {
+    // Assuming the input file and output file are set up correctly
+    EXPECT_EQ(imageSOA->compress(), 0);
+}
