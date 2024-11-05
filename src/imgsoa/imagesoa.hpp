@@ -20,9 +20,18 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
-    void set_input_file(const std::string& inputFile);
-    void set_output_file(const std::string& outputFile);
+    std::string get_input_file() {
+      return this->input_file;
+    }
+    std::string get_output_file() {
+        return this->output_file;
+      }
     int (*get_compress())();
+
+    std::string get_optype() const {
+      return this->optype;
+    }
+
 
   private:
     bool obtain_args();
@@ -56,6 +65,7 @@ class ImageSOA : public Image {
 
     std::string input_file;
     std::string output_file;
+    std::string optype;
 };
 
 #endif  // IMAGESOA_HPP
