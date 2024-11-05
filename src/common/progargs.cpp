@@ -63,8 +63,7 @@ bool Image::maxval_constraints(int const argc, vector<string> const & argv) {
 
 bool Image::resize_constraints(int const argc, vector<string> const & argv) {
   if (argc != MAX_ARGS) {
-    cerr << "Error: Invalid number of arguments for option resize: " << argc << '\n';
-    return true;
+    throw std::runtime_error("Error: Invalid number of arguments for option resize: " + std::to_string(argc));
   }
   // Comprobamos que el cuarto y quinto argumento sean números enteros positivos
   char * end           = nullptr;
@@ -87,22 +86,20 @@ bool Image::cutfreq_constraints(int const argc, vector<string> const & argv) {
   // Si la opción es cutfreq, el número de argumentos debe ser exactamente cuatro. El cuarto
   // argumento debe ser un número entero positivo.
   if (argc != MAX_ARGS - 1) {
-    cerr << "Error: Invalid number of arguments for cutfreq: " << argc << '\n';
-    return true;
+    throw std::runtime_error("Error: Invalid number of arguments for cutfreq: " + std::to_string(argc));
   }
   // Comprobamos que el cuarto argumento sea un número entero positivo
   char * end    = nullptr;
   long argument = strtol(argv[4].c_str(), &end, DECIMAL_BASE);
   if (argument <= 0) {
-    cerr << "Error: Invalid cutfreq: " << argv[4] << '\n';
-    return true;
+    throw std::runtime_error("Error: Invalid cutfreq: " + argv[4]);
   }
   this->args.push_back(static_cast<int>(argument));
   return false;
 }
 
 bool Image::compress_constraints(int const argc) {
-  // Si la opción es compress, el número de argumentos debe ser exactamente tres.
+  // Si la opción es compress, el número de argumentos debe ser exactamente 4.
   if (argc != 4) {
     cerr << "Error: Invalid extra arguments for compress: " << argc << '\n';
     return true;
