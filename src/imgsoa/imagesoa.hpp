@@ -6,7 +6,6 @@
 #define IMAGESOA_HPP
 
 #include "common/progargs.hpp"
-
 #include <common/AVLTree.hpp>
 #include <common/struct-rgb.hpp>
 #include <deque>
@@ -68,9 +67,7 @@ class ImageSOA : public Image {
     soa_rgb_small soa_small;
     soa_rgb_small soa_big;
 
-    std::string input_file;
-    std::string output_file;
-    std::string optype;
+    friend class ImageSOATest_CompressOperation_Test;
 };
 
 #endif  // IMAGESOA_HPP
