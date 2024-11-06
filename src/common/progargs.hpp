@@ -19,7 +19,7 @@
       bool resize_constraints(int argc, const std::vector<string>& argv);
       bool cutfreq_constraints(int argc, const std::vector<string>& argv);
       static bool compress_constraints(int argc);
-      [[nodiscard]] int check_args();
+      int check_args();
       [[nodiscard]] int info() const;
       int maxlevel();
       void write_out(int level);
@@ -47,6 +47,10 @@
       const vector<string>& getArgv() const;
 
       static const unique_ptr<Image>& getImage();
+
+      virtual ifstream openFile(const string& filename) const {
+        return ifstream(filename, ios::in | ios::binary);
+    }
 
     private:
       void min_min();

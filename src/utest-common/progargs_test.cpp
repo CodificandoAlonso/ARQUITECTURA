@@ -3,6 +3,7 @@
 #include <common/progargs.hpp>
 #include <fstream>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 // Constantes
 static constexpr int MAX_LEVEL    = 65535;
@@ -36,6 +37,23 @@ class ImageTest : public ::testing::Test {
   void setArgv(vector<string> const& newArgv) {
     argv = newArgv;
   }
+
+  [[nodiscard]] vector<string> const& getArgv() const {
+    return argv;
+  }
+};
+
+class MockImage : public Image {
+  public:
+  MockImage(int argc, const std::vector<std::string>& argv) : Image(argc, argv) {}
+  virtual ~MockImage() = default;
+
+  MockImage(const MockImage&) = delete;
+  MockImage& operator=(const MockImage&) = delete;
+  MockImage(MockImage&&) = delete;
+  MockImage& operator=(MockImage&&) = delete;
+
+  MOCK_METHOD(std::ifstream, openFile, (const std::string&), (const, override));
 };
 
 TEST_F(ImageTest, InfoConstraintsArgumentosCorrectos) {
@@ -152,4 +170,68 @@ TEST_F(ImageTest, CheckArgsInfoCorrecto) {
   EXPECT_FALSE(getImage()->check_args());
 }
 
-TEST_F(ImageTest, C)
+TEST_F(ImageTest, CheckArgsMaxlevelCorrecto) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "maxlevel", "573"});
+  SetUp();
+  EXPECT_FALSE(getImage()->check_args());
+}
+
+TEST_F(ImageTest, CheckArgsResizeCorrecto) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "200", "200"});
+  SetUp();
+  EXPECT_FALSE(getImage()->check_args());
+}
+
+TEST_F(ImageTest, CheckArgsCutfreqCorrecto) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "cutfreq", "100"});
+  SetUp();
+  EXPECT_FALSE(getImage()->check_args());
+}
+
+TEST_F(ImageTest, CheckArgsCompressCorrecto) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "compress"});
+  SetUp();
+  EXPECT_FALSE(getImage()->check_args());
+}
+
+TEST_F(ImageTest, CheckArgsNumeroArgumentosIncorrecto) {
+  setArgv({"imtool-soa", "input.ppm", "output.ppm"});
+  SetUp();
+  EXPECT_THROW(getImage()->check_args(), runtime_error);
+}
+
+TEST_F(ImageTest, CheckArgsOpcionInvalida) {
+  setArgv({"imtool-soa", "input.ppm", "output.ppm", "incorrect"});
+  SetUp();
+  EXPECT_THROW(getImage()->check_args(), runtime_error);
+}
+
+TEST_F(ImageTest, InfoCorrecto) {
+  vector<string> const argv = {"imtool-soa", "test.ppm", "output.ppm", "info"};
+  MockImage const mockImage(static_cast<int>(argv.size()), argv);
+
+  ifstream testFile("test.ppm", ios::in | ios::binary);
+  EXPECT_CALL(mockImage, openFile("test.ppm"))
+      .Times(1)
+      .WillRepeatedly([&testFile](const std::string&) mutable {
+          return move(testFile);
+      });
+
+  EXPECT_EQ(mockImage.info(), 0);
+}
+
+TEST_F(ImageTest, InfoIncorrecto) {
+  vector<string> const argv = {"imtool-soa", "nonexistent.ppm", "output.ppm", "info"};
+  MockImage const mockImage(static_cast<int>(argv.size()), argv);
+
+  ifstream emptyFile;
+  EXPECT_CALL(mockImage, openFile("nonexistent.ppm"))
+      .Times(1)
+      .WillRepeatedly([&emptyFile](const string&) mutable {
+          return move(emptyFile);
+      });
+
+  EXPECT_EQ(mockImage.info(), -1);
+}
+
+
