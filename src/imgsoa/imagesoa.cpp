@@ -15,6 +15,7 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <list>
 #include <map>
 #include <ranges>
 #include <string>
@@ -674,57 +675,19 @@ int ImageSOA::cutfreq() {
   return 0;
 }
 
-void ImageSOA::cp_export_min(ofstream & output_file,
-                             unordered_map<unsigned int, unsigned int> const & color_map,
-                             soa_rgb_small const & image) {
+void ImageSOA::cp_export(ofstream & output_file,
+                         unordered_map<unsigned int, unsigned int> const & color_map,
+                         list<unsigned int> const & indexes) {
   unsigned long int const num_colors = color_map.size();
-  for (size_t i = 0; i < image.r.size(); ++i) {
-    unsigned int const concatenated = image.r[i] << 2 * BYTE | image.g[i] << BYTE | image.b[i];
-    auto item                       = color_map.find(concatenated);
-    if (item != color_map.end()) {
-      unsigned int const color_index = item->second;
-
-      // Escribir el índice del color según el tamaño necesario
-      if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-        write_binary_8(output_file, static_cast<unsigned char>(color_index));
-      } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-        write_binary_16(output_file, static_cast<uint16_t>(color_index));
-      } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-        write_binary_32(output_file, static_cast<uint32_t>(color_index));
-      } else {
-        cerr << "Error: demasiados colores distintos.\n";
-        return;
-      }
+  for (unsigned int const index : indexes) {
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(index));
     } else {
-      cerr << "Error: color no encontrado en el mapa.\n";
-      return;
-    }
-  }
-}
-
-void ImageSOA::cp_export_max(ofstream & output_file,
-                             unordered_map<unsigned int, unsigned int> const & color_map,
-                             soa_rgb_big const & image) {
-  unsigned long int const num_colors = image.r.size();
-  for (size_t i = 0; i < image.r.size(); ++i) {
-    unsigned int const concatenated = image.r[i] << 2 * BYTE | image.g[i] << BYTE | image.b[i];
-    auto item                       = color_map.find(concatenated);
-    if (item != color_map.end()) {
-      unsigned int const color_index = item->second;
-
-      // Escribir el índice del color según el tamaño necesario
-      if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-        write_binary_8(output_file, static_cast<unsigned char>(color_index));
-      } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-        write_binary_16(output_file, static_cast<uint16_t>(color_index));
-      } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-        write_binary_32(output_file, static_cast<uint32_t>(color_index));
-      } else {
-        cerr << "Error: demasiados colores distintos.\n";
-        return;
-      }
-    } else {
-      cerr << "Error: color no encontrado en el mapa.\n";
+      cerr << "Error: demasiados colores distintos.\n";
       return;
     }
   }
@@ -736,7 +699,7 @@ int ImageSOA::compress_min() {
   auto width  = static_cast<unsigned int>(this->get_width());
   auto height = static_cast<unsigned int>(this->get_height());
   unordered_map<unsigned int, unsigned int> color_map;
-  soa_rgb_small image;
+  list<unsigned int> indexes;
   soa_rgb_small unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
     unsigned char const red         = read_binary_8(input_file);
@@ -744,26 +707,24 @@ int ImageSOA::compress_min() {
     unsigned char const blu         = read_binary_8(input_file);
     unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
     if (!color_map.contains(concatenated)) {
-      auto index              = static_cast<unsigned int>(image.r.size());
+      auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;
       unique_colors.r.push_back(red);
       unique_colors.g.push_back(grn);
       unique_colors.b.push_back(blu);
     }
-    image.r.push_back(red);
-    image.g.push_back(grn);
-    image.b.push_back(blu);
+    indexes.push_back(color_map[concatenated]);
   }
   output_file << "C6"
-              << " " << width << " " << height << " " << this->get_maxval() << " " << image.r.size()
-              << "\n";
+              << " " << width << " " << height << " " << this->get_maxval() << " "
+              << unique_colors.r.size() << "\n";
   // Escribir los colores únicos
   for (unsigned int i = 0; i < unique_colors.r.size(); i++) {
     write_binary_8(output_file, unique_colors.r[i]);
     write_binary_8(output_file, unique_colors.g[i]);
     write_binary_8(output_file, unique_colors.b[i]);
   }
-  cp_export_min(output_file, color_map, image);
+  cp_export(output_file, color_map, indexes);
   input_file.close();
   output_file.close();
   return 0;
@@ -775,7 +736,7 @@ int ImageSOA::compress_max() {
   auto width  = static_cast<unsigned int>(this->get_width());
   auto height = static_cast<unsigned int>(this->get_height());
   unordered_map<unsigned int, unsigned int> color_map;
-  soa_rgb_big image;
+  list<unsigned int> indexes;
   soa_rgb_big unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
     unsigned short const red        = read_binary_16(input_file);
@@ -783,25 +744,23 @@ int ImageSOA::compress_max() {
     unsigned short const blu        = read_binary_16(input_file);
     unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
     if (!color_map.contains(concatenated)) {
-      auto index              = static_cast<unsigned int>(image.r.size());
+      auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;
       unique_colors.r.push_back(red);
       unique_colors.g.push_back(grn);
       unique_colors.b.push_back(blu);
     }
-    image.r.push_back(red);
-    image.g.push_back(grn);
-    image.b.push_back(blu);
+    indexes.push_back(color_map[concatenated]);
   }
   output_file << "C6"
-              << " " << width << " " << height << " " << this->get_maxval() << " " << image.r.size()
-              << "\n";
+              << " " << width << " " << height << " " << this->get_maxval() << " "
+              << unique_colors.r.size() << "\n";
   for (unsigned int i = 0; i < unique_colors.r.size(); i++) {
     write_binary_16(output_file, unique_colors.r[i]);
     write_binary_16(output_file, unique_colors.g[i]);
     write_binary_16(output_file, unique_colors.b[i]);
   }
-  cp_export_max(output_file, color_map, image);
+  cp_export(output_file, color_map, indexes);
   input_file.close();
   output_file.close();
   return 0;

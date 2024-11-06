@@ -10,6 +10,7 @@
 #include <common/AVLTree.hpp>
 #include <common/struct-rgb.hpp>
 #include <deque>
+#include <list>
 #include <unordered_map>
 #include <vector>
 
@@ -48,12 +49,9 @@ class ImageSOA : public Image {
     [[nodiscard]] int compress();
     int compress_min();
     int compress_max();
-    static void cp_export_min(ofstream & output_file,
-                              unordered_map<unsigned int, unsigned int> const & color_map,
-                              soa_rgb_small const & image);
-    static void cp_export_max(ofstream & output_file,
-                              unordered_map<unsigned int, unsigned int> const & color_map,
-                              soa_rgb_big const & image);
+    static void cp_export(ofstream & output_file,
+                          unordered_map<unsigned int, unsigned int> const & color_map,
+                          list<unsigned int> const & indexes);
     static void delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
                                   size_t index);
     static size_t search_in_blue(deque<pair<__uint32_t, __uint16_t>> & pairs, __uint32_t & first);
