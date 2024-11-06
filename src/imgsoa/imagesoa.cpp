@@ -16,13 +16,12 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <cmath>
+#include <ranges>
 #include <string>
 #include <sys/stat.h>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <ranges>
 
 static constexpr double calc_index = 10;
 static constexpr int MAX_LEVEL     = 65535;
@@ -318,6 +317,7 @@ vector<__uint32_t> ImageSOA::sort_and_map_keys(unordered_map<__uint32_t, __uint1
                                                unordered_map<__uint32_t, size_t> & color_to_index) {
   // Crear un vector de claves (colores) de myMap
   vector<__uint32_t> sorted_colors;
+  sorted_colors.reserve(myMap.size());
   for (auto const & entry : myMap) { sorted_colors.push_back(entry.first); }
 
   // Ordenar el vector de colores por distancia al negro
@@ -436,8 +436,9 @@ unordered_map<__uint32_t, __uint32_t>
           for (size_t iii = 0; iii < iterator; iii++) {
             Deleteitems[bluevalues[0].first] = 0;
             bluevalues.pop_front();
-            num_left--;}}
-        else {
+            num_left--;
+          }
+        } else {
           auto greenvalues = same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
           if (greenvalues[0].second == greenvalues[1].second) {
             my_meanwhile = check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
@@ -446,20 +447,26 @@ unordered_map<__uint32_t, __uint32_t>
               Deleteitems[{redvalues[0].first}] = 0;
               my_index                          = search_in_blue(bluevalues, redvalues[0].first);
               delete_from_deque(bluevalues, my_index);
-              num_left--;}
-            else {
-              num_left--;}}
-          else {
+              num_left--;
+            } else {
+              num_left--;
+            }
+          } else {
             Deleteitems[{greenvalues[0].first}] = 0;
             my_index                            = search_in_blue(bluevalues, greenvalues[0].first);
             delete_from_deque(bluevalues, my_index);
-            num_left--;}}
+            num_left--;
+          }
+        }
       } else {
-        num_left--;}
+        num_left--;
+      }
     } else {
       Deleteitems[{bluevalues[0].first}] = 0;
       bluevalues.pop_front();
-      num_left--;}}
+      num_left--;
+    }
+  }
   return Deleteitems;
 }
 
@@ -562,8 +569,8 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   }
   */
 
-
-  cout << "PINGA" << "\n";
+  cout << "PINGA"
+       << "\n";
 
   /*
   for (auto & Delitem : Deleteitems) {
@@ -573,13 +580,10 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   */
 
   unordered_map<__uint32_t, __uint8_t> toSave;
-  //Me recorro las keys de myMap
+  // Me recorro las keys de myMap
   for (auto const & key : myMap | views::keys) {
-    if (!Deleteitems.contains(key)) {
-    toSave[key] = 0;
-    }
-    }
-
+    if (!Deleteitems.contains(key)) { toSave[key] = 0; }
+  }
 
   for (auto & Delitem : Deleteitems) {
     double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
@@ -592,12 +596,12 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
       __uint8_t const check_red = extractred(key);
       __uint8_t const check_grn = extractgreen(key);
       __uint8_t const check_blu = extractblue(key);
-        new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
-                            pow(actual_blu - check_blu, 2));
-        if (new_distance <= distance) {
-          distance       = new_distance;
-          Delitem.second = packRGB(check_red, check_grn, check_blu);
-        }
+      new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
+                          pow(actual_blu - check_blu, 2));
+      if (new_distance <= distance) {
+        distance       = new_distance;
+        Delitem.second = packRGB(check_red, check_grn, check_blu);
+      }
     }
   }
 
@@ -670,73 +674,60 @@ int ImageSOA::cutfreq() {
   return 0;
 }
 
-void ImageSOA::cp_export_min(ofstream & output_file, AVLTree tree, soa_rgb_small const & image) {
-  /*
-   * Ahora ya podemos escribir los píxeles de la imagen pero antes de hacerlo, debemos determinar
-   * cuántos bits necesitamos para representar los índices de los colores. Tenemos 3 casos:
-   * 1. Si hay < 2^8 colores distintos, necesitamos 8 bits.
-   * 2. Si hay < 2^16 colores distintos, necesitamos 16 bits.
-   * 3. Si hay < 2^32 colores distintos, necesitamos 32 bits.
-   * 4. Si hay más, no lo soportamos.
-   */
-  unsigned long int const num_colors = image.r.size();
-  // Hay que volver a abrir el archivo para volver a leerlo
-  ifstream input_file_rep(this->get_input_file(), ios::binary);
-  string format;
-  int maxval          = 0;
-  unsigned int width  = 0;
-  unsigned int height = 0;
-  input_file_rep >> format >> width >> height >> maxval;
-  input_file_rep.ignore(1);
-  for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char red = 0;
-    unsigned char grn = 0;
-    unsigned char blu = 0;
-    red               = read_binary_8(input_file_rep);
-    grn               = read_binary_8(input_file_rep);
-    blu               = read_binary_8(input_file_rep);
+void ImageSOA::cp_export_min(ofstream & output_file,
+                             unordered_map<unsigned int, unsigned int> const & color_map,
+                             soa_rgb_small const & image) {
+  unsigned long int const num_colors = color_map.size();
+  for (size_t i = 0; i < image.r.size(); ++i) {
+    unsigned int const concatenated = image.r[i] << 2 * BYTE | image.g[i] << BYTE | image.b[i];
+    auto item                       = color_map.find(concatenated);
+    if (item != color_map.end()) {
+      unsigned int const color_index = item->second;
 
-    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    element const elem              = tree.search(concatenated);
-    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-      write_binary_8(output_file, static_cast<unsigned char>(elem.index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-      write_binary_16(output_file, static_cast<uint16_t>(elem.index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+      // Escribir el índice del color según el tamaño necesario
+      if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+        write_binary_8(output_file, static_cast<unsigned char>(color_index));
+      } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+        write_binary_16(output_file, static_cast<uint16_t>(color_index));
+      } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+        write_binary_32(output_file, static_cast<uint32_t>(color_index));
+      } else {
+        cerr << "Error: demasiados colores distintos.\n";
+        return;
+      }
+    } else {
+      cerr << "Error: color no encontrado en el mapa.\n";
+      return;
     }
   }
-  input_file_rep.close();
 }
 
-void ImageSOA::cp_export_max(ofstream & output_file, AVLTree tree, soa_rgb_big const & image) {
+void ImageSOA::cp_export_max(ofstream & output_file,
+                             unordered_map<unsigned int, unsigned int> const & color_map,
+                             soa_rgb_big const & image) {
   unsigned long int const num_colors = image.r.size();
-  ifstream input_file_rep(this->get_input_file(), ios::binary);
-  string format;
-  int maxval          = 0;
-  unsigned int width  = 0;
-  unsigned int height = 0;
-  input_file_rep >> format >> width >> height >> maxval;
-  input_file_rep.ignore(1);
-  for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short red = 0;
-    unsigned short grn = 0;
-    unsigned short blu = 0;
-    red                = read_binary_16(input_file_rep);
-    grn                = read_binary_16(input_file_rep);
-    blu                = read_binary_16(input_file_rep);
+  for (size_t i = 0; i < image.r.size(); ++i) {
+    unsigned int const concatenated = image.r[i] << 2 * BYTE | image.g[i] << BYTE | image.b[i];
+    auto item                       = color_map.find(concatenated);
+    if (item != color_map.end()) {
+      unsigned int const color_index = item->second;
 
-    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    element const elem              = tree.search(concatenated);
-    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-      write_binary_8(output_file, static_cast<unsigned char>(elem.index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-      write_binary_16(output_file, static_cast<uint16_t>(elem.index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      write_binary_32(output_file, static_cast<uint32_t>(elem.index));
+      // Escribir el índice del color según el tamaño necesario
+      if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+        write_binary_8(output_file, static_cast<unsigned char>(color_index));
+      } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+        write_binary_16(output_file, static_cast<uint16_t>(color_index));
+      } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+        write_binary_32(output_file, static_cast<uint32_t>(color_index));
+      } else {
+        cerr << "Error: demasiados colores distintos.\n";
+        return;
+      }
+    } else {
+      cerr << "Error: color no encontrado en el mapa.\n";
+      return;
     }
   }
-  input_file_rep.close();
 }
 
 int ImageSOA::compress_min() {
@@ -744,38 +735,35 @@ int ImageSOA::compress_min() {
   ofstream output_file(this->get_output_file(), ios::binary);
   auto width  = static_cast<unsigned int>(this->get_width());
   auto height = static_cast<unsigned int>(this->get_height());
-  AVLTree tree;
+  unordered_map<unsigned int, unsigned int> color_map;
   soa_rgb_small image;
+  soa_rgb_small unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char red               = 0;
-    unsigned char grn               = 0;
-    unsigned char blu               = 0;
-    red                             = read_binary_8(input_file);
-    grn                             = read_binary_8(input_file);
-    blu                             = read_binary_8(input_file);
-    long unsigned int const index   = image.r.size();
+    unsigned char const red         = read_binary_8(input_file);
+    unsigned char const grn         = read_binary_8(input_file);
+    unsigned char const blu         = read_binary_8(input_file);
     unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
-    if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
-      image.r.push_back(red);
-      image.g.push_back(grn);
-      image.b.push_back(blu);
+    if (!color_map.contains(concatenated)) {
+      auto index              = static_cast<unsigned int>(image.r.size());
+      color_map[concatenated] = index;
+      unique_colors.r.push_back(red);
+      unique_colors.g.push_back(grn);
+      unique_colors.b.push_back(blu);
     }
-  }
-  if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-    cerr << "Error: demasiados colores distintos."
-         << "\n";
-    return -1;
+    image.r.push_back(red);
+    image.g.push_back(grn);
+    image.b.push_back(blu);
   }
   output_file << "C6"
               << " " << width << " " << height << " " << this->get_maxval() << " " << image.r.size()
               << "\n";
-  for (unsigned int i = 0; i < image.r.size(); i++) {
-    write_binary_8(output_file, image.r[i]);
-    write_binary_8(output_file, image.g[i]);
-    write_binary_8(output_file, image.b[i]);
+  // Escribir los colores únicos
+  for (unsigned int i = 0; i < unique_colors.r.size(); i++) {
+    write_binary_8(output_file, unique_colors.r[i]);
+    write_binary_8(output_file, unique_colors.g[i]);
+    write_binary_8(output_file, unique_colors.b[i]);
   }
-  cp_export_min(output_file, tree, image);
+  cp_export_min(output_file, color_map, image);
   input_file.close();
   output_file.close();
   return 0;
@@ -786,38 +774,34 @@ int ImageSOA::compress_max() {
   ofstream output_file(this->get_output_file(), ios::binary);
   auto width  = static_cast<unsigned int>(this->get_width());
   auto height = static_cast<unsigned int>(this->get_height());
-  AVLTree tree;
+  unordered_map<unsigned int, unsigned int> color_map;
   soa_rgb_big image;
+  soa_rgb_big unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short red              = 0;
-    unsigned short grn              = 0;
-    unsigned short blu              = 0;
-    red                             = read_binary_16(input_file);
-    grn                             = read_binary_16(input_file);
-    blu                             = read_binary_16(input_file);
-    long unsigned int const index   = image.r.size();
+    unsigned short const red        = read_binary_16(input_file);
+    unsigned short const grn        = read_binary_16(input_file);
+    unsigned short const blu        = read_binary_16(input_file);
     unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    element const elem = {.color = concatenated, .index = static_cast<unsigned int>(index)};
-    if (tree.insert(elem) == 0) {  // Se ha podido insertar, por lo que no existía previamente
-      image.r.push_back(red);
-      image.g.push_back(grn);
-      image.b.push_back(blu);
+    if (!color_map.contains(concatenated)) {
+      auto index              = static_cast<unsigned int>(image.r.size());
+      color_map[concatenated] = index;
+      unique_colors.r.push_back(red);
+      unique_colors.g.push_back(grn);
+      unique_colors.b.push_back(blu);
     }
-  }
-  if (image.r.size() > static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-    cerr << "Error: demasiados colores distintos."
-         << "\n";
-    return -1;
+    image.r.push_back(red);
+    image.g.push_back(grn);
+    image.b.push_back(blu);
   }
   output_file << "C6"
               << " " << width << " " << height << " " << this->get_maxval() << " " << image.r.size()
               << "\n";
-  for (unsigned int i = 0; i < image.r.size(); i++) {
-    write_binary_16(output_file, image.r[i]);
-    write_binary_16(output_file, image.g[i]);
-    write_binary_16(output_file, image.b[i]);
+  for (unsigned int i = 0; i < unique_colors.r.size(); i++) {
+    write_binary_16(output_file, unique_colors.r[i]);
+    write_binary_16(output_file, unique_colors.g[i]);
+    write_binary_16(output_file, unique_colors.b[i]);
   }
-  cp_export_max(output_file, tree, image);
+  cp_export_max(output_file, color_map, image);
   input_file.close();
   output_file.close();
   return 0;

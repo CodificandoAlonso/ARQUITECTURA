@@ -6,6 +6,7 @@
 #define IMAGESOA_HPP
 
 #include "common/progargs.hpp"
+
 #include <common/AVLTree.hpp>
 #include <common/struct-rgb.hpp>
 #include <deque>
@@ -20,7 +21,6 @@ class ImageSOA : public Image {
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
 
-
   private:
     static deque<pair<__uint32_t, __uint16_t>>
         same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int value,
@@ -31,7 +31,7 @@ class ImageSOA : public Image {
     unordered_map<__uint32_t, __uint16_t> load_and_map_8(int width, ifstream input_file,
                                                          int height);
     static vector<__uint32_t> sort_and_map_keys(unordered_map<__uint32_t, __uint16_t> const & myMap,
-                                         unordered_map<__uint32_t, size_t> & color_to_index);
+                                                unordered_map<__uint32_t, size_t> & color_to_index);
     unordered_map<__uint64_t, __uint16_t> load_and_map_8BIG(int width, ifstream input_file,
                                                             int height);
 
@@ -48,8 +48,12 @@ class ImageSOA : public Image {
     [[nodiscard]] int compress();
     int compress_min();
     int compress_max();
-    void cp_export_min(ofstream & output_file, AVLTree tree, soa_rgb_small const & image);
-    void cp_export_max(ofstream & output_file, AVLTree tree, soa_rgb_big const & image);
+    static void cp_export_min(ofstream & output_file,
+                              unordered_map<unsigned int, unsigned int> const & color_map,
+                              soa_rgb_small const & image);
+    static void cp_export_max(ofstream & output_file,
+                              unordered_map<unsigned int, unsigned int> const & color_map,
+                              soa_rgb_big const & image);
     static void delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
                                   size_t index);
     static size_t search_in_blue(deque<pair<__uint32_t, __uint16_t>> & pairs, __uint32_t & first);
