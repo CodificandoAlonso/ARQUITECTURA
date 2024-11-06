@@ -11,6 +11,7 @@
 #include <common/struct-rgb.hpp>
 #include <unordered_map>
 #include <vector>
+#include <list>
 
 using namespace std;
 static int constexpr FIVE = 5;
@@ -36,8 +37,9 @@ class ImageAOS : public Image {
     [[nodiscard]] int compress();
     int compress_min();
     int compress_max();
-    void cp_export_min(ofstream & output_file, AVLTree tree, vector<rgb_small> const & image);
-    void cp_export_max(ofstream & output_file, AVLTree tree, vector<rgb_big> const & image);
+    static void cp_export(ofstream & output_file,
+                   unordered_map<unsigned int, unsigned int> const & color_map,
+                   list<unsigned int> const & indexes);
 };
 
 #endif  // IMAGEAOS_HPP
