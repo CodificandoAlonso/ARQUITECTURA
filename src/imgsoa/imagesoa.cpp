@@ -29,7 +29,10 @@ static constexpr int MAX_LEVEL     = 65535;
 static constexpr int MIN_LEVEL     = 255;
 static constexpr int BYTE          = 8;
 static constexpr size_t CIEN       = 20000;
-
+static constexpr int POCO = 75;
+static constexpr int MEDIO = 150;
+static constexpr int ALTO = 240;
+static constexpr int NUEVE = 9;
 using namespace std;
 
 ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
@@ -292,7 +295,7 @@ int ImageSOA::resize() {
   return 0;
 }
 
-unordered_map<__uint32_t, __uint16_t> ImageSOA::load_and_map_8(int width, ifstream input_file,
+unordered_map<__uint32_t, __uint16_t> ImageSOA::cf_load_and_map_8(int width, ifstream input_file,
                                                                int height) {
   unordered_map<__uint32_t, __uint16_t> myMap;
   unsigned char red = 0;
@@ -471,6 +474,81 @@ unordered_map<__uint32_t, __uint32_t>
   return Deleteitems;
 }
 
+void ImageSOA::addEdge(unordered_map<__uint32_t, vector<__uint32_t>> & graph, const __uint32_t key1, const __uint32_t key2) {
+  graph[key1].push_back(key2);
+  graph[key2].push_back(key1);
+}
+
+
+void ImageSOA::add_nodes() {
+    this->nod.push_back( packRGB(POCO, POCO, POCO));
+  this->nod.push_back( packRGB(POCO, POCO, MEDIO));
+  this->nod.push_back( packRGB(POCO, POCO, ALTO));
+  this->nod.push_back( packRGB(POCO, MEDIO, POCO));
+ this->nod.push_back( packRGB(POCO, MEDIO, MEDIO));
+  this->nod.push_back( packRGB(POCO, MEDIO, ALTO));
+  this->nod.push_back( packRGB(POCO, ALTO, POCO));
+  this->nod.push_back( packRGB(POCO, ALTO, MEDIO));
+  this->nod.push_back( packRGB(POCO, ALTO, ALTO));
+
+  this->nod.push_back( packRGB(MEDIO, POCO, POCO));
+  this->nod.push_back( packRGB(MEDIO, POCO, MEDIO));
+  this->nod.push_back( packRGB(MEDIO, POCO, ALTO));
+  this->nod.push_back( packRGB(MEDIO, MEDIO, POCO));
+  this->nod.push_back( packRGB(MEDIO, MEDIO, MEDIO));
+  this->nod.push_back(  packRGB(MEDIO, MEDIO, ALTO));
+  this->nod.push_back( packRGB(MEDIO, ALTO, POCO));
+  this->nod.push_back( packRGB(MEDIO, ALTO, MEDIO));
+  this->nod.push_back( packRGB(MEDIO, ALTO, ALTO));
+
+  this->nod.push_back( packRGB(ALTO, POCO, POCO));
+  this->nod.push_back( packRGB(ALTO, POCO, MEDIO));
+  this->nod.push_back( packRGB(ALTO, POCO, ALTO));
+  this->nod.push_back( packRGB(ALTO, MEDIO, POCO));
+  this->nod.push_back( packRGB(ALTO, MEDIO, MEDIO));
+  this->nod.push_back( packRGB(ALTO, MEDIO, ALTO));
+  this->nod.push_back( packRGB(ALTO, ALTO, POCO));
+  this->nod.push_back( packRGB(ALTO, ALTO, MEDIO));
+  this->nod.push_back( packRGB(ALTO, ALTO, ALTO));
+}
+
+
+
+unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageSOA::cf_generate_graph() {
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>graph;
+  add_nodes();
+   graph[this->nod[0]] = {{this->nod[1], this->nod[3], this->nod[9]}, {}}; // PPP
+    graph[this->nod[1]] = {{this->nod[0], this->nod[2], this->nod[4], this->nod[10]}, {}}; // PPM
+    graph[this->nod[2]] = {{this->nod[1], this->nod[5], this->nod[11]}, {}}; // PPA
+    graph[this->nod[3]] = {{this->nod[0], this->nod[4], this->nod[6], this->nod[12]}, {}}; // PMP
+    graph[this->nod[4]] = {{this->nod[1], this->nod[3], this->nod[5], this->nod[7], this->nod[13]}, {}}; // PMM
+    graph[this->nod[5]] = {{this->nod[2], this->nod[4], this->nod[8], this->nod[14]}, {}}; // PMA
+    graph[this->nod[6]] = {{this->nod[3], this->nod[7], this->nod[15]}, {}}; // PAP
+    graph[this->nod[7]] = {{this->nod[4], this->nod[6], this->nod[8], this->nod[16]}, {}}; // PAM
+    graph[this->nod[8]] = {{this->nod[5], this->nod[7], this->nod[17]}, {}}; // PAA
+
+    graph[this->nod[9]] = {{this->nod[0], this->nod[10], this->nod[12], this->nod[18]}, {}}; // MPP
+    graph[this->nod[10]] = {{this->nod[1], this->nod[9], this->nod[11], this->nod[13], this->nod[19]}, {}}; // MPM
+    graph[this->nod[11]] = {{this->nod[2], this->nod[10], this->nod[14], this->nod[20]}, {}}; // MPA
+    graph[this->nod[12]] = {{this->nod[3], this->nod[9], this->nod[13], this->nod[15], this->nod[21]}, {}}; // MMP
+    graph[this->nod[13]] = {{this->nod[4], this->nod[10], this->nod[12], this->nod[14], this->nod[16], this->nod[22]}, {}}; // MMM
+    graph[this->nod[14]] = {{this->nod[5], this->nod[11], this->nod[13], this->nod[17], this->nod[23]}, {}}; // MMA
+    graph[this->nod[15]] = {{this->nod[6], this->nod[12], this->nod[16], this->nod[18], this->nod[24]}, {}}; // MAP
+    graph[this->nod[16]] = {{this->nod[7], this->nod[13], this->nod[15], this->nod[17], this->nod[25]}, {}}; // MAM
+    graph[this->nod[17]] = {{this->nod[8], this->nod[14], this->nod[16], this->nod[26]}, {}}; // MAA
+
+    graph[this->nod[18]] = {{this->nod[9], this->nod[15], this->nod[19]}, {}}; // APP
+    graph[this->nod[19]] = {{this->nod[10], this->nod[18], this->nod[20], this->nod[22]}, {}}; // APM
+    graph[this->nod[20]] = {{this->nod[11], this->nod[19], this->nod[23]}, {}}; // APA
+    graph[this->nod[21]] = {{this->nod[12], this->nod[22], this->nod[24]}, {}}; // AMP
+    graph[this->nod[22]] = {{this->nod[13], this->nod[19], this->nod[21], this->nod[23], this->nod[25]}, {}}; // AMM
+    graph[this->nod[23]] = {{this->nod[14], this->nod[20], this->nod[22], this->nod[26]}, {}}; // AMA
+    graph[this->nod[24]] = {{this->nod[15], this->nod[21], this->nod[25]}, {}}; // AAP
+    graph[this->nod[25]] = {{this->nod[16], this->nod[22], this->nod[24], this->nod[26]}, {}};// AAA
+  return graph;
+}
+
+
 __uint32_t ImageSOA::get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
                                 unordered_map<__uint32_t, __uint32_t> const & Deleteitems) {
   size_t const max_index = sorted_colors.size() - 1;
@@ -545,95 +623,60 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
 
-  /*
-  for (auto & Delitem : Deleteitems) {
-    double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
-    double new_distance        = 0;
-    __uint8_t const actual_red = extractred(Delitem.first);
-    __uint8_t const actual_grn = extractgreen(Delitem.first);
-    __uint8_t const actual_blu = extractblue(Delitem.first);
 
-    for (auto const & storage : myMap) {
-      __uint8_t const check_red = extractred(storage.first);
-      __uint8_t const check_grn = extractgreen(storage.first);
-      __uint8_t const check_blu = extractblue(storage.first);
-      if (__uint32_t const rgb = packRGB(check_red, check_grn, check_blu);
-          not Deleteitems.contains(rgb)) {
-        new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
-                            pow(actual_blu - check_blu, 2));
+  unordered_map<__uint32_t, __uint32_t> toSave;
+  // Me recorro las keys de myMap
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
+  for (auto const & key : myMap | views::keys) {
+    if (!Deleteitems.contains(key)) {
+      //me recorro las keys de graph
+      //me recorro graph
+      double distance = 100000;
+      for (auto const & key1 : myMap | views::keys) {
+        double new_distance = get_distance(key, key1);
         if (new_distance < distance) {
-          distance       = new_distance;
-          Delitem.second = rgb;
+          distance = new_distance;
+          toSave[key] = key1;
         }
       }
+      graph[toSave[key]].second.push_back(key);
     }
   }
-  */
 
-  cout << "PINGA"
-       << "\n";
 
-  /*
-  for (auto & Delitem : Deleteitems) {
-      size_t const index1 = color_to_index[Delitem.first];
-      Delitem.second = get_aitems(index1, sorted_colors, Deleteitems);
-    }
-  */
 
-  unordered_map<__uint32_t, __uint8_t> toSave;
-  // Me recorro las keys de myMap
-  for (auto const & key : myMap | views::keys) {
-    if (!Deleteitems.contains(key)) { toSave[key] = 0; }
-  }
 
-  for (auto & Delitem : Deleteitems) {
-    double distance            = sqrt(3 * pow(MIN_LEVEL, 2));
-    double new_distance        = 0;
-    __uint8_t const actual_red = extractred(Delitem.first);
-    __uint8_t const actual_grn = extractgreen(Delitem.first);
-    __uint8_t const actual_blu = extractblue(Delitem.first);
 
-    for (auto const & key : toSave | views::keys) {
-      __uint8_t const check_red = extractred(key);
-      __uint8_t const check_grn = extractgreen(key);
-      __uint8_t const check_blu = extractblue(key);
-      new_distance = sqrt(pow(actual_red - check_red, 2) + pow(actual_grn - check_grn, 2) +
-                          pow(actual_blu - check_blu, 2));
-      if (new_distance <= distance) {
-        distance       = new_distance;
-        Delitem.second = packRGB(check_red, check_grn, check_blu);
+
+    int const width  = this->get_width();
+    int const height = this->get_height();
+    write_out(this->get_maxval());
+    ofstream output_file = this->get_of_output_file();
+
+    auto const iter = static_cast<size_t>(width * height);
+
+    for (size_t counter = 0; counter < iter; counter++) {
+      __uint8_t red = this->soa_small.r[counter];
+      __uint8_t grn = this->soa_small.g[counter];
+      __uint8_t blu = this->soa_small.b[counter];
+      if (__uint32_t const rgb = packRGB(red, grn, blu); Deleteitems.contains(rgb)) {
+        red = extractred(Deleteitems[rgb]);
+        grn = extractgreen(Deleteitems[rgb]);
+        blu = extractblue(Deleteitems[rgb]);
       }
+      write_binary_8(output_file, red);
+      write_binary_8(output_file, grn);
+      write_binary_8(output_file, blu);
     }
+    output_file.close();
+
+    /*
+     * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
+     * no depende de su posición en la imagen sino de sus valores RGB.
+     * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
+     */
   }
 
-  int const width  = this->get_width();
-  int const height = this->get_height();
-  write_out(this->get_maxval());
-  ofstream output_file = this->get_of_output_file();
-
-  auto const iter = static_cast<size_t>(width * height);
-
-  for (size_t counter = 0; counter < iter; counter++) {
-    __uint8_t red = this->soa_small.r[counter];
-    __uint8_t grn = this->soa_small.g[counter];
-    __uint8_t blu = this->soa_small.b[counter];
-    if (__uint32_t const rgb = packRGB(red, grn, blu); Deleteitems.contains(rgb)) {
-      red = extractred(Deleteitems[rgb]);
-      grn = extractgreen(Deleteitems[rgb]);
-      blu = extractblue(Deleteitems[rgb]);
-    }
-    write_binary_8(output_file, red);
-    write_binary_8(output_file, grn);
-    write_binary_8(output_file, blu);
-  }
-  output_file.close();
-
-  /*
-   * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
-   * no depende de su posición en la imagen sino de sus valores RGB.
-   * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
-   */
-}
 
 void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG) {
   constexpr __uint32_t TUSMUERTOS = 33;
@@ -657,8 +700,9 @@ int ImageSOA::cutfreq() {
   // ofstream output_file(this->get_output_file(), ios::binary);
   unordered_map<__uint32_t, __uint16_t> myMap;
   unordered_map<__uint64_t, __uint16_t> myMapBIG;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
   if (maxval == MIN_LEVEL) {
-    myMap                        = load_and_map_8(width, move(input_file), height);
+    myMap                        = cf_load_and_map_8(width, move(input_file), height);
     size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMap.size()) {
       cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "

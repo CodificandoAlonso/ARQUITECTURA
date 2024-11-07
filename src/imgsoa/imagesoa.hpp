@@ -14,6 +14,9 @@
 #include <unordered_map>
 #include <vector>
 
+
+
+
 using namespace std;
 static int constexpr FIVE = 5;
 
@@ -29,7 +32,7 @@ class ImageSOA : public Image {
     static int check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int color,
                                 unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                 deque<pair<__uint32_t, __uint16_t>> & bluevalues);
-    unordered_map<__uint32_t, __uint16_t> load_and_map_8(int width, ifstream input_file,
+    unordered_map<__uint32_t, __uint16_t> cf_load_and_map_8(int width, ifstream input_file,
                                                          int height);
     static vector<__uint32_t> sort_and_map_keys(unordered_map<__uint32_t, __uint16_t> const & myMap,
                                                 unordered_map<__uint32_t, size_t> & color_to_index);
@@ -58,6 +61,11 @@ class ImageSOA : public Image {
     static unordered_map<__uint32_t, __uint32_t>
         check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
                                deque<pair<__uint32_t, __uint16_t>> bluevalues);
+    void addEdge(unordered_map<__uint32_t, vector<__uint32_t>> & graph, __uint32_t key1,
+                 __uint32_t key2);
+    void add_nodes();
+  unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>>
+        cf_generate_graph();
     static __uint32_t get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
                                  unordered_map<__uint32_t, __uint32_t> const & Deleteitems);
 
@@ -68,6 +76,7 @@ class ImageSOA : public Image {
     soa_rgb_big read_image_rgb_big(ifstream & input_file) const;
     soa_rgb_small soa_small;
     soa_rgb_small soa_big;
+    vector<__uint32_t> nod;
 
     friend class ImageSOATest_CompressOperation_Test;
 };
