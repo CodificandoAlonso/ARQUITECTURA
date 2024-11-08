@@ -36,7 +36,7 @@ static constexpr size_t NUEVE = 9;
 static constexpr size_t SEIS = 6;
 static constexpr size_t SIETE = 7;
 static constexpr size_t OCHO = 8;
-
+static constexpr int MAX_DIST = 100000;
 static constexpr size_t CINCO = 5;
 static constexpr size_t DIEZ = 10;
 static constexpr size_t ONCE = 11;
@@ -593,7 +593,7 @@ __uint32_t ImageSOA::cf_find_closest_in_neighbors(
   if (found_closest) {
     return closest_color;
   }
-  if (min_distance ==100000) {
+  if (min_distance ==MAX_DIST) {
     // Si no encontramos un candidato, llamamos recursivamente con los adyacentes de los adyacentes
     for (__uint32_t const neighbor : neighbors) {
       auto iter = graph.find(neighbor);
@@ -667,7 +667,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   for (auto const & key : myMap | views::keys) {
       //me recorro las keys de graph
       //me recorro graph
-      double distance = 100000;
+      double distance = MAX_DIST;
       for (auto const & key1 : graph | views::keys) {
         double const new_distance = get_distance(key, key1);
         if (new_distance <= distance) {
@@ -687,7 +687,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
 
   for (auto &entry : Deleteitems) {
     __uint32_t const color_to_delete = entry.first;
-    double min_distance = 100000;
+    double min_distance = MAX_DIST;
 
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
@@ -714,15 +714,9 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
       entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
     }
   }
-
-
-
-    int const width  = this->get_width();
-    int const height = this->get_height();
     write_out(this->get_maxval());
     ofstream output_file = this->get_of_output_file();
-
-    auto const iter = static_cast<size_t>(width * height);
+    auto const iter = this->soa_small.r.size();
 
     for (size_t counter = 0; counter < iter; counter++) {
       __uint8_t red = this->soa_small.r[counter];
