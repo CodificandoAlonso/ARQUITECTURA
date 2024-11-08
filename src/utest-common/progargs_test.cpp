@@ -19,10 +19,10 @@ class ImageTest : public ::testing::Test {
   vector<string> argv;
 
   protected:
-  ImageTest() : image(nullptr), argv({"imtool-soa", "input.ppm", "output.ppm", "info"}) {}
+  ImageTest() : image(nullptr), argv({"imtool-soa", "data/deer-large.ppm", "data/deer-large.ppm", "info"}) {}
 
   void SetUp() override {
-    image = std::make_unique<Image>(static_cast<int>(argv.size()), argv);
+    image = make_unique<Image>(static_cast<int>(argv.size()), argv);
   }
 
   void TearDown() override {
@@ -43,18 +43,6 @@ class ImageTest : public ::testing::Test {
   }
 };
 
-class MockImage : public Image {
-  public:
-  MockImage(int argc, const std::vector<std::string>& argv) : Image(argc, argv) {}
-  virtual ~MockImage() = default;
-
-  MockImage(const MockImage&) = delete;
-  MockImage& operator=(const MockImage&) = delete;
-  MockImage(MockImage&&) = delete;
-  MockImage& operator=(MockImage&&) = delete;
-
-  MOCK_METHOD(std::ifstream, openFile, (const std::string&), (const, override));
-};
 
 TEST_F(ImageTest, InfoConstraintsArgumentosCorrectos) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "info"});
@@ -207,31 +195,15 @@ TEST_F(ImageTest, CheckArgsOpcionInvalida) {
 }
 
 TEST_F(ImageTest, InfoCorrecto) {
-  vector<string> const argv = {"imtool-soa", "test.ppm", "output.ppm", "info"};
-  MockImage const mockImage(static_cast<int>(argv.size()), argv);
-
-  ifstream testFile("test.ppm", ios::in | ios::binary);
-  EXPECT_CALL(mockImage, openFile("test.ppm"))
-      .Times(1)
-      .WillRepeatedly([&testFile](const std::string&) mutable {
-          return move(testFile);
-      });
-
-  EXPECT_EQ(mockImage.info(), 0);
+  setArgv({"imtool-aos", "data/deer-large.ppm","data/deer-large.ppm", "info"});
+  SetUp();
+  EXPECT_EQ(getImage()->info(), 0);;
 }
 
 TEST_F(ImageTest, InfoIncorrecto) {
-  vector<string> const argv = {"imtool-soa", "nonexistent.ppm", "output.ppm", "info"};
-  MockImage const mockImage(static_cast<int>(argv.size()), argv);
-
-  ifstream emptyFile;
-  EXPECT_CALL(mockImage, openFile("nonexistent.ppm"))
-      .Times(1)
-      .WillRepeatedly([&emptyFile](const string&) mutable {
-          return move(emptyFile);
-      });
-
-  EXPECT_EQ(mockImage.info(), -1);
+  setArgv({"imtool-soa", "./data/deer-large.ppm","./data/deer-large.ppm", "info"});
+  SetUp();
+  EXPECT_EQ(getImage()->info(), -1);
 }
 
 
