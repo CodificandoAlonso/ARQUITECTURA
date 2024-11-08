@@ -32,7 +32,30 @@ static constexpr size_t CIEN       = 20000;
 static constexpr int POCO = 75;
 static constexpr int MEDIO = 150;
 static constexpr int ALTO = 240;
-static constexpr int NUEVE = 9;
+static constexpr size_t NUEVE = 9;
+static constexpr size_t SEIS = 6;
+static constexpr size_t SIETE = 7;
+static constexpr size_t OCHO = 8;
+
+static constexpr size_t CINCO = 5;
+static constexpr size_t DIEZ = 10;
+static constexpr size_t ONCE = 11;
+static constexpr size_t DOCE = 12;
+static constexpr size_t TRECE = 13;
+static constexpr size_t CATORCE = 14;
+static constexpr size_t QUINCE = 15;
+static constexpr size_t DIECISEIS = 16;
+static constexpr size_t DIECISIETE = 17;
+static constexpr size_t DIECIOCHO = 18;
+static constexpr size_t DIECINUEVE = 19;
+static constexpr size_t VEINTE = 20;
+static constexpr size_t VEINTIUNO = 21;
+static constexpr size_t VEINTIDOS = 22;
+static constexpr size_t VEINTITRES = 23;
+static constexpr size_t VEINTICUATRO = 24;
+static constexpr size_t VEINTICINCO = 25;
+static constexpr size_t VEINTISEIS = 26;
+
 using namespace std;
 
 ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
@@ -440,8 +463,7 @@ unordered_map<__uint32_t, __uint32_t>
           for (size_t iii = 0; iii < iterator; iii++) {
             Deleteitems[bluevalues[0].first] = 0;
             bluevalues.pop_front();
-            num_left--;
-          }
+            num_left--;}
         } else {
           auto greenvalues = same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
           if (greenvalues[0].second == greenvalues[1].second) {
@@ -453,15 +475,12 @@ unordered_map<__uint32_t, __uint32_t>
               delete_from_deque(bluevalues, my_index);
               num_left--;
             } else {
-              num_left--;
-            }
+              num_left--;}
           } else {
             Deleteitems[{greenvalues[0].first}] = 0;
             my_index                            = search_in_blue(bluevalues, greenvalues[0].first);
             delete_from_deque(bluevalues, my_index);
-            num_left--;
-          }
-        }
+            num_left--;}}
       } else {
         num_left--;
       }
@@ -516,67 +535,83 @@ void ImageSOA::add_nodes() {
 
 unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageSOA::cf_generate_graph() {
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>graph;
-  add_nodes();
-   graph[this->nod[0]] = {{this->nod[1], this->nod[3], this->nod[9]}, {}}; // PPP
-    graph[this->nod[1]] = {{this->nod[0], this->nod[2], this->nod[4], this->nod[10]}, {}}; // PPM
-    graph[this->nod[2]] = {{this->nod[1], this->nod[5], this->nod[11]}, {}}; // PPA
-    graph[this->nod[3]] = {{this->nod[0], this->nod[4], this->nod[6], this->nod[12]}, {}}; // PMP
-    graph[this->nod[4]] = {{this->nod[1], this->nod[3], this->nod[5], this->nod[7], this->nod[13]}, {}}; // PMM
-    graph[this->nod[5]] = {{this->nod[2], this->nod[4], this->nod[8], this->nod[14]}, {}}; // PMA
-    graph[this->nod[6]] = {{this->nod[3], this->nod[7], this->nod[15]}, {}}; // PAP
-    graph[this->nod[7]] = {{this->nod[4], this->nod[6], this->nod[8], this->nod[16]}, {}}; // PAM
-    graph[this->nod[8]] = {{this->nod[5], this->nod[7], this->nod[17]}, {}}; // PAA
+    add_nodes();
+   graph[this->nod[0]] = {{this->nod[1], this->nod[3], this->nod[NUEVE]}, {}}; // PPP
+    graph[this->nod[1]] = {{this->nod[0], this->nod[2], this->nod[4], this->nod[DIEZ]}, {}}; // PPM
+    graph[this->nod[2]] = {{this->nod[1], this->nod[CINCO], this->nod[ONCE]}, {}}; // PPA
+    graph[this->nod[3]] = {{this->nod[0], this->nod[4], this->nod[SEIS], this->nod[DOCE]}, {}}; // PMP
+    graph[this->nod[4]] = {{this->nod[1], this->nod[3], this->nod[CINCO], this->nod[SIETE], this->nod[TRECE]}, {}}; // PMM
+    graph[this->nod[CINCO]] = {{this->nod[2], this->nod[4], this->nod[OCHO], this->nod[CATORCE]}, {}}; // PMA
+    graph[this->nod[SEIS]] = {{this->nod[3], this->nod[SIETE], this->nod[QUINCE]}, {}}; // PAP
+    graph[this->nod[SIETE]] = {{this->nod[4], this->nod[SEIS], this->nod[OCHO], this->nod[DIECISEIS]}, {}}; // PAM
+    graph[this->nod[OCHO]] = {{this->nod[CINCO], this->nod[SIETE], this->nod[DIECISIETE]}, {}}; // PAA
 
-    graph[this->nod[9]] = {{this->nod[0], this->nod[10], this->nod[12], this->nod[18]}, {}}; // MPP
-    graph[this->nod[10]] = {{this->nod[1], this->nod[9], this->nod[11], this->nod[13], this->nod[19]}, {}}; // MPM
-    graph[this->nod[11]] = {{this->nod[2], this->nod[10], this->nod[14], this->nod[20]}, {}}; // MPA
-    graph[this->nod[12]] = {{this->nod[3], this->nod[9], this->nod[13], this->nod[15], this->nod[21]}, {}}; // MMP
-    graph[this->nod[13]] = {{this->nod[4], this->nod[10], this->nod[12], this->nod[14], this->nod[16], this->nod[22]}, {}}; // MMM
-    graph[this->nod[14]] = {{this->nod[5], this->nod[11], this->nod[13], this->nod[17], this->nod[23]}, {}}; // MMA
-    graph[this->nod[15]] = {{this->nod[6], this->nod[12], this->nod[16], this->nod[18], this->nod[24]}, {}}; // MAP
-    graph[this->nod[16]] = {{this->nod[7], this->nod[13], this->nod[15], this->nod[17], this->nod[25]}, {}}; // MAM
-    graph[this->nod[17]] = {{this->nod[8], this->nod[14], this->nod[16], this->nod[26]}, {}}; // MAA
+    graph[this->nod[NUEVE]] = {{this->nod[0], this->nod[DIEZ], this->nod[DOCE], this->nod[DIECIOCHO]}, {}}; // MPP
+    graph[this->nod[DIEZ]] = {{this->nod[1], this->nod[NUEVE], this->nod[ONCE], this->nod[TRECE], this->nod[DIECINUEVE]}, {}}; // MPM
+    graph[this->nod[ONCE]] = {{this->nod[2], this->nod[DIEZ], this->nod[CATORCE], this->nod[VEINTE]}, {}}; // MPA
+    graph[this->nod[DOCE]] = {{this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO]}, {}}; // MMP
+    graph[this->nod[TRECE]] = {{this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[CATORCE], this->nod[DIECISEIS], this->nod[VEINTIDOS]}, {}}; // MMM
+    graph[this->nod[CATORCE]] = {{this->nod[CINCO], this->nod[ONCE], this->nod[TRECE], this->nod[DIECISIETE], this->nod[VEINTITRES]}, {}}; // MMA
+    graph[this->nod[QUINCE]] = {{this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[DIECIOCHO], this->nod[VEINTICUATRO]}, {}}; // MAP
+    graph[this->nod[DIECISEIS]] = {{this->nod[SIETE], this->nod[TRECE], this->nod[QUINCE], this->nod[DIECISIETE], this->nod[VEINTICINCO]}, {}}; // MAM
+    graph[this->nod[DIECISIETE]] = {{this->nod[OCHO], this->nod[CATORCE], this->nod[DIECISEIS], this->nod[VEINTISEIS]}, {}}; // MAA
 
-    graph[this->nod[18]] = {{this->nod[9], this->nod[15], this->nod[19]}, {}}; // APP
-    graph[this->nod[19]] = {{this->nod[10], this->nod[18], this->nod[20], this->nod[22]}, {}}; // APM
-    graph[this->nod[20]] = {{this->nod[11], this->nod[19], this->nod[23]}, {}}; // APA
-    graph[this->nod[21]] = {{this->nod[12], this->nod[22], this->nod[24]}, {}}; // AMP
-    graph[this->nod[22]] = {{this->nod[13], this->nod[19], this->nod[21], this->nod[23], this->nod[25]}, {}}; // AMM
-    graph[this->nod[23]] = {{this->nod[14], this->nod[20], this->nod[22], this->nod[26]}, {}}; // AMA
-    graph[this->nod[24]] = {{this->nod[15], this->nod[21], this->nod[25]}, {}}; // AAP
-    graph[this->nod[25]] = {{this->nod[16], this->nod[22], this->nod[24], this->nod[26]}, {}};// AAA
+    graph[this->nod[DIECIOCHO]] = {{this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE]}, {}}; // APP
+    graph[this->nod[DIECINUEVE]] = {{this->nod[DIEZ], this->nod[DIECIOCHO], this->nod[VEINTE], this->nod[VEINTIDOS]}, {}}; // APM
+    graph[this->nod[VEINTE]] = {{this->nod[ONCE], this->nod[DIECINUEVE], this->nod[VEINTITRES]}, {}}; // APA
+    graph[this->nod[VEINTIUNO]] = {{this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO]}, {}}; // AMP
+    graph[this->nod[VEINTIDOS]] = {{this->nod[TRECE], this->nod[DIECINUEVE], this->nod[VEINTIUNO], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AMM
+    graph[this->nod[VEINTITRES]] = {{this->nod[CATORCE], this->nod[VEINTE], this->nod[VEINTIDOS], this->nod[VEINTISEIS]}, {}}; // AMA
+    graph[this->nod[VEINTICUATRO]] = {{this->nod[QUINCE], this->nod[VEINTIUNO], this->nod[VEINTICINCO]}, {}}; // AAP
+    graph[this->nod[VEINTICINCO]] = {{this->nod[DIECISEIS], this->nod[VEINTIDOS], this->nod[VEINTICUATRO], this->nod[VEINTISEIS]}, {}}; // AAM
+    graph[this->nod[VEINTISEIS]] = {{this->nod[DIECISIETE], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AAA
   return graph;
 }
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-recursive-call-chain)
+__uint32_t ImageSOA::cf_find_closest_in_neighbors(
+    __uint32_t color_to_delete,
+    const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> &graph,
+    const vector<__uint32_t> &neighbors,
+    double &min_distance) {
+  __uint32_t closest_color = 0; // Inicializar en 0, asumiendo que no habrá color 0 en tu grafo
+  bool found_closest = false;
+  // Recorrer cada nodo adyacente en el vector de `neighbors`
+  for (__uint32_t const neighbor : neighbors) {
+    auto iter = graph.find(neighbor);
 
-
-__uint32_t ImageSOA::get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
-                                unordered_map<__uint32_t, __uint32_t> const & Deleteitems) {
-  size_t const max_index = sorted_colors.size() - 1;
-  double min_distance = sqrt(3 * pow(MIN_LEVEL, 2));  // Inicialmente la distancia máxima posible
-  __uint32_t closest_color = sorted_colors[index];
-  // Avanzar hacia adelante
-  for (size_t i = 1; i <= CIEN && index + i <= max_index; ++i) {
-    __uint32_t const candidate = sorted_colors[index + i];
-    if (!Deleteitems.contains(candidate)) {
-      double const new_distance = get_distance(sorted_colors[index], candidate);
-      if (new_distance < min_distance) {
-        min_distance  = new_distance;
+    // Verificar colores en el nodo actual (neighbor)
+    for (__uint32_t const candidate : iter->second.second) {
+      double const distance = get_distance(color_to_delete, candidate);
+      if (distance < min_distance) {
+        min_distance = distance;
         closest_color = candidate;
+        found_closest = true;
       }
     }
   }
-  for (size_t i = 1; i <= CIEN && index >= i; ++i) {
-    __uint32_t const candidate = sorted_colors[index - i];
-    if (!Deleteitems.contains(candidate)) {
-      double const new_distance = get_distance(sorted_colors[index], candidate);
-      if (new_distance < min_distance) {
-        min_distance  = new_distance;
-        closest_color = candidate;
-      }
-    }
+  // Si encontramos un color candidato en los adyacentes actuales, lo devolvemos
+  if (found_closest) {
+    return closest_color;
   }
-  return closest_color;
+  // Si no encontramos un candidato, llamamos recursivamente con los adyacentes de los adyacentes
+  for (__uint32_t const neighbor : neighbors) {
+    auto iter = graph.find(neighbor);
+    closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance);
+    if (closest_color != 0) { return closest_color; // Si encontramos un color, devolvemos
 }
+  }
+  // Si no encontramos ningún color en este nivel ni en los niveles superiores, devolvemos 0
+  return 0;
+}
+
+
+
+
+
+
+
+
+
 
 void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   // Convierto myMap a vector de pares y ordeno
@@ -628,23 +663,59 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   // Me recorro las keys de myMap
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
   for (auto const & key : myMap | views::keys) {
-    if (!Deleteitems.contains(key)) {
       //me recorro las keys de graph
       //me recorro graph
       double distance = 100000;
-      for (auto const & key1 : myMap | views::keys) {
-        double new_distance = get_distance(key, key1);
+      for (auto const & key1 : graph | views::keys) {
+        double const new_distance = get_distance(key, key1);
         if (new_distance < distance) {
           distance = new_distance;
-          toSave[key] = key1;
+          if (!Deleteitems.contains(key)) {
+            toSave[key] = key1;
+          }
+          else {
+            Deleteitems[key] = key1;
+          }
         }
       }
+    if (!Deleteitems.contains(key)) {
       graph[toSave[key]].second.push_back(key);
     }
   }
 
+  for (auto &entry : Deleteitems) {
+    __uint32_t const color_to_delete = entry.first;
+    double min_distance = 100000;
 
+    // Obtener el nodo correspondiente al color a eliminar
+    auto node_it = graph.find(entry.second);
+    if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
+}
 
+    // Primero, verificar la distancia en el nodo principal
+    bool found_in_main_node = false;
+    for (__uint32_t const candidate : node_it->second.second) {
+      double const distance = get_distance(color_to_delete, candidate);
+      if (distance < min_distance) {
+        min_distance = distance;
+        entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
+        found_in_main_node = true;
+      }
+    }
+
+    // Si encontramos un candidato en el nodo principal, continuar
+    if (found_in_main_node) {
+      continue;
+    }
+
+    // Verificar adyacentes inmediatos si no encontramos en el nodo principal
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(color_to_delete, graph, node_it->second.first, min_distance);
+
+    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
+    if (replacement_color != 0) {
+      entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
+    }
+  }
 
 
 
@@ -678,6 +749,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   }
 
 
+
 void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG) {
   constexpr __uint32_t TUSMUERTOS = 33;
   myMapBIG[{TUSMUERTOS}]          = TUSMUERTOS;
@@ -700,7 +772,6 @@ int ImageSOA::cutfreq() {
   // ofstream output_file(this->get_output_file(), ios::binary);
   unordered_map<__uint32_t, __uint16_t> myMap;
   unordered_map<__uint64_t, __uint16_t> myMapBIG;
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
   if (maxval == MIN_LEVEL) {
     myMap                        = cf_load_and_map_8(width, move(input_file), height);
     size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);

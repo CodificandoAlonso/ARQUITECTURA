@@ -61,13 +61,14 @@ class ImageSOA : public Image {
     static unordered_map<__uint32_t, __uint32_t>
         check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
                                deque<pair<__uint32_t, __uint16_t>> bluevalues);
-    void addEdge(unordered_map<__uint32_t, vector<__uint32_t>> & graph, __uint32_t key1,
+    static void addEdge(unordered_map<__uint32_t, vector<__uint32_t>> & graph, __uint32_t key1,
                  __uint32_t key2);
     void add_nodes();
-  unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>>
-        cf_generate_graph();
-    static __uint32_t get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
-                                 unordered_map<__uint32_t, __uint32_t> const & Deleteitems);
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> cf_generate_graph();
+    __uint32_t cf_find_closest_in_neighbors(
+        __uint32_t color_to_delete,
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> const & graph,
+        vector<__uint32_t> const & neighbors, double & min_distance);
 
     void cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap);
     static void cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG);
