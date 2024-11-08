@@ -582,7 +582,7 @@ __uint32_t ImageSOA::cf_find_closest_in_neighbors(
     // Verificar colores en el nodo actual (neighbor)
     for (__uint32_t const candidate : iter->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
-      if (distance < min_distance) {
+      if (distance <= min_distance) {
         min_distance = distance;
         closest_color = candidate;
         found_closest = true;
@@ -593,12 +593,14 @@ __uint32_t ImageSOA::cf_find_closest_in_neighbors(
   if (found_closest) {
     return closest_color;
   }
-  // Si no encontramos un candidato, llamamos recursivamente con los adyacentes de los adyacentes
-  for (__uint32_t const neighbor : neighbors) {
-    auto iter = graph.find(neighbor);
-    closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance);
-    if (closest_color != 0) { return closest_color; // Si encontramos un color, devolvemos
-}
+  if (min_distance ==100000) {
+    // Si no encontramos un candidato, llamamos recursivamente con los adyacentes de los adyacentes
+    for (__uint32_t const neighbor : neighbors) {
+      auto iter = graph.find(neighbor);
+      closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance);
+      if (closest_color != 0) { return closest_color; // Si encontramos un color, devolvemos
+      }
+    }
   }
   // Si no encontramos ningún color en este nivel ni en los niveles superiores, devolvemos 0
   return 0;
@@ -668,7 +670,7 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
       double distance = 100000;
       for (auto const & key1 : graph | views::keys) {
         double const new_distance = get_distance(key, key1);
-        if (new_distance < distance) {
+        if (new_distance <= distance) {
           distance = new_distance;
           if (!Deleteitems.contains(key)) {
             toSave[key] = key1;
@@ -693,21 +695,17 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
 }
 
     // Primero, verificar la distancia en el nodo principal
-    bool found_in_main_node = false;
+    //bool found_in_main_node = false;
     for (__uint32_t const candidate : node_it->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
         entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
-        found_in_main_node = true;
+        //found_in_main_node = true;
       }
     }
 
     // Si encontramos un candidato en el nodo principal, continuar
-    if (found_in_main_node) {
-      continue;
-    }
-
     // Verificar adyacentes inmediatos si no encontramos en el nodo principal
     __uint32_t const replacement_color = cf_find_closest_in_neighbors(color_to_delete, graph, node_it->second.first, min_distance);
 
