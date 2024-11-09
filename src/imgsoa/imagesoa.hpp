@@ -68,6 +68,7 @@ class ImageSOA : public Image {
     soa_rgb_small soa_big;
 
     friend class ImageSOATest_CompressOperation_Test;
+    friend class ImageSOATest_ProcessOperationInfo_Test;
 };
 
 #endif  // IMAGESOA_HPP
