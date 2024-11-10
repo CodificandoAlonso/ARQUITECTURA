@@ -1,46 +1,50 @@
 #include <gtest/gtest.h>
 #include "imgsoa/imagesoa.hpp"  // Ensure the correct path to the header file
+#include <gsl/gsl>
+#include <fstream>
+#include <array>
+#include <string>
+#include <vector>
+#include <cstdio>
+static constexpr int CIEN = 100;
+static constexpr int FOTO = 256;
 
 class ImageSOATest : public ::testing::Test {
 private:
-    ImageSOA*imageSOA = nullptr;
-    string test_image_path;
+    gsl::owner<ImageSOA*> imageSOA = nullptr;
+    std::string test_image_path;
+
 protected:
     void SetUp() override {
-        // Initialize the ImageSOA object with test arguments
-        std::vector<std::string> args = {"resize", "input_image.jpg", "output_image.jpg"};
+        std::vector<std::string> const args = {"resize", "input_image.jpg", "output_image.jpg"};
         imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
 
-        //Creo una imagen de prueba
         test_image_path = "test_image.rgb";
         std::ofstream output_file(test_image_path, std::ios::binary);
-        if (output_file.is_open()) {
-            // Write some test data to the image file
-            for (int i = 0; i < 100; ++i) {
-                output_file.put(static_cast<char>(i % 256));
-            }
-            output_file.close();
+        if (!output_file.is_open()) {
+            FAIL() << "Failed to create test image file.";
         }
 
-
-
-
+        for (int i = 0; i < CIEN; ++i) {
+            output_file.put(static_cast<char>(i % FOTO));
+        }
+        output_file.close();
     }
 
     void TearDown() override {
-        // Free the memory allocated for imageSOA
+        // Solo liberar el puntero aquí
         delete imageSOA;
-        // Remove the test image file
         if (std::remove(test_image_path.c_str()) != 0) {
             std::perror("Error deleting file");
         }
     }
+
 public:
-    const std::string& getTestImagePath() const {
+    [[nodiscard]] const std::string& getTestImagePath() const {
         return test_image_path;
     }
 
-    ImageSOA* getImageSOA() const {
+    [[nodiscard]] gsl::owner<ImageSOA*> getImageSOA() const {
         return imageSOA;
     }
 };
@@ -300,7 +304,7 @@ TEST_F(ImageSOATest, ReadImageRGBSmallCorruptData) {
     std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    soa_rgb_small result = imageSOA->read_image_rgb_small(input_file);
+    soa_rgb_small result = getImageSOA()->read_image_rgb_small(input_file);
 
     // Add assertions to check for corrupt data
     for (size_t i = 0; i < result.r.size(); ++i) {
