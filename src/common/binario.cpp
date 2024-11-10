@@ -133,3 +133,15 @@ double get_distance(__uint32_t item_1, __uint32_t item_2) {
 
 }
 
+
+double get_distance_BIG(__uint64_t item_1, __uint64_t item_2) {
+  __uint16_t const red1 = extractredBIG(item_1);
+  __uint16_t const grn1 = extractgreenBIG(item_1);
+  __uint16_t const blu1 = extractblueBIG(item_1);
+  __uint16_t const red2 = extractredBIG(item_2);
+  __uint16_t const grn2 = extractgreenBIG(item_2);
+  __uint16_t const blu2 = extractblueBIG(item_2);
+  return sqrt(pow(red1-red2, 2)+ pow(grn1-grn2, 2)+ pow(blu1-blu2, 2));
+
+}
+

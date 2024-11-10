@@ -16,6 +16,8 @@
 using namespace std;
 static int constexpr FIVE = 5;
 
+
+
 class ImageAOS : public Image {
   public:
     ImageAOS(int argc, std::vector<string> const & argv);
@@ -40,6 +42,108 @@ class ImageAOS : public Image {
     static void cp_export(ofstream & output_file,
                    unordered_map<unsigned int, unsigned int> const & color_map,
                    list<unsigned int> const & indexes);
+
+
+
+
+
+
+    static deque<pair<__uint32_t, __uint16_t>>
+        cf_same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int value,
+                        size_t counter);
+
+    static deque<pair<__uint64_t, __uint16_t>>
+        cf_same_bgr_vector_BIG(deque<pair<__uint64_t, __uint16_t>> father_vector, int value,
+                               size_t counter);
+
+    static int cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int color,
+                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+                                deque<pair<__uint32_t, __uint16_t>> & bluevalues);
+
+    static int cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector, int color,
+                                unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                deque<pair<__uint64_t, __uint16_t>> & bluevalues);
+    static void cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
+                                  size_t index);
+    unordered_map<__uint32_t, __uint16_t> cf_load_and_map_8(int width, ifstream input_file,
+                                                         int height);
+    unordered_map<__uint64_t, __uint16_t> cf_load_and_map_8BIG(int width, ifstream input_file,
+                                                            int height);
+
+  static void cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
+                                  size_t index);
+
+    static size_t cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
+                                 __uint64_t & first);
+
+    static size_t cf_search_in_blue(deque<pair<__uint32_t, __uint16_t>> & pairs, __uint32_t & first);
+
+    static unordered_map<__uint32_t, __uint32_t>
+        cf_check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
+                               deque<pair<__uint32_t, __uint16_t>> bluevalues);
+
+    static unordered_map<__uint64_t, __uint64_t>
+        cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
+                                      int num_left, deque<pair<__uint64_t, __uint16_t>> bluevalues);
+
+    void cf_add_nodes();
+
+    void cf_add_nodes_BIG(__uint16_t POCOBIG, __uint16_t MEDIOBIG, __uint16_t ALTOBIG);
+
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> cf_generate_graph();
+
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> cf_generate_graph_BIG();
+
+    static __uint32_t cf_find_closest_in_neighbors(
+        __uint32_t color_to_delete,
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> const & graph,
+        vector<__uint32_t> const & neighbors, double & min_distance,
+        unordered_map<__uint32_t, __uint8_t> & visited_node);
+
+    __uint64_t cf_find_closest_in_neighbors_BIG(
+        __uint64_t color_to_delete,
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const & graph,
+        vector<__uint64_t> const & neighbors, double & min_distance,
+        unordered_map<__uint64_t, __uint8_t> & visited_node);
+
+    deque<pair<__uint32_t, __uint16_t>>
+        cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
+                                  unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+                                  int & num_left) const;
+
+    deque<pair<__uint64_t, __uint16_t>>
+        cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
+                                unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                int & num_left) const;
+
+    static void cf_finish_graph(
+        unordered_map<__uint32_t, __uint16_t> myMap,
+        unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+        unordered_map<__uint32_t, __uint32_t> & toSave,
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph);
+
+    static void cf_finish_graph_BIG(
+        unordered_map<__uint64_t, __uint16_t> myMap,
+        unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+        unordered_map<__uint64_t, __uint64_t> & toSave,
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph);
+
+    void cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems);
+
+    void cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems);
+
+    void cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap);
+
+    void cutfreq_max(const unordered_map<__uint64_t, __uint16_t>& myMapBIG);
+    [[nodiscard]] int cutfreq();
+    vector<__uint32_t> nod;
+    vector<__uint64_t> nodBIG;
+    vector<rgb_small> array_small;
+    vector<rgb_big> array_big;
+
+
+
+
 };
 
 #endif  // IMAGEAOS_HPP

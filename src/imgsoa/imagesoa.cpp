@@ -340,28 +340,9 @@ unordered_map<__uint32_t, __uint16_t> ImageSOA::cf_load_and_map_8(int width, ifs
   return myMap;
 }
 
-vector<__uint32_t> ImageSOA::sort_and_map_keys(unordered_map<__uint32_t, __uint16_t> const & myMap,
-                                               unordered_map<__uint32_t, size_t> & color_to_index) {
-  // Crear un vector de claves (colores) de myMap
-  vector<__uint32_t> sorted_colors;
-  sorted_colors.reserve(myMap.size());
-  for (auto const & entry : myMap) { sorted_colors.push_back(entry.first); }
 
-  // Ordenar el vector de colores por distancia al negro
-  ranges::sort(sorted_colors.begin(), sorted_colors.end(),
-               [](__uint32_t const & fst, __uint32_t const & scnd) {
-                 return distance_to_black(fst) < distance_to_black(scnd);
-               });
 
-  // Mapear cada color a su índice en el vector ordenado
-  for (size_t item = 0; item < sorted_colors.size(); ++item) {
-    color_to_index[sorted_colors[item]] = item;
-  }
-
-  return sorted_colors;
-}
-
-unordered_map<__uint64_t, __uint16_t> ImageSOA::load_and_map_8BIG(int width, ifstream input_file,
+unordered_map<__uint64_t, __uint16_t> ImageSOA::cf_load_and_map_8BIG(int width, ifstream input_file,
                                                                   int height) {
   unsigned short red = 0;
   unsigned short grn = 0;
@@ -371,6 +352,9 @@ unordered_map<__uint64_t, __uint16_t> ImageSOA::load_and_map_8BIG(int width, ifs
     red = read_binary_16(input_file);
     grn = read_binary_16(input_file);
     blu = read_binary_16(input_file);
+    red = swap16(red);
+    grn = swap16(grn);
+    blu = swap16(blu);
     if (__uint64_t const rgb = packRGBIG(red, grn, blu); myMap.contains(rgb)) {
       myMap[{rgb}]++;
     } else {
@@ -384,7 +368,7 @@ unordered_map<__uint64_t, __uint16_t> ImageSOA::load_and_map_8BIG(int width, ifs
 }
 
 deque<pair<__uint32_t, __uint16_t>>
-    ImageSOA::same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int const value,
+    ImageSOA::cf_same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int const value,
                               size_t const counter) {
   // Value será 1 para blue, 2 para green y 3 para red
   deque<pair<__uint32_t, __uint16_t>> color_vector;
@@ -400,8 +384,27 @@ deque<pair<__uint32_t, __uint16_t>>
   });
   return color_vector;
 }
+deque<pair<__uint64_t, __uint16_t>>
+    ImageSOA::cf_same_bgr_vector_BIG(deque<pair<__uint64_t, __uint16_t>> father_vector, int const value,
+                              size_t const counter) {
+  // Value será 1 para blue, 2 para green y 3 para red
+  deque<pair<__uint64_t, __uint16_t>> color_vector;
+  __uint16_t color = 0;
+  for (size_t i = 0; i < counter; i++) {
+    if (value == 1) { color = extractblueBIG(father_vector[i].first); }
+    if (value == 2) { color = extractgreenBIG(father_vector[i].first); }
+    if (value == 3) { color = extractredBIG(father_vector[i].first); }
+    color_vector.emplace_back(father_vector[i].first, color);
+  }
+  ranges::sort(color_vector, [](auto const & op1, auto const & op2) {
+    return op1.second > op2.second;
+  });
+  return color_vector;
+}
 
-int ImageSOA::check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
+
+
+int ImageSOA::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                deque<pair<__uint32_t, __uint16_t>> & bluevalues) {
   size_t my_index = 0;
@@ -421,25 +424,77 @@ int ImageSOA::check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vecto
     if (value0 - value1 > 0) {
       Deleteitems[{color_vector[0].first}] = 0;
       // color_vector.pop_front();
-      my_index = search_in_blue(bluevalues, color_vector[0].first);
-      delete_from_deque(bluevalues, my_index);
+      my_index = cf_search_in_blue(bluevalues, color_vector[0].first);
+      cf_delete_from_deque(bluevalues, my_index);
     } else {
       Deleteitems[{color_vector[1].first}] = 0;
-      my_index                             = search_in_blue(bluevalues, color_vector[1].first);
-      delete_from_deque(bluevalues, my_index);
+      my_index                             = cf_search_in_blue(bluevalues, color_vector[1].first);
+      cf_delete_from_deque(bluevalues, my_index);
     }
     return 0;
   }
   return static_cast<int>(meanwhile + 1);
 }
 
-void ImageSOA::delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
+int ImageSOA::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector, int const color,
+                               unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                               deque<pair<__uint64_t, __uint16_t>> & bluevalues) {
+  size_t my_index = 0;
+  // 1 para azul, 0 para verde
+  size_t meanwhile = 0;
+  while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
+  if (meanwhile == 1) {
+    __uint16_t value0 = 0;
+    __uint16_t value1 = 0;
+    if (color == 1) {
+      value0 = extractgreenBIG(color_vector[0].first);
+      value1 = extractgreenBIG(color_vector[1].first);
+    } else {
+      value0 = extractredBIG(color_vector[0].first);
+      value1 = extractredBIG(color_vector[1].first);
+    }
+    if (value0 - value1 > 0) {
+      Deleteitems[{color_vector[0].first}] = 0;
+      // color_vector.pop_front();
+      my_index = cf_search_in_blue_BIG(bluevalues, color_vector[0].first);
+      cf_delete_from_deque_BIG(bluevalues, my_index);
+    } else {
+      Deleteitems[{color_vector[1].first}] = 0;
+      my_index                             = cf_search_in_blue_BIG(bluevalues, color_vector[1].first);
+      cf_delete_from_deque_BIG(bluevalues, my_index);
+    }
+    return 0;
+  }
+  return static_cast<int>(meanwhile + 1);
+}
+
+
+
+void ImageSOA::cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
                                  size_t index) {
   swap(deque_general[0], deque_general[index]);
   deque_general.pop_front();
 }
 
-size_t ImageSOA::search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
+
+
+
+void ImageSOA::cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
+                                 size_t index) {
+  swap(deque_general[0], deque_general[index]);
+  deque_general.pop_front();
+}
+
+
+size_t ImageSOA::cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
+                                __uint64_t & first) {
+  for (size_t i = 0; i < pairs.size(); i++) {
+    if (pairs[i].first == first) { return i; }
+  }
+  return 0;
+}
+
+size_t ImageSOA::cf_search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
                                 __uint32_t & first) {
   for (size_t i = 0; i < pairs.size(); i++) {
     if (pairs[i].first == first) { return i; }
@@ -448,13 +503,13 @@ size_t ImageSOA::search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
 }
 
 unordered_map<__uint32_t, __uint32_t>
-    ImageSOA::check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems,
+    ImageSOA::cf_check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems,
                                      int num_left, deque<pair<__uint32_t, __uint16_t>> bluevalues) {
   size_t my_index = 0;
   while (num_left > 0) {
     if(bluevalues.size() >1){
       if (bluevalues[0].second == bluevalues[1].second) {
-        if (int my_meanwhile = check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
+        if (int my_meanwhile = cf_check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
             my_meanwhile > 0) {
           if (my_meanwhile < num_left) {
             auto iterator = static_cast<size_t>(my_meanwhile);
@@ -463,21 +518,63 @@ unordered_map<__uint32_t, __uint32_t>
               bluevalues.pop_front();
               num_left--;}
           } else {
-            auto greenvalues = same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
+            auto greenvalues = cf_same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
             if (greenvalues[0].second == greenvalues[1].second) {
-              my_meanwhile = check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
+              my_meanwhile = cf_check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
               if (my_meanwhile > 0) {
-                auto redvalues = same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
+                auto redvalues = cf_same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
                 Deleteitems[{redvalues[0].first}] = 0;
-                my_index                          = search_in_blue(bluevalues, redvalues[0].first);
-                delete_from_deque(bluevalues, my_index);
+                my_index                          = cf_search_in_blue(bluevalues, redvalues[0].first);
+                cf_delete_from_deque(bluevalues, my_index);
                 num_left--;
               } else {
                 num_left--;}
             } else {
               Deleteitems[{greenvalues[0].first}] = 0;
-              my_index                            = search_in_blue(bluevalues, greenvalues[0].first);
-              delete_from_deque(bluevalues, my_index);
+              my_index                            = cf_search_in_blue(bluevalues, greenvalues[0].first);
+              cf_delete_from_deque(bluevalues, my_index);
+              num_left--;}}} else {
+              num_left--;}} else {
+        Deleteitems[{bluevalues[0].first}] = 0;
+        bluevalues.pop_front();
+        num_left--;}}
+    else {
+      Deleteitems[{bluevalues[0].first}] = 0;
+      bluevalues.pop_front();
+      num_left--;}}
+  return Deleteitems;
+}
+unordered_map<__uint64_t, __uint64_t>
+    ImageSOA::cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
+                                     int num_left, deque<pair<__uint64_t, __uint16_t>> bluevalues) {
+  size_t my_index = 0;
+  while (num_left > 0) {
+    if(bluevalues.size() >1){
+      if (bluevalues[0].second == bluevalues[1].second) {
+        if (int my_meanwhile = cf_check_and_delete_BIG(bluevalues, 1, Deleteitems, bluevalues);
+            my_meanwhile > 0) {
+          if (my_meanwhile < num_left) {
+            auto iterator = static_cast<size_t>(my_meanwhile);
+            for (size_t iii = 0; iii < iterator; iii++) {
+              Deleteitems[bluevalues[0].first] = 0;
+              bluevalues.pop_front();
+              num_left--;}
+          } else {
+            auto greenvalues = cf_same_bgr_vector_BIG(bluevalues, 2, static_cast<size_t>(my_meanwhile));
+            if (greenvalues[0].second == greenvalues[1].second) {
+              my_meanwhile = cf_check_and_delete_BIG(greenvalues, 0, Deleteitems, bluevalues);
+              if (my_meanwhile > 0) {
+                auto redvalues = cf_same_bgr_vector_BIG(greenvalues, 3, static_cast<size_t>(my_meanwhile));
+                Deleteitems[{redvalues[0].first}] = 0;
+                my_index                          = cf_search_in_blue_BIG(bluevalues, redvalues[0].first);
+                cf_delete_from_deque_BIG(bluevalues, my_index);
+                num_left--;
+              } else {
+                num_left--;}
+            } else {
+              Deleteitems[{greenvalues[0].first}] = 0;
+              my_index                            = cf_search_in_blue_BIG(bluevalues, greenvalues[0].first);
+              cf_delete_from_deque_BIG(bluevalues, my_index);
               num_left--;}}} else {
               num_left--;}} else {
         Deleteitems[{bluevalues[0].first}] = 0;
@@ -490,13 +587,17 @@ unordered_map<__uint32_t, __uint32_t>
   return Deleteitems;
 }
 
+
+
+
+
 void ImageSOA::addEdge(unordered_map<__uint32_t, vector<__uint32_t>> & graph, const __uint32_t key1, const __uint32_t key2) {
   graph[key1].push_back(key2);
   graph[key2].push_back(key1);
 }
 
 
-void ImageSOA::add_nodes() {
+void ImageSOA::cf_add_nodes() {
     this->nod.push_back( packRGB(POCO, POCO, POCO));
   this->nod.push_back( packRGB(POCO, POCO, MEDIO));
   this->nod.push_back( packRGB(POCO, POCO, ALTO));
@@ -530,9 +631,46 @@ void ImageSOA::add_nodes() {
 
 
 
+void ImageSOA::cf_add_nodes_BIG(__uint16_t const POCOBIG, __uint16_t const MEDIOBIG,
+                             __uint16_t const ALTOBIG) {
+  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, ALTOBIG));
+
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, ALTOBIG));
+
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, ALTOBIG));
+}
+
+
+
+
+
 unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageSOA::cf_generate_graph() {
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>graph;
-    add_nodes();
+    cf_add_nodes();
    graph[this->nod[0]] = {{this->nod[1], this->nod[3], this->nod[NUEVE]}, {}}; // PPP
     graph[this->nod[1]] = {{this->nod[0], this->nod[2], this->nod[4], this->nod[DIEZ]}, {}}; // PPM
     graph[this->nod[2]] = {{this->nod[1], this->nod[CINCO], this->nod[ONCE]}, {}}; // PPA
@@ -564,6 +702,48 @@ unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageSOA:
     graph[this->nod[VEINTISEIS]] = {{this->nod[DIECISIETE], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AAA
   return graph;
 }
+unordered_map<__uint64_t,pair<vector<__uint64_t>, vector<__uint64_t>>> ImageSOA::cf_generate_graph_BIG() {
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>graph;
+    const int maxval = this->get_maxval();
+    auto const newpoco = static_cast<unsigned short>((POCO*maxval)/MAX_LEVEL);
+    auto const newmedio = static_cast<unsigned short>((MEDIO*maxval)/MAX_LEVEL);
+    auto const newalto = static_cast<unsigned short>((ALTO*maxval)/MAX_LEVEL);
+    cf_add_nodes_BIG(newpoco, newmedio, newalto);
+   graph[this->nodBIG[0]] = {{this->nodBIG[1], this->nodBIG[3], this->nodBIG[NUEVE]}, {}}; // PPP
+    graph[this->nodBIG[1]] = {{this->nodBIG[0], this->nodBIG[2], this->nodBIG[4], this->nodBIG[DIEZ]}, {}}; // PPM
+    graph[this->nodBIG[2]] = {{this->nodBIG[1], this->nodBIG[CINCO], this->nodBIG[ONCE]}, {}}; // PPA
+    graph[this->nodBIG[3]] = {{this->nodBIG[0], this->nodBIG[4], this->nodBIG[SEIS], this->nodBIG[DOCE]}, {}}; // PMP
+    graph[this->nodBIG[4]] = {{this->nodBIG[1], this->nodBIG[3], this->nodBIG[CINCO], this->nodBIG[SIETE], this->nodBIG[TRECE]}, {}}; // PMM
+    graph[this->nodBIG[CINCO]] = {{this->nodBIG[2], this->nodBIG[4], this->nodBIG[OCHO], this->nodBIG[CATORCE]}, {}}; // PMA
+    graph[this->nodBIG[SEIS]] = {{this->nodBIG[3], this->nodBIG[SIETE], this->nodBIG[QUINCE]}, {}}; // PAP
+    graph[this->nodBIG[SIETE]] = {{this->nodBIG[4], this->nodBIG[SEIS], this->nodBIG[OCHO], this->nodBIG[DIECISEIS]}, {}}; // PAM
+    graph[this->nodBIG[OCHO]] = {{this->nodBIG[CINCO], this->nodBIG[SIETE], this->nodBIG[DIECISIETE]}, {}}; // PAA
+
+    graph[this->nodBIG[NUEVE]] = {{this->nodBIG[0], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[DIECIOCHO]}, {}}; // MPP
+    graph[this->nodBIG[DIEZ]] = {{this->nodBIG[1], this->nodBIG[NUEVE], this->nodBIG[ONCE], this->nodBIG[TRECE], this->nodBIG[DIECINUEVE]}, {}}; // MPM
+    graph[this->nodBIG[ONCE]] = {{this->nodBIG[2], this->nodBIG[DIEZ], this->nodBIG[CATORCE], this->nodBIG[VEINTE]}, {}}; // MPA
+    graph[this->nodBIG[DOCE]] = {{this->nodBIG[3], this->nodBIG[NUEVE], this->nodBIG[TRECE], this->nodBIG[QUINCE], this->nodBIG[VEINTIUNO]}, {}}; // MMP
+    graph[this->nodBIG[TRECE]] = {{this->nodBIG[4], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[CATORCE], this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS]}, {}}; // MMM
+    graph[this->nodBIG[CATORCE]] = {{this->nodBIG[CINCO], this->nodBIG[ONCE], this->nodBIG[TRECE], this->nodBIG[DIECISIETE], this->nodBIG[VEINTITRES]}, {}}; // MMA
+    graph[this->nodBIG[QUINCE]] = {{this->nodBIG[SEIS], this->nodBIG[DOCE], this->nodBIG[DIECISEIS], this->nodBIG[DIECIOCHO], this->nodBIG[VEINTICUATRO]}, {}}; // MAP
+    graph[this->nodBIG[DIECISEIS]] = {{this->nodBIG[SIETE], this->nodBIG[TRECE], this->nodBIG[QUINCE], this->nodBIG[DIECISIETE], this->nodBIG[VEINTICINCO]}, {}}; // MAM
+    graph[this->nodBIG[DIECISIETE]] = {{this->nodBIG[OCHO], this->nodBIG[CATORCE], this->nodBIG[DIECISEIS], this->nodBIG[VEINTISEIS]}, {}}; // MAA
+
+    graph[this->nodBIG[DIECIOCHO]] = {{this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE]}, {}}; // APP
+    graph[this->nodBIG[DIECINUEVE]] = {{this->nodBIG[DIEZ], this->nodBIG[DIECIOCHO], this->nodBIG[VEINTE], this->nodBIG[VEINTIDOS]}, {}}; // APM
+    graph[this->nodBIG[VEINTE]] = {{this->nodBIG[ONCE], this->nodBIG[DIECINUEVE], this->nodBIG[VEINTITRES]}, {}}; // APA
+    graph[this->nodBIG[VEINTIUNO]] = {{this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO]}, {}}; // AMP
+    graph[this->nodBIG[VEINTIDOS]] = {{this->nodBIG[TRECE], this->nodBIG[DIECINUEVE], this->nodBIG[VEINTIUNO], this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]}, {}}; // AMM
+    graph[this->nodBIG[VEINTITRES]] = {{this->nodBIG[CATORCE], this->nodBIG[VEINTE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTISEIS]}, {}}; // AMA
+    graph[this->nodBIG[VEINTICUATRO]] = {{this->nodBIG[QUINCE], this->nodBIG[VEINTIUNO], this->nodBIG[VEINTICINCO]}, {}}; // AAP
+    graph[this->nodBIG[VEINTICINCO]] = {{this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO], this->nodBIG[VEINTISEIS]}, {}}; // AAM
+    graph[this->nodBIG[VEINTISEIS]] = {{this->nodBIG[DIECISIETE], this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]}, {}}; // AAA
+  return graph;
+}
+
+
+
+
 //NOLINTBEGIN(misc-no-recursion)
 __uint32_t ImageSOA::cf_find_closest_in_neighbors(
     __uint32_t color_to_delete,const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> &graph,
@@ -589,6 +769,37 @@ __uint32_t ImageSOA::cf_find_closest_in_neighbors(
   return 0;
 }
 //NOLINTEND(misc-no-recursion)
+
+//NOLINTBEGIN(misc-no-recursion)
+__uint64_t ImageSOA::cf_find_closest_in_neighbors_BIG(
+    __uint64_t color_to_delete,const unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> &graph,
+    const vector<__uint64_t> &neighbors,
+    double &min_distance, unordered_map<__uint64_t, __uint8_t> &visited_node) {
+  __uint64_t closest_color = 0;
+  bool found_closest = false;
+  for (__uint64_t const neighbor : neighbors) {
+    auto iter = graph.find(neighbor);
+    if(visited_node.contains(neighbor)){continue;}
+    for (__uint64_t const candidate : iter->second.second) {
+      if (double const distance = get_distance_BIG(color_to_delete, candidate);distance <= min_distance) {
+        min_distance = distance;
+        closest_color = candidate;
+        found_closest = true;}}
+    visited_node[neighbor] = 0;}
+  if (found_closest) {return closest_color;}
+  if (min_distance ==MAX_DIST) {
+    for (__uint64_t const neighbor : neighbors) {
+      auto iter = graph.find(neighbor);
+      closest_color = cf_find_closest_in_neighbors_BIG(color_to_delete, graph, iter->second.first, min_distance,visited_node);
+      if (closest_color != 0) { return closest_color;}}}
+  return 0;
+}
+//NOLINTEND(misc-no-recursion)
+
+
+
+
+
 
 deque<pair<__uint32_t, __uint16_t>>
     ImageSOA::cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
@@ -670,6 +881,8 @@ deque<pair<__uint64_t, __uint16_t>>
   return left_elems;
 }
 
+
+
 void ImageSOA::cf_finish_graph(
     unordered_map<__uint32_t, __uint16_t> myMap,
     unordered_map<__uint32_t, __uint32_t> & Deleteitems,
@@ -693,8 +906,33 @@ void ImageSOA::cf_finish_graph(
     if (!Deleteitems.contains(key)) { graph[toSave[key]].second.push_back(key); }
   }
 }
+void ImageSOA::cf_finish_graph_BIG(
+    unordered_map<__uint64_t, __uint16_t> myMap,
+    unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+    unordered_map<__uint64_t, __uint64_t> & toSave,
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph) {
+  for (auto const & key : myMap | views::keys) {
+    // me recorro las keys de graph
+    // me recorro graph
+    double distance = MAX_DIST;
+    for (auto const & key1 : graph | views::keys) {
+      double const new_distance = get_distance_BIG(key, key1);
+      if (new_distance <= distance) {
+        distance = new_distance;
+        if (!Deleteitems.contains(key)) {
+          toSave[key] = key1;
+        } else {
+          Deleteitems[key] = key1;
+        }
+      }
+    }
+    if (!Deleteitems.contains(key)) { graph[toSave[key]].second.push_back(key); }
+  }
+}
 
-void ImageSOA::write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) {
+
+
+void ImageSOA::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) {
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
   auto const iter      = this->soa_small.r.size();
@@ -714,16 +952,38 @@ void ImageSOA::write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) 
   }
 
   output_file.close();}
+void ImageSOA::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems) {
+  write_out(this->get_maxval());
+  ofstream output_file = this->get_of_output_file();
+  auto const iter      = this->soa_big.r.size();
+
+  for (size_t counter = 0; counter < iter; counter++) {
+    __uint16_t red = this->soa_big.r[counter];
+    __uint16_t grn = this->soa_big.g[counter];
+    __uint16_t blu = this->soa_big.b[counter];
+    if (__uint64_t const rgb = packRGBIG(red, grn, blu); Deleteitems.contains(rgb)) {
+      red = extractredBIG(Deleteitems[rgb]);
+      grn = extractgreenBIG(Deleteitems[rgb]);
+      blu = extractblueBIG(Deleteitems[rgb]);
+    }
+    write_binary_16(output_file, swap16(red));
+    write_binary_16(output_file, swap16(grn));
+    write_binary_16(output_file, swap16(blu));
+  }
+  output_file.close();}
+
+
+
 
 void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
   // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
   int num_left = 0;
   auto left_elems= cf_check_first_part_small(myMap, Deleteitems, num_left);
-  auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
+  auto bluevalues = cf_same_bgr_vector(left_elems, 1, left_elems.size());
 
   // Para saber que elemento de bluevalues utilizar
-  Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
+  Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
   unordered_map<__uint32_t, __uint32_t> toSave;
   // Me recorro las keys de myMap
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
@@ -754,16 +1014,53 @@ void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
     if (replacement_color != 0) {
       entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
     }}
-  write_in_exit(Deleteitems);
+  cf_write_in_exit(Deleteitems);
   }
 
 
 
-void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG) {
-  constexpr __uint32_t TUSMUERTOS = 33;
-  myMapBIG[{TUSMUERTOS}]          = TUSMUERTOS;
-  cout << "Pinga" << myMapBIG[0] << "\n";
+void ImageSOA::cutfreq_max(const unordered_map<__uint64_t, __uint16_t>& myMapBIG) {
+  // Convierto myMap a vector de pares y ordeno
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  int num_left = 0;
+  auto left_elems= cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
+  auto bluevalues = cf_same_bgr_vector_BIG(left_elems, 1, left_elems.size());
+
+  // Para saber que elemento de bluevalues utilizar
+  Deleteitems = cf_check_colors_to_delete_BIG(Deleteitems, num_left, bluevalues);
+  unordered_map<__uint64_t, __uint64_t> toSave;
+  // Me recorro las keys de myMap
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph = cf_generate_graph_BIG();
+  cf_finish_graph_BIG(myMapBIG, Deleteitems,toSave,graph);
+
+  for (auto &entry : Deleteitems) {
+    __uint64_t const color_to_delete = entry.first;
+    double min_distance = MAX_DIST;
+    unordered_map<__uint64_t, __uint8_t> visited = {};
+    // Obtener el nodo correspondiente al color a eliminar
+    auto node_it = graph.find(entry.second);
+    if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
+    }
+    visited[entry.second] = 0;
+
+    // Primero, verificar la distancia en el nodo principal
+    //bool found_in_main_node = false;
+    for (__uint64_t const candidate : node_it->second.second) {
+      double const distance = get_distance_BIG(color_to_delete, candidate);
+      if (distance < min_distance) {
+        min_distance = distance;
+        entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
+        //found_in_main_node = true;
+      }
+    }
+    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(color_to_delete, graph, node_it->second.first, min_distance, visited);
+    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
+    if (replacement_color != 0) {
+      entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
+    }}
+  cf_write_in_exit_BIG(Deleteitems);
 }
+
 
 int ImageSOA::cutfreq() {
   get_imgdata();
@@ -793,7 +1090,7 @@ int ImageSOA::cutfreq() {
     cout << "Pinga";
   } else {
     unordered_map<__uint64_t, __uint16_t> myMapBIG;
-    myMapBIG = load_and_map_8BIG(width, move(input_file), height);
+    myMapBIG = cf_load_and_map_8BIG(width, move(input_file), height);
     size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMapBIG.size()) {
       cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "
@@ -916,5 +1213,4 @@ int ImageSOA::compress() {
 
   return 0;
 }
-
 
