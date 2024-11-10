@@ -2,10 +2,10 @@
 #include "imgsoa/imagesoa.hpp"  // Ensure the correct path to the header file
 
 class ImageSOATest : public ::testing::Test {
-protected:
+private:
     ImageSOA*imageSOA = nullptr;
     string test_image_path;
-
+protected:
     void SetUp() override {
         // Initialize the ImageSOA object with test arguments
         std::vector<std::string> args = {"resize", "input_image.jpg", "output_image.jpg"};
@@ -34,6 +34,14 @@ protected:
         if (std::remove(test_image_path.c_str()) != 0) {
             std::perror("Error deleting file");
         }
+    }
+public:
+    const std::string& getTestImagePath() const {
+        return test_image_path;
+    }
+
+    ImageSOA* getImageSOA() const {
+        return imageSOA;
     }
 };
 
@@ -270,15 +278,15 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
 }
 
 TEST_F(ImageSOATest, ReadImageRGBSmallSuccess) {
-    std::ifstream input_file(test_image_path, std::ios::binary);
+    std::ifstream input_file(getTestImagePath(), std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    soa_rgb_small const result = imageSOA->read_image_rgb_small(input_file);
+    soa_rgb_small const result = getImageSOA()->read_image_rgb_small(input_file);
 
     // Add assertions to check the correctness of the result
-    EXPECT_EQ(result.r.size(), imageSOA->get_width() * imageSOA->get_height());
-    EXPECT_EQ(result.g.size(), imageSOA->get_width() * imageSOA->get_height());
-    EXPECT_EQ(result.b.size(), imageSOA->get_width() * imageSOA->get_height());
+    EXPECT_EQ(result.r.size(), getImageSOA()->get_width() * getImageSOA()->get_height());
+    EXPECT_EQ(result.g.size(), getImageSOA()->get_width() * getImageSOA()->get_height());
+    EXPECT_EQ(result.b.size(), getImageSOA()->get_width() * getImageSOA()->get_height());
 }
 
 TEST_F(ImageSOATest, ReadImageRGBSmallFileNotFound) {
