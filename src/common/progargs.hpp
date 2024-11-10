@@ -70,6 +70,8 @@
       int height = 0;
       int maxval = 0;
       unique_ptr<Image> image;
+
+      friend class ImageTest_InfoFunction_Test;
   };
 
   #endif  // PROGARGS_HPP
