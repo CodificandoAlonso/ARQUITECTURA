@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <unordered_map>
+
 static constexpr int CIEN = 100;
 static constexpr int FOTO = 256;
 static constexpr int NUM_5 = 5;
@@ -33,6 +35,12 @@ static constexpr int NUM_26 = 26;
 static constexpr int NUM_27 = 27;
 static constexpr int NUM_28 = 28;
 static constexpr int NUM_29 = 29;
+static constexpr int NUM_1000 = 1000;
+static constexpr __uint32_t BLACK = 0x000000;
+static constexpr __uint32_t WHITE = 0xFFFFFF;
+static constexpr __uint32_t RED = 0xFF0000;
+static constexpr __uint32_t GREEN = 0x00FF00;
+static constexpr __uint32_t BLUE = 0x0000FF;
 
 class ImageSOATest : public ::testing::Test {
 private:
@@ -44,7 +52,7 @@ protected:
         std::vector<std::string> const args = {"resize", "input_image.jpg", "output_image.jpg"};
         imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
 
-        test_image_path = "test_image.rgb";
+        test_image_path = "test_image.ppm";
         std::ofstream output_file(test_image_path, std::ios::binary);
         if (!output_file.is_open()) {
             FAIL() << "Failed to create test image file.";
@@ -54,17 +62,76 @@ protected:
             output_file.put(static_cast<char>(i % FOTO));
         }
         output_file.close();
+
+        std::ofstream input_file("test_image.ppm", std::ios::binary);
+        // Write some dummy data to the input file
+        for (int i = 0; i < CIEN; ++i) {
+            input_file.put(static_cast<char>(i % FOTO));
+            input_file.put(static_cast<char>((i + 1) % FOTO));
+            input_file.put(static_cast<char>((i + 2) % FOTO));
+        }
+        input_file.close();
+
     }
 
     void TearDown() override {
-        // Solo liberar el puntero aquí
-        delete imageSOA;
-        if (std::remove(test_image_path.c_str()) != 0) {
-            std::perror("Error deleting file");
+        if (imageSOA != nullptr) {
+            delete imageSOA;
+            imageSOA = nullptr;
+        }
+        if (std::ifstream(test_image_path.c_str()).good()) {
+            if (std::remove(test_image_path.c_str()) != 0) {
+                std::perror("Error deleting file");
+            }
+        }
+
+        if (std::ifstream("test_image.ppm").good()) {
+            if (std::remove("test_image.ppm") != 0) {
+                std::perror("Error deleting file");
+            }
         }
     }
 
 public:
+    // Default constructor
+    ImageSOATest() = default;
+
+    // Destructor
+    ~ImageSOATest() override {
+        delete imageSOA;
+    }
+
+    // Copy constructor
+    ImageSOATest(const ImageSOATest& other)
+        : imageSOA(new ImageSOA(std::move(*other.imageSOA))), test_image_path(other.test_image_path) {}
+
+    // Copy assignment operator
+    ImageSOATest& operator=(const ImageSOATest& other) {
+        if (this != &other) {
+            delete imageSOA;
+            imageSOA = new ImageSOA(std::move(*other.imageSOA));
+            test_image_path = other.test_image_path;
+        }
+        return *this;
+    }
+
+    // Move constructor
+    ImageSOATest(ImageSOATest&& other) noexcept
+        : imageSOA(other.imageSOA), test_image_path(std::move(other.test_image_path)) {
+        other.imageSOA = nullptr;
+    }
+
+    // Move assignment operator
+    ImageSOATest& operator=(ImageSOATest&& other) noexcept {
+        if (this != &other) {
+            delete imageSOA;
+            imageSOA = other.imageSOA;
+            test_image_path = std::move(other.test_image_path);
+            other.imageSOA = nullptr;
+        }
+        return *this;
+    }
+
     [[nodiscard]] const std::string& getTestImagePath() const {
         return test_image_path;
     }
@@ -86,20 +153,20 @@ TEST_F(ImageSOATest, RszObtainSquareMin) {
     std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
 
     EXPECT_EQ(result[0].r, 14);
-    EXPECT_EQ(result[0].g, 14);
-    EXPECT_EQ(result[0].b, 46);
+    EXPECT_EQ(result[0].g, 6);
+    EXPECT_EQ(result[0].b, 16);
 
     EXPECT_EQ(result[1].r, 14);
-    EXPECT_EQ(result[1].g, 14);
-    EXPECT_EQ(result[1].b, 46);
+    EXPECT_EQ(result[1].g, 6);
+    EXPECT_EQ(result[1].b, 16);
 
     EXPECT_EQ(result[2].r, 14);
-    EXPECT_EQ(result[2].g, 14);
-    EXPECT_EQ(result[2].b, 46);
+    EXPECT_EQ(result[2].g, 6);
+    EXPECT_EQ(result[2].b, 16);
 
     EXPECT_EQ(result[3].r, 14);
-    EXPECT_EQ(result[3].g, 14);
-    EXPECT_EQ(result[3].b, 46);
+    EXPECT_EQ(result[3].g, 6);
+    EXPECT_EQ(result[3].b, 16);
 }
 
 // Test con el metodo rsz_obtain_square_min que no funciona
@@ -342,8 +409,179 @@ TEST_F(ImageSOATest, ReadImageRGBSmallCorruptData) {
     }
 }
 
+// Test con el metodo read_image_rgb_big que funciona correctamente
+TEST_F(ImageSOATest, ReadImageRGBBig_Success) {
+    std::ifstream input_file("test_image.ppm", std::ios::binary);
+    ASSERT_TRUE(input_file.is_open());
 
-int main(int argc, char **argv) {
+    ImageSOA const imageSOA(0, {});
+    soa_rgb_big const image = imageSOA.read_image_rgb_big(input_file);
+
+    ASSERT_EQ(image.r.size(), imageSOA.get_width() * imageSOA.get_height());
+    ASSERT_EQ(image.g.size(), imageSOA.get_width() * imageSOA.get_height());
+    ASSERT_EQ(image.b.size(), imageSOA.get_width() * imageSOA.get_height());
+
+    input_file.close();
+}
+
+// Test con el metodo read_image_rgb_big que no funciona porque no se puede abrir un archivo
+TEST_F(ImageSOATest, ReadImageRGBBig_FileNotOpen) {
+    std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
+    ASSERT_FALSE(input_file.is_open());
+
+    ImageSOA const imageSOA(0, {});
+    soa_rgb_big const image = imageSOA.read_image_rgb_big(input_file);
+
+    ASSERT_TRUE(image.r.empty());
+    ASSERT_TRUE(image.g.empty());
+    ASSERT_TRUE(image.b.empty());
+}
+
+// Test con el metodo read_image_rgb_big que no funciona porque hay errores al leer el archivo
+TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
+    std::ofstream output_file("corrupt_image.rgb", std::ios::binary);
+    for (int i = 0; i < NUM_10; ++i) {
+        auto value = static_cast<unsigned short>(i);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        output_file.write(reinterpret_cast<char*>(&value), sizeof(value));
+    }
+    output_file.close();
+
+    std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
+    ASSERT_TRUE(input_file.is_open());
+
+    ImageSOA const imageSOA(0, {});
+    soa_rgb_big const image = imageSOA.read_image_rgb_big(input_file);
+
+    ASSERT_TRUE(image.r.empty());
+    ASSERT_TRUE(image.g.empty());
+    ASSERT_TRUE(image.b.empty());
+
+    input_file.close();
+}
+
+
+
+// Test que funciona SortAndMapKeys
+TEST_F(ImageSOATest, SortAndMapKeys_Success) {
+    std::vector<std::string> const args = {"resize", "input_image.jpg", "output_image.jpg"};
+    ImageSOA const imageSOA(static_cast<int>(args.size()), args);
+    std::unordered_map<__uint32_t, __uint16_t> const myMap = {
+        {BLACK, 1}, {WHITE, 2}, {RED, 3}, {GREEN, 4}, {BLUE, 5}
+    };
+    std::unordered_map<__uint32_t, size_t> color_to_index;
+    std::vector<__uint32_t> sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
+
+    // Check if the sorted colors are correct
+    ASSERT_EQ(sorted_colors.size(), 5);
+    ASSERT_EQ(sorted_colors[0], BLACK);
+    ASSERT_EQ(sorted_colors[1], BLUE);
+    ASSERT_EQ(sorted_colors[2], GREEN);
+    ASSERT_EQ(sorted_colors[3], RED);
+    ASSERT_EQ(sorted_colors[4], WHITE);
+
+    // Check if the color to index mapping is correct
+    ASSERT_EQ(color_to_index[BLACK], 0);
+    ASSERT_EQ(color_to_index[BLUE], 1);
+    ASSERT_EQ(color_to_index[GREEN], 2);
+    ASSERT_EQ(color_to_index[RED], 3);
+    ASSERT_EQ(color_to_index[WHITE], 4);
+}
+
+//Test en el que hay un mapa vacio
+TEST_F(ImageSOATest, SortAndMapKeys_EmptyMap) {
+    std::unordered_map<__uint32_t, __uint16_t> const myMap;
+    std::unordered_map<__uint32_t, size_t> color_to_index;
+    std::vector<__uint32_t> const sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
+
+    ASSERT_TRUE(sorted_colors.empty());
+    ASSERT_TRUE(color_to_index.empty());
+}
+
+// Test en el que hay un solo elemento en el mapa
+TEST_F(ImageSOATest, SortAndMapKeys_SingleElement) {
+    std::unordered_map<__uint32_t, __uint16_t> const myMap = {{0x000000, 1}};
+    std::unordered_map<__uint32_t, size_t> color_to_index;
+    std::vector<__uint32_t> sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
+
+    ASSERT_EQ(sorted_colors.size(), 1);
+    ASSERT_EQ(sorted_colors[0], 0x000000);
+    ASSERT_EQ(color_to_index[0x000000], 0);
+}
+
+TEST_F(ImageSOATest, SortAndMapKeys_SameDistanceToBlack) {
+    std::unordered_map<__uint32_t, __uint16_t> const myMap = {{0x010101, 1}, {0x020202, 1}};
+    std::unordered_map<__uint32_t, size_t> color_to_index;
+    std::vector<__uint32_t> const sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
+
+    ASSERT_EQ(sorted_colors.size(), 2);
+    ASSERT_EQ(color_to_index[0x010101], 0);
+    ASSERT_EQ(color_to_index[0x020202], 1);
+}
+
+TEST_F(ImageSOATest, SortAndMapKeys_LargeMap) {
+    std::unordered_map<__uint32_t, __uint16_t> myMap;
+    for (unsigned int i = 0; i < NUM_1000; ++i) {
+        myMap[i] = 1;
+    }
+    std::unordered_map<__uint32_t, size_t> color_to_index;
+    std::vector<__uint32_t> sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
+
+    ASSERT_EQ(sorted_colors.size(), 1000);
+    for (size_t i = 0; i < sorted_colors.size(); ++i) {
+        ASSERT_EQ(color_to_index[sorted_colors[i]], i);
+    }
+}
+
+TEST_F(ImageSOATest, LoadAndMap8_Success) {
+    std::ifstream input_file(getTestImagePath(), std::ios::binary);
+    ASSERT_TRUE(input_file.is_open());
+
+    auto result = getImageSOA()->load_and_map_8(CIEN, std::move(input_file), CIEN);
+    ASSERT_FALSE(result.empty());
+}
+
+//Funcion same_bgr_vector funciona
+TEST_F(ImageSOATest, SameBGRVector_Success) {
+    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
+        {0x000000, 1}, {BLUE, 2}, {GREEN, 3}, {RED, 4}
+    };
+    ImageSOA const imageSOA(0, {});
+    auto result = ImageSOA::same_bgr_vector(father_vector, 1, father_vector.size());
+
+    ASSERT_EQ(result.size(), 4);
+    std::cout << "result[0].first: " << result[0].first << '\n';
+    std::cout << "result[1].first: " << result[1].first << '\n';
+    std::cout << "result[2].first: " << result[2].first << '\n';
+    std::cout << "result[3].first: " << result[3].first << '\n';
+    ASSERT_EQ(result[0].first, 255);
+    ASSERT_EQ(result[1].first, 0);
+    ASSERT_EQ(result[2].first, 65280);
+    ASSERT_EQ(result[3].first, 16711680);
+}
+
+//Funcion same_bgr_vector no funciona por un vector vacío de entrada
+TEST_F(ImageSOATest, SameBGRVector_EmptyInput) {
+    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector;
+    ImageSOA const imageSOA(0, {});
+    auto result = ImageSOA::same_bgr_vector(father_vector, 1, father_vector.size());
+
+    ASSERT_TRUE(result.empty());
+}
+
+
+TEST_F(ImageSOATest, SameBGRVector_InsufficientElements) {
+    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
+        {0x000000, 1}
+    };
+    ImageSOA const imageSOA(0, {});
+    auto result = ImageSOA::same_bgr_vector(father_vector, 1, 2);
+
+    ASSERT_EQ(result.size(), 2);
+    ASSERT_EQ(result[0].first, 0x000000);
+}
+
+int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

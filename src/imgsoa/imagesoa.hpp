@@ -82,6 +82,20 @@ class ImageSOA : public Image {
     friend class ImageSOATest_ReadImageRGBSmallIncompleteData_Test;
     friend class ImageSOATest_ReadImageRGBSmallCorruptData_Test;
     friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
+    friend class ImageSOATest_ReadImageRGBBig_Success_Test;
+    friend class ImageSOATest_ReadImageRGBBig_FileNotOpen_Test;
+    friend class ImageSOATest_ReadImageRGBBig_FileReadError_Test;
+    friend class ImageSOATest_SortAndMapKeys_Success_Test;
+    friend class ImageSOATest_SortAndMapKeys_EmptyMap_Test;
+    friend class ImageSOATest_SortAndMapKeys_SingleElement_Test;
+    friend class ImageSOATest_SortAndMapKeys_SameDistanceToBlack_Test;
+    friend class ImageSOATest_SortAndMapKeys_LargeMap_Test;
+    friend class ImageSOATest_LoadAndMap8_Success_Test;
+    friend class ImageSOATest_SameBGRVector_Success_Test;
+    friend class ImageSOATest_SameBGRVector_EmptyInput_Test;
+    friend class ImageSOATest_SameBGRVector_InsufficientElements_Test;
+
+
 };
 
 #endif  // IMAGESOA_HPP

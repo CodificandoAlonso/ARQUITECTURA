@@ -68,6 +68,7 @@
       std::unique_ptr<Image> image;
 
       friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
+
   };
 
   #endif  // PROGARGS_HPP
