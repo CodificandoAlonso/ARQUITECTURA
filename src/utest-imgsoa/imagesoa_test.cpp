@@ -49,28 +49,23 @@ private:
 
 protected:
     void SetUp() override {
-        std::vector<std::string> const args = {"resize", "input_image.jpg", "output_image.jpg"};
+        std::vector<std::string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
         imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
 
         test_image_path = "test_image.ppm";
         std::ofstream output_file(test_image_path, std::ios::binary);
-        if (!output_file.is_open()) {
+        if (!output_file) {
             FAIL() << "Failed to create test image file.";
         }
+        output_file << "P6\n" << CIEN << " " << CIEN << "\n" << FOTO-1 << "\n";
 
-        for (int i = 0; i < CIEN; ++i) {
+        // Write some dummy data to the input file
+        for (int i = 0; i < CIEN * CIEN; ++i) {
             output_file.put(static_cast<char>(i % FOTO));
+            output_file.put(static_cast<char>((i + 1) % FOTO));
+            output_file.put(static_cast<char>((i + 2) % FOTO));
         }
         output_file.close();
-
-        std::ofstream input_file("test_image.ppm", std::ios::binary);
-        // Write some dummy data to the input file
-        for (int i = 0; i < CIEN; ++i) {
-            input_file.put(static_cast<char>(i % FOTO));
-            input_file.put(static_cast<char>((i + 1) % FOTO));
-            input_file.put(static_cast<char>((i + 2) % FOTO));
-        }
-        input_file.close();
 
     }
 
@@ -153,20 +148,20 @@ TEST_F(ImageSOATest, RszObtainSquareMin) {
     std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
 
     EXPECT_EQ(result[0].r, 14);
-    EXPECT_EQ(result[0].g, 6);
-    EXPECT_EQ(result[0].b, 16);
+    EXPECT_EQ(result[0].g, 1);
+    EXPECT_EQ(result[0].b, 11);
 
     EXPECT_EQ(result[1].r, 14);
-    EXPECT_EQ(result[1].g, 6);
-    EXPECT_EQ(result[1].b, 16);
+    EXPECT_EQ(result[1].g, 1);
+    EXPECT_EQ(result[1].b, 11);
 
     EXPECT_EQ(result[2].r, 14);
-    EXPECT_EQ(result[2].g, 6);
-    EXPECT_EQ(result[2].b, 16);
+    EXPECT_EQ(result[2].g, 1);
+    EXPECT_EQ(result[2].b, 11);
 
     EXPECT_EQ(result[3].r, 14);
-    EXPECT_EQ(result[3].g, 6);
-    EXPECT_EQ(result[3].b, 16);
+    EXPECT_EQ(result[3].g, 1);
+    EXPECT_EQ(result[3].b, 11);
 }
 
 // Test con el metodo rsz_obtain_square_min que no funciona
