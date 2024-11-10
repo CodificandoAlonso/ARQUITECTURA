@@ -455,41 +455,41 @@ unordered_map<__uint32_t, __uint32_t>
                                      int num_left, deque<pair<__uint32_t, __uint16_t>> bluevalues) {
   size_t my_index = 0;
   while (num_left > 0) {
-    if (bluevalues[0].second == bluevalues[1].second) {
-      if (int my_meanwhile = check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
-          my_meanwhile > 0) {
-        if (my_meanwhile < num_left) {
-          auto iterator = static_cast<size_t>(my_meanwhile);
-          for (size_t iii = 0; iii < iterator; iii++) {
-            Deleteitems[bluevalues[0].first] = 0;
-            bluevalues.pop_front();
-            num_left--;}
-        } else {
-          auto greenvalues = same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
-          if (greenvalues[0].second == greenvalues[1].second) {
-            my_meanwhile = check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
-            if (my_meanwhile > 0) {
-              auto redvalues = same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
-              Deleteitems[{redvalues[0].first}] = 0;
-              my_index                          = search_in_blue(bluevalues, redvalues[0].first);
-              delete_from_deque(bluevalues, my_index);
-              num_left--;
-            } else {
+    if(bluevalues.size() >1){
+      if (bluevalues[0].second == bluevalues[1].second) {
+        if (int my_meanwhile = check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
+            my_meanwhile > 0) {
+          if (my_meanwhile < num_left) {
+            auto iterator = static_cast<size_t>(my_meanwhile);
+            for (size_t iii = 0; iii < iterator; iii++) {
+              Deleteitems[bluevalues[0].first] = 0;
+              bluevalues.pop_front();
               num_left--;}
           } else {
-            Deleteitems[{greenvalues[0].first}] = 0;
-            my_index                            = search_in_blue(bluevalues, greenvalues[0].first);
-            delete_from_deque(bluevalues, my_index);
-            num_left--;}}
-      } else {
-        num_left--;
-      }
-    } else {
+            auto greenvalues = same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
+            if (greenvalues[0].second == greenvalues[1].second) {
+              my_meanwhile = check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
+              if (my_meanwhile > 0) {
+                auto redvalues = same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
+                Deleteitems[{redvalues[0].first}] = 0;
+                my_index                          = search_in_blue(bluevalues, redvalues[0].first);
+                delete_from_deque(bluevalues, my_index);
+                num_left--;
+              } else {
+                num_left--;}
+            } else {
+              Deleteitems[{greenvalues[0].first}] = 0;
+              my_index                            = search_in_blue(bluevalues, greenvalues[0].first);
+              delete_from_deque(bluevalues, my_index);
+              num_left--;}}} else {
+              num_left--;}} else {
+        Deleteitems[{bluevalues[0].first}] = 0;
+        bluevalues.pop_front();
+        num_left--;}}
+    else {
       Deleteitems[{bluevalues[0].first}] = 0;
       bluevalues.pop_front();
-      num_left--;
-    }
-  }
+      num_left--;}}
   return Deleteitems;
 }
 
@@ -515,7 +515,7 @@ void ImageSOA::add_nodes() {
   this->nod.push_back( packRGB(MEDIO, POCO, ALTO));
   this->nod.push_back( packRGB(MEDIO, MEDIO, POCO));
   this->nod.push_back( packRGB(MEDIO, MEDIO, MEDIO));
-  this->nod.push_back(  packRGB(MEDIO, MEDIO, ALTO));
+  this->nod.push_back(   packRGB(MEDIO, MEDIO, ALTO));
   this->nod.push_back( packRGB(MEDIO, ALTO, POCO));
   this->nod.push_back( packRGB(MEDIO, ALTO, MEDIO));
   this->nod.push_back( packRGB(MEDIO, ALTO, ALTO));
@@ -567,57 +567,37 @@ unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageSOA:
     graph[this->nod[VEINTISEIS]] = {{this->nod[DIECISIETE], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AAA
   return graph;
 }
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-recursive-call-chain)
+//NOLINTBEGIN(misc-no-recursion)
 __uint32_t ImageSOA::cf_find_closest_in_neighbors(
-    __uint32_t color_to_delete,
-    const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> &graph,
+    __uint32_t color_to_delete,const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> &graph,
     const vector<__uint32_t> &neighbors,
-    double &min_distance) {
-  __uint32_t closest_color = 0; // Inicializar en 0, asumiendo que no habrá color 0 en tu grafo
+    double &min_distance, unordered_map<__uint32_t, __uint8_t> &visited_node) {
+  __uint32_t closest_color = 0;
   bool found_closest = false;
-  // Recorrer cada nodo adyacente en el vector de `neighbors`
   for (__uint32_t const neighbor : neighbors) {
     auto iter = graph.find(neighbor);
-
-    // Verificar colores en el nodo actual (neighbor)
+    if(visited_node.contains(neighbor)){continue;}
     for (__uint32_t const candidate : iter->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
       if (distance <= min_distance) {
         min_distance = distance;
         closest_color = candidate;
-        found_closest = true;
-      }
-    }
-  }
-  // Si encontramos un color candidato en los adyacentes actuales, lo devolvemos
-  if (found_closest) {
-    return closest_color;
-  }
+        found_closest = true;}}
+    visited_node[neighbor] = 0;}
+  if (found_closest) {return closest_color;}
   if (min_distance ==MAX_DIST) {
-    // Si no encontramos un candidato, llamamos recursivamente con los adyacentes de los adyacentes
     for (__uint32_t const neighbor : neighbors) {
       auto iter = graph.find(neighbor);
-      closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance);
-      if (closest_color != 0) { return closest_color; // Si encontramos un color, devolvemos
-      }
-    }
-  }
-  // Si no encontramos ningún color en este nivel ni en los niveles superiores, devolvemos 0
+      closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance,visited_node);
+      if (closest_color != 0) { return closest_color;}}}
   return 0;
 }
+//NOLINTEND(misc-no-recursion)
 
-
-
-
-
-
-
-
-
-
-void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
-  // Convierto myMap a vector de pares y ordeno
-
+deque<pair<__uint32_t, __uint16_t>>
+    ImageSOA::cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
+                                        unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+                                        int & num_left) const {
   vector<pair<__uint32_t, __uint16_t>> myVector(myMap.begin(), myMap.end());
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
@@ -641,7 +621,6 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
 
   int const pivot  = VectorDelete[elems_to_delete - 1].second;
   int elem_deleted = 0;
-  unordered_map<__uint32_t, __uint32_t> Deleteitems;
   for (auto & [fst, snd] : VectorDelete) {
     if (snd < pivot) {
       Deleteitems[{fst}] = 0;
@@ -650,49 +629,79 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
   }
 
   int const new_n    = static_cast<int>(elems_to_delete);
-  int const num_left = new_n - elem_deleted;
+  num_left           = new_n - elem_deleted;
   auto const new_e_d = static_cast<long int>(elem_deleted);  // elem_deleted
 
   deque const left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
+  return left_elems;
+}
 
+void ImageSOA::cf_finish_graph(
+    unordered_map<__uint32_t, __uint16_t> myMap,
+    unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+    unordered_map<__uint32_t, __uint32_t> & toSave,
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph) {
+  for (auto const & key : myMap | views::keys) {
+    // me recorro las keys de graph
+    // me recorro graph
+    double distance = MAX_DIST;
+    for (auto const & key1 : graph | views::keys) {
+      double const new_distance = get_distance(key, key1);
+      if (new_distance <= distance) {
+        distance = new_distance;
+        if (!Deleteitems.contains(key)) {
+          toSave[key] = key1;
+        } else {
+          Deleteitems[key] = key1;
+        }
+      }
+    }
+    if (!Deleteitems.contains(key)) { graph[toSave[key]].second.push_back(key); }
+  }
+}
+
+void ImageSOA::write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) {
+  write_out(this->get_maxval());
+  ofstream output_file = this->get_of_output_file();
+  auto const iter      = this->soa_small.r.size();
+
+  for (size_t counter = 0; counter < iter; counter++) {
+    __uint8_t red = this->soa_small.r[counter];
+    __uint8_t grn = this->soa_small.g[counter];
+    __uint8_t blu = this->soa_small.b[counter];
+    if (__uint32_t const rgb = packRGB(red, grn, blu); Deleteitems.contains(rgb)) {
+      red = extractred(Deleteitems[rgb]);
+      grn = extractgreen(Deleteitems[rgb]);
+      blu = extractblue(Deleteitems[rgb]);
+    }
+    write_binary_8(output_file, red);
+    write_binary_8(output_file, grn);
+    write_binary_8(output_file, blu);
+  }
+
+  output_file.close();}void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
+  // Convierto myMap a vector de pares y ordeno
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 0;
+  auto left_elems= cf_check_first_part_small(myMap, Deleteitems, num_left);
   auto bluevalues = same_bgr_vector(left_elems, 1, left_elems.size());
 
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = check_colors_to_delete(Deleteitems, num_left, bluevalues);
-
-
   unordered_map<__uint32_t, __uint32_t> toSave;
   // Me recorro las keys de myMap
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
-  for (auto const & key : myMap | views::keys) {
-      //me recorro las keys de graph
-      //me recorro graph
-      double distance = MAX_DIST;
-      for (auto const & key1 : graph | views::keys) {
-        double const new_distance = get_distance(key, key1);
-        if (new_distance <= distance) {
-          distance = new_distance;
-          if (!Deleteitems.contains(key)) {
-            toSave[key] = key1;
-          }
-          else {
-            Deleteitems[key] = key1;
-          }
-        }
-      }
-    if (!Deleteitems.contains(key)) {
-      graph[toSave[key]].second.push_back(key);
-    }
-  }
+  cf_finish_graph(myMap, Deleteitems,toSave,graph);
 
   for (auto &entry : Deleteitems) {
     __uint32_t const color_to_delete = entry.first;
     double min_distance = MAX_DIST;
-
+    unordered_map<__uint32_t, __uint8_t> visited = {};
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
     if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
 }
+    visited[entry.second] = 0;
 
     // Primero, verificar la distancia en el nodo principal
     //bool found_in_main_node = false;
@@ -704,40 +713,12 @@ void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap) {
         //found_in_main_node = true;
       }
     }
-
-    // Si encontramos un candidato en el nodo principal, continuar
-    // Verificar adyacentes inmediatos si no encontramos en el nodo principal
-    __uint32_t const replacement_color = cf_find_closest_in_neighbors(color_to_delete, graph, node_it->second.first, min_distance);
-
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(color_to_delete, graph, node_it->second.first, min_distance, visited);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) {
       entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
-    }
-  }
-    write_out(this->get_maxval());
-    ofstream output_file = this->get_of_output_file();
-    auto const iter = this->soa_small.r.size();
-
-    for (size_t counter = 0; counter < iter; counter++) {
-      __uint8_t red = this->soa_small.r[counter];
-      __uint8_t grn = this->soa_small.g[counter];
-      __uint8_t blu = this->soa_small.b[counter];
-      if (__uint32_t const rgb = packRGB(red, grn, blu); Deleteitems.contains(rgb)) {
-        red = extractred(Deleteitems[rgb]);
-        grn = extractgreen(Deleteitems[rgb]);
-        blu = extractblue(Deleteitems[rgb]);
-      }
-      write_binary_8(output_file, red);
-      write_binary_8(output_file, grn);
-      write_binary_8(output_file, blu);
-    }
-    output_file.close();
-
-    /*
-     * Si tenemos los colores c1=(r1,g1,b1) y c2=(r2,g2,b2), la distancia euclídea entre ambos colores
-     * no depende de su posición en la imagen sino de sus valores RGB.
-     * d(c1,c2) = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
-     */
+    }}
+  write_in_exit(Deleteitems);
   }
 
 
