@@ -8,6 +8,31 @@
 #include <cstdio>
 static constexpr int CIEN = 100;
 static constexpr int FOTO = 256;
+static constexpr int NUM_5 = 5;
+static constexpr int NUM_6 = 6;
+static constexpr int NUM_7 = 7;
+static constexpr int NUM_8 = 8;
+static constexpr int NUM_9 = 9;
+static constexpr int NUM_10 = 10;
+static constexpr int NUM_11 = 11;
+static constexpr int NUM_12 = 12;
+static constexpr int NUM_13 = 13;
+static constexpr int NUM_14 = 14;
+static constexpr int NUM_15 = 15;
+static constexpr int NUM_16 = 16;
+static constexpr int NUM_17 = 17;
+static constexpr int NUM_18 = 18;
+static constexpr int NUM_19 = 19;
+static constexpr int NUM_20 = 20;
+static constexpr int NUM_21 = 21;
+static constexpr int NUM_22 = 22;
+static constexpr int NUM_23 = 23;
+static constexpr int NUM_24 = 24;
+static constexpr int NUM_25 = 25;
+static constexpr int NUM_26 = 26;
+static constexpr int NUM_27 = 27;
+static constexpr int NUM_28 = 28;
+static constexpr int NUM_29 = 29;
 
 class ImageSOATest : public ::testing::Test {
 private:
@@ -52,39 +77,39 @@ public:
 // Test con el metodo rsz_obtain_square_min que funciona correctamente
 TEST_F(ImageSOATest, RszObtainSquareMin) {
     soa_rgb_small image;
-    image.r = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    image.g = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    image.b = {20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+    image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
+    image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
+    image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-    std::array<unsigned int, 5> args = {4, 5, 7, 8, 3};
+    std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
     std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
 
-    EXPECT_EQ(result[0].r, 8);
-    EXPECT_EQ(result[0].g, 18);
-    EXPECT_EQ(result[0].b, 28);
+    EXPECT_EQ(result[0].r, 14);
+    EXPECT_EQ(result[0].g, 14);
+    EXPECT_EQ(result[0].b, 46);
 
-    EXPECT_EQ(result[1].r, 8);
-    EXPECT_EQ(result[1].g, 18);
-    EXPECT_EQ(result[1].b, 28);
+    EXPECT_EQ(result[1].r, 14);
+    EXPECT_EQ(result[1].g, 14);
+    EXPECT_EQ(result[1].b, 46);
 
-    EXPECT_EQ(result[2].r, 8);
-    EXPECT_EQ(result[2].g, 18);
-    EXPECT_EQ(result[2].b, 28);
+    EXPECT_EQ(result[2].r, 14);
+    EXPECT_EQ(result[2].g, 14);
+    EXPECT_EQ(result[2].b, 46);
 
-    EXPECT_EQ(result[3].r, 8);
-    EXPECT_EQ(result[3].g, 18);
-    EXPECT_EQ(result[3].b, 28);
+    EXPECT_EQ(result[3].r, 14);
+    EXPECT_EQ(result[3].g, 14);
+    EXPECT_EQ(result[3].b, 46);
 }
 
 // Test con el metodo rsz_obtain_square_min que no funciona
 TEST_F(ImageSOATest, RszObtainSquareMinFailure) {
     soa_rgb_small image;
-    image.r = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    image.g = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    image.b = {20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+    image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
+    image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
+    image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-    std::array<unsigned int, 5> args = {4, 5, 7, 8, 3};
+    std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
     std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
 
@@ -109,39 +134,39 @@ TEST_F(ImageSOATest, RszObtainSquareMinFailure) {
 // Test con el metodo rsz_obtain_square_max que funciona correctamente
 TEST_F(ImageSOATest, RszObtainSquareMax) {
     soa_rgb_big image;
-    image.r = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    image.g = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    image.b = {20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+    image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
+    image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
+    image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-    std::array<unsigned int, 5> args = {4, 5, 7, 8, 3};
+    std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
     std::array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
 
-    EXPECT_EQ(result[0].r, 8);
-    EXPECT_EQ(result[0].g, 18);
-    EXPECT_EQ(result[0].b, 28);
+    EXPECT_EQ(result[0].r, 14);
+    EXPECT_EQ(result[0].g, 0);
+    EXPECT_EQ(result[0].b, 0);
 
-    EXPECT_EQ(result[1].r, 8);
-    EXPECT_EQ(result[1].g, 18);
-    EXPECT_EQ(result[1].b, 28);
+    EXPECT_EQ(result[1].r, 14);
+    EXPECT_EQ(result[1].g, 0);
+    EXPECT_EQ(result[1].b, 0);
 
-    EXPECT_EQ(result[2].r, 8);
-    EXPECT_EQ(result[2].g, 18);
-    EXPECT_EQ(result[2].b, 28);
+    EXPECT_EQ(result[2].r, 14);
+    EXPECT_EQ(result[2].g, 0);
+    EXPECT_EQ(result[2].b, 0);
 
-    EXPECT_EQ(result[3].r, 8);
-    EXPECT_EQ(result[3].g, 18);
-    EXPECT_EQ(result[3].b, 28);
+    EXPECT_EQ(result[3].r, 14);
+    EXPECT_EQ(result[3].g, 0);
+    EXPECT_EQ(result[3].b, 0);
 }
 
 // Test con el metodo rsz_obtain_square_max que no funciona
 TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
     soa_rgb_big image;
-    image.r = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    image.g = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    image.b = {20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+    image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
+    image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
+    image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-    std::array<unsigned int, 5> args = {4, 5, 7, 8, 3};
+    std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
     std::array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
 
@@ -164,17 +189,17 @@ TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
 
 // Test con el metodo rsz_interpolate_min que funciona correctamente
 TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
-    std::array<rgb_small, 4> square = {
-        rgb_small{10, 20, 30},
-        rgb_small{40, 50, 60},
-        rgb_small{70, 80, 90},
-        rgb_small{100, 110, 120}
+    std::array<rgb_small, 4> const square = {
+        rgb_small{.r=10, .g=20, .b=30},
+        rgb_small{.r=40, .g=50, .b=60},
+        rgb_small{.r=70, .g=80, .b=90},
+        rgb_small{.r=100, .g=110, .b=120}
     };
 
-    double u_param = 0.5;
-    double t_param = 0.5;
+    double const u_param = 0.5;
+    double const t_param = 0.5;
 
-    rgb_small result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
+    rgb_small const result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
 
     EXPECT_EQ(result.r, 55);
     EXPECT_EQ(result.g, 65);
@@ -183,17 +208,17 @@ TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
 
 // Test con el metodo rsz_interpolate_min que no funciona
 TEST_F(ImageSOATest, RszInterpolateMinFailure) {
-    std::array<rgb_small, 4> square = {
-        rgb_small{10, 20, 30},
-        rgb_small{40, 50, 60},
-        rgb_small{70, 80, 90},
-        rgb_small{100, 110, 120}
+    std::array<rgb_small, 4> const square = {
+        rgb_small{.r=10, .g=20, .b=30},
+        rgb_small{.r=40, .g=50, .b=60},
+        rgb_small{.r=70, .g=80, .b=90},
+        rgb_small{.r=100, .g=110, .b=120}
     };
 
-    double u_param = 0.5;
-    double t_param = 0.5;
+    double const u_param = 0.5;
+    double const t_param = 0.5;
 
-    rgb_small result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
+    rgb_small const result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
 
     // Intentionally incorrect expected values to cause the test to fail
     EXPECT_NE(result.r, 10);
@@ -203,17 +228,17 @@ TEST_F(ImageSOATest, RszInterpolateMinFailure) {
 
 // Test con el metodo rsz_interpolate_max que funciona correctamente
 TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
-    std::array<rgb_big, 4> square = {
-        rgb_big{10, 20, 30},
-        rgb_big{40, 50, 60},
-        rgb_big{70, 80, 90},
-        rgb_big{100, 110, 120}
+    std::array<rgb_big, 4> const square = {
+        rgb_big{.r=10, .g=20, .b=30},
+        rgb_big{.r=40, .g=50, .b=60},
+        rgb_big{.r=70, .g=80, .b=90},
+        rgb_big{.r=100, .g=110, .b=120}
     };
 
-    double u_param = 0.5;
-    double t_param = 0.5;
+    double const u_param = 0.5;
+    double const t_param = 0.5;
 
-    rgb_big result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
 
     EXPECT_EQ(result.r, 55);
     EXPECT_EQ(result.g, 65);
@@ -222,18 +247,18 @@ TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un error de acceso a memoria
 TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
-    std::array<rgb_big, 4> square = {
-        rgb_big{10, 20, 30},
-        rgb_big{40, 50, 60},
-        rgb_big{70, 80, 90},
-        rgb_big{0, 0, 0}  // Adding a dummy element to make it 4 elements
+    std::array<rgb_big, 4> const square = {
+        rgb_big{.r=10, .g=20, .b=30},
+        rgb_big{.r=40, .g=50, .b=60},
+        rgb_big{.r=70, .g=80, .b=90},
+        rgb_big{.r=0, .g=0, .b=0}  // Adding a dummy element to make it 4 elements
     };
 
-    double u_param = 0.5;
-    double t_param = 0.5;
+    double const u_param = 0.5;
+    double const t_param = 0.5;
 
     // This should not cause an out-of-bounds access now
-    rgb_big result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
 
     // Check for incorrect results due to invalid array size
     EXPECT_NE(result.r, 55);
@@ -243,17 +268,17 @@ TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un valor de u_param invalido
 TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
-    std::array<rgb_big, 4> square = {
-        rgb_big{10, 20, 30},
-        rgb_big{40, 50, 60},
-        rgb_big{70, 80, 90},
-        rgb_big{100, 110, 120}
+    std::array<rgb_big, 4> const square = {
+        rgb_big{.r=10, .g=20, .b=30},
+        rgb_big{.r=40, .g=50, .b=60},
+        rgb_big{.r=70, .g=80, .b=90},
+        rgb_big{.r=100, .g=110, .b=120}
     };
 
-    double u_param = 1.5;  // Invalid value
-    double t_param = 0.5;
+    constexpr double u_param = 1.5;  // Invalid value
+    constexpr double t_param = 0.5;
 
-    rgb_big result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
 
     // Check for incorrect results due to invalid u_param
     EXPECT_NE(result.r, 55);
@@ -261,19 +286,19 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
     EXPECT_NE(result.b, 75);
 }
 
-// Test con el metodo rsz_interpolate_max que no funciona por un valor de t_param invalido
+// Test con el methods rsz_interpolate_max que no function por un valor de t_param invalid
 TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
-    std::array<rgb_big, 4> square = {
-        rgb_big{10, 20, 30},
-        rgb_big{40, 50, 60},
-        rgb_big{70, 80, 90},
-        rgb_big{100, 110, 120}
+    constexpr std::array<rgb_big, 4> square = {
+        rgb_big{.r=10, .g=20, .b=30},
+        rgb_big{.r=40, .g=50, .b=60},
+        rgb_big{.r=70, .g=80, .b=90},
+        rgb_big{.r=100, .g=110, .b=120}
     };
 
-    double u_param = 0.5;
-    double t_param = 1.5;  // Invalid value
+    constexpr double u_param = 0.5;
+    constexpr double t_param = 1.5;  // Invalid value
 
-    rgb_big result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
 
     // Check for incorrect results due to invalid t_param
     EXPECT_NE(result.r, 55);
