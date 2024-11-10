@@ -67,8 +67,21 @@ class ImageSOA : public Image {
     soa_rgb_small soa_small;
     soa_rgb_small soa_big;
 
-    friend class ImageSOATest_CompressOperation_Test;
-    friend class ImageSOATest_ProcessOperationInfo_Test;
+    friend class ImageSOATest_RszObtainSquareMax_Test;
+    friend class ImageSOATest_RszObtainSquareMaxFailure_Test;
+    friend class ImageSOATest_RszObtainSquareMin_Test;
+    friend class ImageSOATest_RszObtainSquareMinFailure_Test;
+    friend class ImageSOATest_RszInterpolateMinSuccess_Test;
+    friend class ImageSOATest_RszInterpolateMinFailure_Test;
+    friend class ImageSOATest_RszInterpolateMaxSuccess_Test;
+    friend class ImageSOATest_RszInterpolateMaxOutOfBounds_Test;
+    friend class ImageSOATest_RszInterpolateMaxInvalidUParam_Test;
+    friend class ImageSOATest_RszInterpolateMaxInvalidTParam_Test;
+    friend class ImageSOATest_ReadImageRGBSmallSuccess_Test;
+    friend class ImageSOATest_ReadImageRGBSmallFileNotFound_Test;
+    friend class ImageSOATest_ReadImageRGBSmallIncompleteData_Test;
+    friend class ImageSOATest_ReadImageRGBSmallCorruptData_Test;
+    friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
 };
 
 #endif  // IMAGESOA_HPP
