@@ -13,6 +13,8 @@ static constexpr unsigned char BYTE_2 = 16;
 static constexpr unsigned char BYTE = 8;
 static constexpr unsigned char BYTE_4 = 32;
 static constexpr unsigned char FFF = 0xFF;
+static constexpr __uint16_t FFFF = 0xFFFF;
+
 using namespace std;
 
 uint8_t read_binary_8(ifstream & input) {
@@ -104,6 +106,20 @@ double distance_to_black(__uint32_t const color) {
   __uint8_t const blu = color & FFF;
   return sqrt(pow(red,2) + pow(grn, 2) + pow(blu, 2));
 }
+
+uint16_t extractredBIG(uint64_t const color) {
+  return (color >> BYTE_4) & FFFF;
+}
+uint16_t extractgreenBIG(uint64_t const color) {
+  return (color >> BYTE_2) & FFFF;
+}
+
+uint16_t extractblueBIG(uint64_t const color) {
+  return color & FFFF;
+}
+
+
+
 
 
 double get_distance(__uint32_t item_1, __uint32_t item_2) {

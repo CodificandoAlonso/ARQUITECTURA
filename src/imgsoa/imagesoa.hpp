@@ -74,6 +74,10 @@ class ImageSOA : public Image {
         cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
                                   unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                   int & num_left) const;
+    deque<pair<__uint64_t, __uint16_t>>
+        cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
+                                unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                int & num_left) const;
     static void cf_finish_graph(
       unordered_map<__uint32_t, __uint16_t> myMap,
       unordered_map<__uint32_t, __uint32_t> & Deleteitems,
@@ -87,7 +91,7 @@ class ImageSOA : public Image {
     soa_rgb_small read_image_rgb_small(ifstream & input_file) const;
     soa_rgb_big read_image_rgb_big(ifstream & input_file) const;
     soa_rgb_small soa_small;
-    soa_rgb_small soa_big;
+    soa_rgb_big soa_big;
     vector<__uint32_t> nod;
 
     friend class ImageSOATest_CompressOperation_Test;

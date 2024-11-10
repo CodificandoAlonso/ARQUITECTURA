@@ -376,12 +376,9 @@ unordered_map<__uint64_t, __uint16_t> ImageSOA::load_and_map_8BIG(int width, ifs
     } else {
       myMap[{rgb}] = 1;
     }
-    cout << "PORRO";
-    /*
     this->soa_big.r.push_back(red);
     this->soa_big.g.push_back(grn);
     this->soa_big.b.push_back(blu);
-    */
   }
   return myMap;
 }
@@ -578,8 +575,7 @@ __uint32_t ImageSOA::cf_find_closest_in_neighbors(
     auto iter = graph.find(neighbor);
     if(visited_node.contains(neighbor)){continue;}
     for (__uint32_t const candidate : iter->second.second) {
-      double const distance = get_distance(color_to_delete, candidate);
-      if (distance <= min_distance) {
+      if (double const distance = get_distance(color_to_delete, candidate);distance <= min_distance) {
         min_distance = distance;
         closest_color = candidate;
         found_closest = true;}}
@@ -602,11 +598,49 @@ deque<pair<__uint32_t, __uint16_t>>
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
   });
-
-  unordered_map<__uint32_t, size_t> color_to_index;
-  auto sorted_colors = sort_and_map_keys(myMap, color_to_index);
   // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
   vector<pair<__uint32_t, __uint16_t>> VectorDelete;
+  size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+
+  // Añado al vector delete el numero de elementos que pide
+  for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
+  size_t tamDelete = elems_to_delete;
+
+  // Mientras el siguiente al ultimo guardado tenga el mismo value, se añadira tmb
+  while (myVector[tamDelete].second == VectorDelete[elems_to_delete - 1].second) {
+    VectorDelete.emplace_back(myVector[tamDelete]);
+    tamDelete++;
+  }
+
+  int const pivot  = VectorDelete[elems_to_delete - 1].second;
+  int elem_deleted = 0;
+  for (auto & [fst, snd] : VectorDelete) {
+    if (snd < pivot) {
+      Deleteitems[{fst}] = 0;
+      elem_deleted++;
+    }
+  }
+
+  int const new_n    = static_cast<int>(elems_to_delete);
+  num_left           = new_n - elem_deleted;
+  auto const new_e_d = static_cast<long int>(elem_deleted);  // elem_deleted
+
+  deque const left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
+  return left_elems;
+}
+
+
+deque<pair<__uint64_t, __uint16_t>>
+    ImageSOA::cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
+                                        unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                        int & num_left) const {
+  vector<pair<__uint64_t, __uint16_t>> myVector(myMapBIG.begin(), myMapBIG.end());
+  ranges::sort(myVector, [](auto const & op1, auto const & op2) {
+    return op1.second < op2.second;
+  });
+
+  // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
+  vector<pair<__uint64_t, __uint16_t>> VectorDelete;
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
@@ -679,7 +713,9 @@ void ImageSOA::write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) 
     write_binary_8(output_file, blu);
   }
 
-  output_file.close();}void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
+  output_file.close();}
+
+void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
   // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
   int num_left = 0;
@@ -743,9 +779,8 @@ int ImageSOA::cutfreq() {
   int const height = this->get_height();
   int const maxval = this->get_maxval();
   // ofstream output_file(this->get_output_file(), ios::binary);
-  unordered_map<__uint32_t, __uint16_t> myMap;
-  unordered_map<__uint64_t, __uint16_t> myMapBIG;
   if (maxval == MIN_LEVEL) {
+    unordered_map<__uint32_t, __uint16_t> myMap;
     myMap                        = cf_load_and_map_8(width, move(input_file), height);
     size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMap.size()) {
@@ -757,11 +792,21 @@ int ImageSOA::cutfreq() {
     cutfreq_min(myMap);
     cout << "Pinga";
   } else {
+    unordered_map<__uint64_t, __uint16_t> myMapBIG;
     myMapBIG = load_and_map_8BIG(width, move(input_file), height);
+    size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+    if (elems_to_delete >= myMapBIG.size()) {
+      cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "
+              "pixeles unicos"
+           << "\n";
+      return -1;
+    }
     cutfreq_max(myMapBIG);
   }
   return 0;
 }
+
+
 
 void ImageSOA::cp_export(ofstream & output_file,
                          unordered_map<unsigned int, unsigned int> const & color_map,
