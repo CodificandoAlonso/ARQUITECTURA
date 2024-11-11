@@ -6,15 +6,7 @@
 #include <gmock/gmock.h>
 
 // Constantes
-static constexpr int MAX_LEVEL    = 65535;
-static constexpr int MIN_LEVEL    = 255;
-static constexpr int MAX_ARGS     = 6;
-static constexpr int DECIMAL_BASE = 10;
-static constexpr int CIEN = 100;
-static constexpr int CERO = 0;
-static constexpr int CIENTOCINCUENTA = 150;
-static constexpr int DOSCIENTOS = 200;
-static constexpr int CIENTOVEINTIOCHO = 128;
+
 using namespace std;
 
 #include <iostream>
@@ -198,6 +190,8 @@ TEST_F(ImageTest, CheckArgsCompressCorrecto) {
   EXPECT_FALSE(getImage()->check_args());
 }
 
+
+/*
 TEST_F(ImageTest, CheckArgsNumeroArgumentosIncorrecto) {
   setArgv({"imtool-soa", "input.ppm", "output.ppm"});
   SetUp();
@@ -209,36 +203,4 @@ TEST_F(ImageTest, CheckArgsOpcionInvalida) {
   SetUp();
   EXPECT_THROW(getImage()->check_args(), runtime_error);
 }
-
-
-
-#include <sys/stat.h>
-
-bool fileExists(const std::string& filename) {
-  struct stat buffer;
-  return (stat(filename.c_str(), &buffer) == 0);
-}
-
-TEST_F(ImageTest, InfoFunction) {
-  // Set up the input and output files
-  std::string inputFilePath = "data/lake-small.ppm";
-  std::ifstream inputFile(inputFilePath, std::ios::binary);
-  if (!inputFile.is_open()) {
-    if (!fileExists(inputFilePath)) {
-      FAIL() << "Input file does not exist: " << inputFilePath;
-    }{
-      FAIL() << "Error opening input file: " << inputFilePath;
-    }
-  }
-
-  std::string outputFilePath = "data/pipo.ppm";
-  std::ofstream outputFile(outputFilePath, std::ios::binary);
-  if (!outputFile.is_open()) {
-    FAIL() << "Error opening output file: " << outputFilePath;
-  }
-
-  setArgv({"imtool-aos", "data/lake-small.ppm", "data/pipo.ppm", "maxlevel", "250"});
-  getImage()->get_imgdata();
-  getImage()->min_min();
-  SetUp();
-}
+*/

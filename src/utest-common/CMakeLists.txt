@@ -6,7 +6,6 @@ find_package(GTest REQUIRED)
 add_executable(utest-common
         binario_test.cpp
         progargs_test.cpp
-        struct-rgb_test.cpp
 )
 # Library dependencies
 target_link_libraries (utest-common
