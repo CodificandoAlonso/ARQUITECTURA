@@ -648,7 +648,6 @@ void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
   params_same_vector_small const params = {.father_vector = left_elems, .value = 1,
     .counter = left_elems.size() };
   auto bluevalues = cf_same_bgr_vector(params);
-
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
   unordered_map<__uint32_t, __uint32_t> toSave;
