@@ -24,11 +24,9 @@
 #include <utility>
 #include <vector>
 
-static constexpr double calc_index = 10;
 static constexpr int MAX_LEVEL     = 65535;
 static constexpr int MIN_LEVEL     = 255;
 static constexpr int BYTE          = 8;
-static constexpr size_t CIEN       = 20000;
 static constexpr int POCO = 75;
 static constexpr int MEDIO = 150;
 static constexpr int ALTO = 240;
@@ -647,7 +645,9 @@ void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
   int num_left = 0;
   auto left_elems= cf_check_first_part_small(myMap, Deleteitems, num_left);
-  auto bluevalues = cf_same_bgr_vector(left_elems, 1, left_elems.size());
+  params_same_vector_small const params = {.father_vector = left_elems, .value = 1,
+    .counter = left_elems.size() };
+  auto bluevalues = cf_same_bgr_vector(params);
 
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
@@ -665,25 +665,22 @@ void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
     if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
 }
     visited[entry.second] = 0;
-
     // Primero, verificar la distancia en el nodo principal
     //bool found_in_main_node = false;
     for (__uint32_t const candidate : node_it->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
-        entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
-        //found_in_main_node = true;
-      }
-    }
-    __uint32_t const replacement_color = cf_find_closest_in_neighbors(color_to_delete, graph, node_it->second.first, min_distance, visited);
-    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
-    if (replacement_color != 0) {
-      entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
-    }}
+        entry.second = candidate;}}
+    cf_find_neigh_small const params = {.color_to_delete=color_to_delete,.graph=&graph,
+      .neighbors=&node_it->second.first,
+      .min_distance=&min_distance,
+      .visited_node=&visited};
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params);
+    // Si encontramos un reemplazo adecuado, guardarlo en Deleteitems
+    if (replacement_color != 0) {entry.second = replacement_color; }}
   cf_write_in_exit(Deleteitems);
-  }
-
+}
 
 
 void ImageSOA::cutfreq_max(const unordered_map<__uint64_t, __uint16_t>& myMapBIG) {
@@ -716,11 +713,11 @@ void ImageSOA::cutfreq_max(const unordered_map<__uint64_t, __uint16_t>& myMapBIG
       double const distance = get_distance_BIG(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
-        entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
-        //found_in_main_node = true;
-      }
-    }
-    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(color_to_delete, graph, node_it->second.first, min_distance, visited);
+        entry.second = candidate; }}
+    cf_find_neigh_BIG const params = {.color_to_delete=color_to_delete,.graph=&graph,.neighbors=&node_it->second.first,
+      .min_distance=&min_distance,
+      .visited_node=&visited};
+    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(&params);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) {
       entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems

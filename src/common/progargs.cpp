@@ -19,6 +19,9 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <vector>
+#include <stack>
+#include <limits>
+
 // Constantes
 static constexpr int MAX_LEVEL    = 65535;
 static constexpr int MIN_LEVEL    = 255;
@@ -155,7 +158,7 @@ int Image::check_args() {
  */
 int Image::info() const {
   /*
-   * Función común a ImageAOS e ImageSOA para leer los metadatos de la imagen de entrada .ppm.
+   * Función común a ImageAOS e ImageSOA para leer los metadatos de la imagen de entrada ppm
    */
   cout << "Reading metadata from file " << input_file << '\n';
 
@@ -386,20 +389,26 @@ int Image::maxlevel() {
 
 
 
-deque<pair<__uint32_t, __uint16_t>>
-    Image::cf_same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int const value,
-                              size_t const counter) {
+deque<pair<__uint32_t, __uint16_t>> Image::cf_same_bgr_vector(params_same_vector_small params) {
   // Value será 1 para blue, 2 para green y 3 para red
   deque<pair<__uint32_t, __uint16_t>> color_vector;
   __uint8_t color = 0;
-  for (size_t i = 0; i < counter; i++) {
-    if (value == 1) { color = extractblue(father_vector[i].first); }
-    if (value == 2) { color = extractgreen(father_vector[i].first); }
-    if (value == 3) { color = extractred(father_vector[i].first); }
-    color_vector.emplace_back(father_vector[i].first, color);
+
+  // Usamos `params.counter` y `params.value` para acceder a los valores originales
+  for (size_t i = 0; i < params.counter; i++) {
+    // Accedemos a `father_vector` como copia local en `params`
+    if (params.value == 1) {
+      color = extractblue(params.father_vector[i].first);
+    } else if (params.value == 2) {
+      color = extractgreen(params.father_vector[i].first);
+    } else if (params.value == 3) {
+      color = extractred(params.father_vector[i].first);
+    }
+    color_vector.emplace_back(params.father_vector[i].first, color);
   }
-  ranges::sort(color_vector, [](auto const & op1, auto const & op2) {
-    return op1.second > op2.second;
+  // Ordenamos el color_vector por el segundo elemento del par en orden descendente
+  ranges::sort(color_vector, [](auto const &op1, auto const &op2) {
+      return op1.second > op2.second;
   });
   return color_vector;
 }
@@ -428,11 +437,11 @@ deque<pair<__uint64_t, __uint16_t>>
 int Image::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                deque<pair<__uint32_t, __uint16_t>> & bluevalues) {
-  size_t my_index = 0;
   // 1 para azul, 0 para verde
   size_t meanwhile = 0;
   while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
   if (meanwhile == 1) {
+    size_t my_index = 0;
     __uint8_t value0 = 0;
     __uint8_t value1 = 0;
     if (color == 1) {
@@ -460,11 +469,11 @@ int Image::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vecto
 int Image::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector, int const color,
                                unordered_map<__uint64_t, __uint64_t> & Deleteitems,
                                deque<pair<__uint64_t, __uint16_t>> & bluevalues) {
-  size_t my_index = 0;
   // 1 para azul, 0 para verde
   size_t meanwhile = 0;
   while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
   if (meanwhile == 1) {
+    size_t my_index = 0;
     __uint16_t value0 = 0;
     __uint16_t value1 = 0;
     if (color == 1) {
@@ -539,11 +548,11 @@ unordered_map<__uint32_t, __uint32_t>
               bluevalues.pop_front();
               num_left--;}
           } else {
-            auto greenvalues = cf_same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
+            auto greenvalues = cf_same_bgr_vector(TODO);
             if (greenvalues[0].second == greenvalues[1].second) {
               my_meanwhile = cf_check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
               if (my_meanwhile > 0) {
-                auto redvalues = cf_same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
+                auto redvalues = cf_same_bgr_vector(TODO);
                 Deleteitems[{redvalues[0].first}] = 0;
                 my_index                          = cf_search_in_blue(bluevalues, redvalues[0].first);
                 cf_delete_from_deque(bluevalues, my_index);
@@ -611,59 +620,77 @@ unordered_map<__uint64_t, __uint64_t>
   return Deleteitems;
 }
 
-
-
-
-
 //NOLINTBEGIN(misc-no-recursion)
-__uint32_t Image::cf_find_closest_in_neighbors(
-    __uint32_t color_to_delete,const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> &graph,
-    const vector<__uint32_t> &neighbors,
-    double &min_distance, unordered_map<__uint32_t, __uint8_t> &visited_node) {
-  __uint32_t closest_color = 0;
-  bool found_closest = false;
-  for (__uint32_t const neighbor : neighbors) {
-    auto iter = graph.find(neighbor);
-    if(visited_node.contains(neighbor)){continue;}
-    for (__uint32_t const candidate : iter->second.second) {
-      if (double const distance = get_distance(color_to_delete, candidate);distance <= min_distance) {
-        min_distance = distance;
-        closest_color = candidate;
-        found_closest = true;}}
-    visited_node[neighbor] = 0;}
-  if (found_closest) {return closest_color;}
-  if (min_distance ==MAX_DIST) {
-    for (__uint32_t const neighbor : neighbors) {
-      auto iter = graph.find(neighbor);
-      closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance,visited_node);
-      if (closest_color != 0) { return closest_color;}}}
-  return 0;
+__uint32_t Image::cf_find_closest_in_neighbors(const cf_find_neigh_small *params) {
+    __uint32_t closest_color = 0;
+    bool found_closest = false;
+    // Recorrer los vecinos
+    for (__uint32_t const neighbor : *params->neighbors) {
+        // Saltar si el vecino ya fue visitado
+        if (params->visited_node->contains(neighbor)) { continue;}
+        // Buscar el vecino en el grafo
+        auto iter = params->graph->find(neighbor);
+        // Evaluar candidatos del vecino actual
+        for (__uint32_t const candidate : iter->second.second) {
+            double const distance = get_distance(params->color_to_delete, candidate);
+            if (distance <= *params->min_distance) {
+                *params->min_distance = distance;
+                closest_color = candidate;
+                found_closest = true;}}
+        // Marcar el vecino actual como visitado
+        (*params->visited_node)[neighbor] = 0;}
+    // Si se encontró un color cercano, se devuelve el más cercano
+    if (found_closest) {return closest_color;}
+    // Si no se encontró un color cercano y aún hay vecinos por explorar, se usa recursión
+    if (*params->min_distance == std::numeric_limits<double>::max()) {
+        for (__uint32_t const neighbor : *params->neighbors) {
+            auto iter = params->graph->find(neighbor);
+            if (iter == params->graph->end()) { continue;}
+            // Crear un nuevo conjunto de vecinos para la llamada recursiva
+            cf_find_neigh_small const next_params = {.color_to_delete=params->color_to_delete,.graph=params->graph,
+                .neighbors=&iter->second.first,  // Nuevos vecinos para la llamada recursiva
+                .min_distance=params->min_distance,
+                .visited_node=params->visited_node};
+            // Llamada recursiva con los vecinos del vecino actual
+            closest_color = cf_find_closest_in_neighbors(&next_params);
+            if (closest_color != 0) {return closest_color;}}}
+    return 0;
 }
-//NOLINTEND(misc-no-recursion)
 
-//NOLINTBEGIN(misc-no-recursion)
-__uint64_t Image::cf_find_closest_in_neighbors_BIG(
-    __uint64_t color_to_delete,const unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> &graph,
-    const vector<__uint64_t> &neighbors,
-    double &min_distance, unordered_map<__uint64_t, __uint8_t> &visited_node) {
-  __uint64_t closest_color = 0;
-  bool found_closest = false;
-  for (__uint64_t const neighbor : neighbors) {
-    auto iter = graph.find(neighbor);
-    if(visited_node.contains(neighbor)){continue;}
-    for (__uint64_t const candidate : iter->second.second) {
-      if (double const distance = get_distance_BIG(color_to_delete, candidate);distance <= min_distance) {
-        min_distance = distance;
-        closest_color = candidate;
-        found_closest = true;}}
-    visited_node[neighbor] = 0;}
-  if (found_closest) {return closest_color;}
-  if (min_distance ==MAX_DIST) {
-    for (__uint64_t const neighbor : neighbors) {
-      auto iter = graph.find(neighbor);
-      closest_color = cf_find_closest_in_neighbors_BIG(color_to_delete, graph, iter->second.first, min_distance,visited_node);
-      if (closest_color != 0) { return closest_color;}}}
-  return 0;
+
+__uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const *params) {
+    __uint64_t closest_color = 0;
+    bool found_closest = false;
+    // Recorrer los vecinos
+    for (__uint64_t const neighbor : *params->neighbors) {
+        if (params->visited_node->contains(neighbor)) { continue;}
+        // Buscar el vecino en el grafo
+        auto iter = params->graph->find(neighbor);
+        // Evaluar candidatos del vecino actual
+        for (__uint64_t const candidate : iter->second.second) {
+            double const distance = get_distance_BIG(params->color_to_delete, candidate);
+            if (distance <= *params->min_distance) {
+                *params->min_distance = distance;
+                closest_color = candidate;
+                found_closest = true;}}
+        // Marcar el vecino actual como visitado
+        (*params->visited_node)[neighbor] = 0;}
+    // Si se encontró un color cercano, se devuelve el más cercano
+    if (found_closest) {return closest_color;}
+    // Si no se encontró un color cercano y aún hay vecinos por explorar, se usa recursión
+    if (*params->min_distance == MAX_DIST) {
+        for (__uint64_t const neighbor : *params->neighbors) {
+            auto iter = params->graph->find(neighbor);
+
+            // Crear un nuevo conjunto de vecinos para la llamada recursiva
+    cf_find_neigh_BIG const next_params = {.color_to_delete=params->color_to_delete,.graph=params->graph,.neighbors=&iter->second.first,
+                .min_distance=params->min_distance,
+                .visited_node=params->visited_node
+            };
+            // Llamada recursiva con los vecinos del vecino actual
+            closest_color = cf_find_closest_in_neighbors_BIG(&next_params);
+            if (closest_color != 0) {return closest_color;}}}
+    return 0;
 }
 //NOLINTEND(misc-no-recursion)
 
