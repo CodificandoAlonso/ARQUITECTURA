@@ -4,10 +4,10 @@
 
 class ImageSOATest : public ::testing::Test {
 protected:
-    ImageSOA *imageSOA;
+    ImageSOA * imageSOA = nullptr;
 
     void SetUp() override {
-        std::vector<std::string> args = {"imtool-soa", "/home/jadmin/CLionProjects/ARQUITECTURA/src/data/outputs/maxlevel/deer-small-255.ppm", "/home/jadmin/CLionProjects/ARQUITECTURA/src/data/outputs/maxlevel/deer-small-255.cppm", "compress"};
+        std::vector<std::string> args = { "/home/hector/CLionProjects/ARQUITECTURA/src/data/export/cuasimodo.ppm", "/home/hector/CLionProjects/ARQUITECTURA/src/data/export/peneee.cppm", "compress"};
         imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
     }
 
