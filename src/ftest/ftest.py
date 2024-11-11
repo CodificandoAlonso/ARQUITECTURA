@@ -239,15 +239,26 @@ class TestImtoolAOS(unittest.TestCase):
         subprocess.run(f'./recover ./expected/compress/deer-small.cppm', shell=True)
 
         # comparamos las imágenes recuperadas con la original
-        self.check_images("out_aos.ppm", "./input/deer-small.ppm")
-        self.check_images("out_soa.ppm", "./input/deer-small.ppm")
+        self.check_images("out_aos.ppm", "./expected/compress/deer-small.ppm")
+        self.check_images("out_soa.ppm", "./expected/compress/deer-small.ppm")
 
+    def test_compress_ok2(self):
+        result_aos = subprocess.run(f'{exe_imtoolaos} ./input/lake-small.ppm out_aos.cppm compress', shell=True, capture_output=True)
+        result_soa = subprocess.run(f'{exe_imtoolsoa} ./input/lake-small.ppm out_soa.cppm compress', shell=True, capture_output=True)
+        self.assertEqual(result_aos.returncode, 0)
+        self.assertEqual(result_soa.returncode, 0)
 
+        # recuperamos las imágenes comprimidas y la original
+        subprocess.run(f'./recover out_aos.cppm', shell=True)
+        subprocess.run(f'./recover out_soa.cppm', shell=True)
+        subprocess.run(f'./recover ./expected/compress/lake-small.cppm', shell=True)
+
+        # comparamos las imágenes recuperadas con la original
+        self.check_images("out_aos.ppm", "./expected/compress/lake-small.ppm")
+        self.check_images("out_soa.ppm", "./expected/compress/lake-small.ppm")
 
 
 if __name__ == "__main__":
     # Compilamos la herramienta recover
     subprocess.run("g++ recover.cpp -o recover", shell=True)
     unittest.main()
-    subprocess.run("rm *.ppm", shell=True)
-    subprocess.run("rm *.cppm", shell=True)
