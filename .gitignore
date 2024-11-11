@@ -2,4 +2,5 @@
 src/cmake-build-debug
 src/cmake-build-release
 *.ppm
+*.cppm
 venv

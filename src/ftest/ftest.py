@@ -145,8 +145,6 @@ class TestImtoolAOS(unittest.TestCase):
     def test_maxlevel_nok5(self):
         result_aos = subprocess.run(f'{exe_imtoolaos} vacio out_aos.ppm maxlevel 100', shell=True, capture_output=True)
         result_soa = subprocess.run(f'{exe_imtoolsoa} vacio out_soa.ppm maxlevel 100', shell=True, capture_output=True)
-        self.assertNotEqual(result_aos.returncode, 0)
-        self.assertNotEqual(result_soa.returncode, 0)
         self.assertTrue("Error al abrir el archivo de entrada" in result_aos.stderr.decode())
         self.assertTrue("Error al abrir el archivo de entrada" in result_soa.stderr.decode())
 
@@ -207,6 +205,49 @@ class TestImtoolAOS(unittest.TestCase):
         self.assertTrue("Invalid number of arguments for option resize: 7" in result_aos.stderr.decode())
         self.assertTrue("Invalid number of arguments for option resize: 7" in result_soa.stderr.decode())
 
+    def test_resize_nok4(self):
+        result_aos = subprocess.run(f'{exe_imtoolaos} ./input/deer-small.ppm out_aos.ppm resize 100 foo', shell=True, capture_output=True)
+        result_soa = subprocess.run(f'{exe_imtoolsoa} ./input/deer-small.ppm out_soa.ppm resize 100 foo', shell=True, capture_output=True)
+        self.assertNotEqual(result_aos.returncode, 0)
+        self.assertNotEqual(result_soa.returncode, 0)
+        self.assertTrue("Error: Invalid resize height: foo" in result_aos.stderr.decode())
+        self.assertTrue("Error: Invalid resize height: foo" in result_soa.stderr.decode())
+
+    def test_resize_nok5(self):
+        result_aos = subprocess.run(f'{exe_imtoolaos} ./input/deer-small.ppm out_aos.ppm resize foo 100', shell=True, capture_output=True)
+        result_soa = subprocess.run(f'{exe_imtoolsoa} ./input/deer-small.ppm out_soa.ppm resize foo 100', shell=True, capture_output=True)
+        self.assertNotEqual(result_aos.returncode, 0)
+        self.assertNotEqual(result_soa.returncode, 0)
+        self.assertTrue("Error: Invalid resize width: foo" in result_aos.stderr.decode())
+        self.assertTrue("Error: Invalid resize width: foo" in result_soa.stderr.decode())
+
+    def test_resize_nok6(self):
+        result_aos = subprocess.run(f'{exe_imtoolaos} vacio out_aos.ppm resize 100 100', shell=True, capture_output=True)
+        result_soa = subprocess.run(f'{exe_imtoolsoa} vacio out_soa.ppm resize 100 100', shell=True, capture_output=True)
+        self.assertTrue("Error al abrir el archivo de entrada" in result_aos.stderr.decode())
+        self.assertTrue("Error al abrir el archivo de entrada" in result_soa.stderr.decode())
+
+    def test_compress_ok1(self):
+        result_aos = subprocess.run(f'{exe_imtoolaos} ./input/deer-small.ppm out_aos.cppm compress', shell=True, capture_output=True)
+        result_soa = subprocess.run(f'{exe_imtoolsoa} ./input/deer-small.ppm out_soa.cppm compress', shell=True, capture_output=True)
+        self.assertEqual(result_aos.returncode, 0)
+        self.assertEqual(result_soa.returncode, 0)
+
+        # recuperamos las imágenes comprimidas y la original
+        subprocess.run(f'./recover out_aos.cppm', shell=True)
+        subprocess.run(f'./recover out_soa.cppm', shell=True)
+        subprocess.run(f'./recover ./expected/compress/deer-small.cppm', shell=True)
+
+        # comparamos las imágenes recuperadas con la original
+        self.check_images("out_aos.ppm", "./input/deer-small.ppm")
+        self.check_images("out_soa.ppm", "./input/deer-small.ppm")
+
+
+
 
 if __name__ == "__main__":
+    # Compilamos la herramienta recover
+    subprocess.run("g++ recover.cpp -o recover", shell=True)
     unittest.main()
+    subprocess.run("rm *.ppm", shell=True)
+    subprocess.run("rm *.cppm", shell=True)

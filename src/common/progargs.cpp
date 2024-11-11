@@ -363,7 +363,7 @@ void Image::max_max() {
 int Image::maxlevel() {
   get_imgdata();
   if (this->args[0] <= MIN_LEVEL) {  // Imagen de salida 255
-    write_out(MIN_LEVEL);
+    write_out(this->get_args()[0]);
     if (maxval <= MIN_LEVEL) {
       min_min();
     } else if (maxval <= MAX_LEVEL) {  // Imagen de entrada 65535
@@ -373,7 +373,7 @@ int Image::maxlevel() {
       return -1;
     }
   } else if (this->args[0] <= MAX_LEVEL) {  // Imagen de salida 65535.
-    write_out(MAX_LEVEL);
+    write_out(this->get_args()[0]);
     if (maxval <= MIN_LEVEL) {  // Imagen de entrada 255
       min_max();
     } else if (maxval <= MAX_LEVEL) {
