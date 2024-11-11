@@ -546,20 +546,21 @@ unordered_map<__uint32_t, __uint32_t>
             for (size_t iii = 0; iii < iterator; iii++) {
               Deleteitems[bluevalues[0].first] = 0;
               bluevalues.pop_front();
-              num_left--;}
-          } else {
-            auto greenvalues = cf_same_bgr_vector(TODO);
+              num_left--;}} else {
+            params_same_vector_small const params = {.father_vector = bluevalues, .value = 2,
+              .counter = static_cast<size_t>(my_meanwhile) };
+            auto greenvalues = cf_same_bgr_vector(params);
             if (greenvalues[0].second == greenvalues[1].second) {
               my_meanwhile = cf_check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
               if (my_meanwhile > 0) {
-                auto redvalues = cf_same_bgr_vector(TODO);
+                params_same_vector_small const params2 = {.father_vector = bluevalues, .value = 3,
+              .counter = static_cast<size_t>(my_meanwhile) };
+                auto redvalues = cf_same_bgr_vector(params2);
                 Deleteitems[{redvalues[0].first}] = 0;
                 my_index                          = cf_search_in_blue(bluevalues, redvalues[0].first);
                 cf_delete_from_deque(bluevalues, my_index);
-                num_left--;
-              } else {
-                num_left--;}
-            } else {
+                num_left--;} else {
+                num_left--;}} else {
               Deleteitems[{greenvalues[0].first}] = 0;
               my_index                            = cf_search_in_blue(bluevalues, greenvalues[0].first);
               cf_delete_from_deque(bluevalues, my_index);

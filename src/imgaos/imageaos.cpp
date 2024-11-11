@@ -715,8 +715,7 @@ void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) 
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
     if (node_it == graph.end()) {
-      continue;  // Si no se encuentra el nodo, omitir
-    }
+      continue;  }
     visited[entry.second] = 0;
     // Primero, verificar la distancia en el nodo principal
     // bool found_in_main_node = false;
@@ -731,8 +730,7 @@ void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) 
       .visited_node=&visited};
     __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
-    if (replacement_color != 0) {
-      entry.second = replacement_color; }}
+    if (replacement_color != 0) {entry.second = replacement_color; }}
   cf_write_in_exit(Deleteitems);
 }
 
