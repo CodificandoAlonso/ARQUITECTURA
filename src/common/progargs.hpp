@@ -48,10 +48,6 @@
 
       static const unique_ptr<Image>& getImage();
 
-      virtual ifstream openFile(const string& filename) const {
-        return ifstream(filename, ios::in | ios::binary);
-    }
-
     private:
       void min_min();
       void max_min();
