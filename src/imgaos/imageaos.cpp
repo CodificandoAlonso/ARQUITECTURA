@@ -696,9 +696,11 @@ void ImageAOS::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Delete
 void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
   // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
-  int num_left    = 0;
+  int num_left = 0; //despues de la funcion. Numero de colores que quedan por llevar a eliminacion
   auto left_elems = cf_check_first_part_small(myMap, Deleteitems, num_left);
-  auto bluevalues = cf_same_bgr_vector(left_elems, 1, left_elems.size());
+  params_same_vector_small const params = {.father_vector = left_elems, .value = 1,
+  .counter = left_elems.size() };
+  auto bluevalues = cf_same_bgr_vector(params);
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
   unordered_map<__uint32_t, __uint32_t> toSave;
@@ -723,8 +725,11 @@ void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) 
       if (distance < min_distance) {
         min_distance = distance;
         entry.second = candidate;}}
-    __uint32_t const replacement_color = cf_find_closest_in_neighbors(
-        color_to_delete, graph, node_it->second.first, min_distance, visited);
+    cf_find_neigh_small const params = {.color_to_delete=color_to_delete,.graph=&graph,
+      .neighbors=&node_it->second.first,
+      .min_distance=&min_distance,
+      .visited_node=&visited};
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) {
       entry.second = replacement_color; }}
@@ -764,8 +769,11 @@ void ImageAOS::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBI
       if (distance < min_distance) {
         min_distance = distance;
         entry.second = candidate;}}
-    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(
-        color_to_delete, graph, node_it->second.first, min_distance, visited);
+    cf_find_neigh_BIG const params = {.color_to_delete=color_to_delete,.graph=&graph,.neighbors=&node_it->second.first,
+      .min_distance=&min_distance,
+      .visited_node=&visited
+  };
+    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(&params);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) {
       entry.second = replacement_color;}}

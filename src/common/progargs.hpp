@@ -13,6 +13,30 @@
 #include<unordered_map>
   using namespace std;
 
+
+struct cf_find_neigh_small {
+  __uint32_t color_to_delete;
+  const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> *graph;
+  const vector<__uint32_t> *neighbors;
+  double *min_distance;
+  unordered_map<__uint32_t, __uint8_t> *visited_node;
+};
+
+struct cf_find_neigh_BIG {
+  __uint64_t color_to_delete;
+  const unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> *graph;
+  const vector<__uint64_t> *neighbors;
+  double *min_distance;
+  unordered_map<__uint64_t, __uint8_t> *visited_node;
+};
+
+struct params_same_vector_small {
+  deque<pair<__uint32_t, __uint16_t>> father_vector;
+  int  value;
+  size_t counter;
+};
+
+
   class Image {
     public:
       Image(int argc, const std::vector<std::string>& argv);
@@ -51,8 +75,7 @@
       static const unique_ptr<Image>& getImage();
 
 static deque<pair<__uint32_t, __uint16_t>>
-        cf_same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int value,
-                        size_t counter);
+        cf_same_bgr_vector(params_same_vector_small params);
 
     static deque<pair<__uint64_t, __uint16_t>>
         cf_same_bgr_vector_BIG(deque<pair<__uint64_t, __uint16_t>> father_vector, int value,
@@ -84,17 +107,9 @@ static deque<pair<__uint32_t, __uint16_t>>
         cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
                                       int num_left, deque<pair<__uint64_t, __uint16_t>> bluevalues);
 
-    static __uint32_t cf_find_closest_in_neighbors(
-        __uint32_t color_to_delete,
-        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> const & graph,
-        vector<__uint32_t> const & neighbors, double & min_distance,
-        unordered_map<__uint32_t, __uint8_t> & visited_node);
+    static __uint32_t cf_find_closest_in_neighbors(cf_find_neigh_small const * params);
 
-    __uint64_t cf_find_closest_in_neighbors_BIG(
-        __uint64_t color_to_delete,
-        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const & graph,
-        vector<__uint64_t> const & neighbors, double & min_distance,
-        unordered_map<__uint64_t, __uint8_t> & visited_node);
+    static __uint64_t cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * params);
 
     static void cf_finish_graph(
         const unordered_map<__uint32_t, __uint16_t>& myMap,
