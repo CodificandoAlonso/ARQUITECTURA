@@ -107,10 +107,6 @@ class Image {
 
     [[nodiscard]] ofstream get_of_output_file() { return std::move(of_output_file); }
 
-    std::vector<std::string> const & getArgv() const;
-
-    static unique_ptr<Image> const & getImage();
-
     static deque<pair<__uint32_t, __uint16_t>> cf_same_bgr_vector(params_same_vector_small params);
 
     static deque<pair<__uint64_t, __uint16_t>>
@@ -166,7 +162,6 @@ class Image {
     static void cf_finish_graph_BIG(params_finish_graph_BIG const * params);
       const std::vector<std::string>& getArgv() const;
 
-      static const unique_ptr<Image>& getImage();
 
   private:
     void min_min();
