@@ -4,7 +4,6 @@
 
 #include "imagesoa.hpp"
 
-#include "common/AVLTree.hpp"
 #include "common/binario.hpp"
 #include "common/progargs.hpp"
 #include "common/struct-rgb.hpp"
@@ -24,35 +23,35 @@
 #include <utility>
 #include <vector>
 
-static constexpr int MAX_LEVEL     = 65535;
-static constexpr int MIN_LEVEL     = 255;
-static constexpr int BYTE          = 8;
-static constexpr int POCO = 75;
-static constexpr int MEDIO = 150;
-static constexpr int ALTO = 240;
-static constexpr size_t NUEVE = 9;
-static constexpr size_t SEIS = 6;
-static constexpr size_t SIETE = 7;
-static constexpr size_t OCHO = 8;
-static constexpr int MAX_DIST = 100000;
-static constexpr size_t CINCO = 5;
-static constexpr size_t DIEZ = 10;
-static constexpr size_t ONCE = 11;
-static constexpr size_t DOCE = 12;
-static constexpr size_t TRECE = 13;
-static constexpr size_t CATORCE = 14;
-static constexpr size_t QUINCE = 15;
-static constexpr size_t DIECISEIS = 16;
-static constexpr size_t DIECISIETE = 17;
-static constexpr size_t DIECIOCHO = 18;
-static constexpr size_t DIECINUEVE = 19;
-static constexpr size_t VEINTE = 20;
-static constexpr size_t VEINTIUNO = 21;
-static constexpr size_t VEINTIDOS = 22;
-static constexpr size_t VEINTITRES = 23;
+static constexpr int MAX_LEVEL       = 65535;
+static constexpr int MIN_LEVEL       = 255;
+static constexpr int BYTE            = 8;
+static constexpr int POCO            = 75;
+static constexpr int MEDIO           = 150;
+static constexpr int ALTO            = 240;
+static constexpr size_t NUEVE        = 9;
+static constexpr size_t SEIS         = 6;
+static constexpr size_t SIETE        = 7;
+static constexpr size_t OCHO         = 8;
+static constexpr int MAX_DIST        = 100000;
+static constexpr size_t CINCO        = 5;
+static constexpr size_t DIEZ         = 10;
+static constexpr size_t ONCE         = 11;
+static constexpr size_t DOCE         = 12;
+static constexpr size_t TRECE        = 13;
+static constexpr size_t CATORCE      = 14;
+static constexpr size_t QUINCE       = 15;
+static constexpr size_t DIECISEIS    = 16;
+static constexpr size_t DIECISIETE   = 17;
+static constexpr size_t DIECIOCHO    = 18;
+static constexpr size_t DIECINUEVE   = 19;
+static constexpr size_t VEINTE       = 20;
+static constexpr size_t VEINTIUNO    = 21;
+static constexpr size_t VEINTIDOS    = 22;
+static constexpr size_t VEINTITRES   = 23;
 static constexpr size_t VEINTICUATRO = 24;
-static constexpr size_t VEINTICINCO = 25;
-static constexpr size_t VEINTISEIS = 26;
+static constexpr size_t VEINTICINCO  = 25;
+static constexpr size_t VEINTISEIS   = 26;
 
 using namespace std;
 
@@ -317,7 +316,7 @@ int ImageSOA::resize() {
 }
 
 unordered_map<__uint32_t, __uint16_t> ImageSOA::cf_load_and_map_8(int width, ifstream input_file,
-                                                               int height) {
+                                                                  int height) {
   unordered_map<__uint32_t, __uint16_t> myMap;
   unsigned char red = 0;
   unsigned char grn = 0;
@@ -338,10 +337,8 @@ unordered_map<__uint32_t, __uint16_t> ImageSOA::cf_load_and_map_8(int width, ifs
   return myMap;
 }
 
-
-
 unordered_map<__uint64_t, __uint16_t> ImageSOA::cf_load_and_map_8BIG(int width, ifstream input_file,
-                                                                  int height) {
+                                                                     int height) {
   unsigned short red = 0;
   unsigned short grn = 0;
   unsigned short blu = 0;
@@ -365,156 +362,360 @@ unordered_map<__uint64_t, __uint16_t> ImageSOA::cf_load_and_map_8BIG(int width, 
   return myMap;
 }
 
-
-
-
 void ImageSOA::cf_add_nodes() {
-    this->nod.push_back( packRGB(POCO, POCO, POCO));
-  this->nod.push_back( packRGB(POCO, POCO, MEDIO));
-  this->nod.push_back( packRGB(POCO, POCO, ALTO));
-  this->nod.push_back( packRGB(POCO, MEDIO, POCO));
- this->nod.push_back( packRGB(POCO, MEDIO, MEDIO));
-  this->nod.push_back( packRGB(POCO, MEDIO, ALTO));
-  this->nod.push_back( packRGB(POCO, ALTO, POCO));
-  this->nod.push_back( packRGB(POCO, ALTO, MEDIO));
-  this->nod.push_back( packRGB(POCO, ALTO, ALTO));
+  this->nod.push_back(packRGB(POCO, POCO, POCO));
+  this->nod.push_back(packRGB(POCO, POCO, MEDIO));
+  this->nod.push_back(packRGB(POCO, POCO, ALTO));
+  this->nod.push_back(packRGB(POCO, MEDIO, POCO));
+  this->nod.push_back(packRGB(POCO, MEDIO, MEDIO));
+  this->nod.push_back(packRGB(POCO, MEDIO, ALTO));
+  this->nod.push_back(packRGB(POCO, ALTO, POCO));
+  this->nod.push_back(packRGB(POCO, ALTO, MEDIO));
+  this->nod.push_back(packRGB(POCO, ALTO, ALTO));
 
-  this->nod.push_back( packRGB(MEDIO, POCO, POCO));
-  this->nod.push_back( packRGB(MEDIO, POCO, MEDIO));
-  this->nod.push_back( packRGB(MEDIO, POCO, ALTO));
-  this->nod.push_back( packRGB(MEDIO, MEDIO, POCO));
-  this->nod.push_back( packRGB(MEDIO, MEDIO, MEDIO));
-  this->nod.push_back(   packRGB(MEDIO, MEDIO, ALTO));
-  this->nod.push_back( packRGB(MEDIO, ALTO, POCO));
-  this->nod.push_back( packRGB(MEDIO, ALTO, MEDIO));
-  this->nod.push_back( packRGB(MEDIO, ALTO, ALTO));
+  this->nod.push_back(packRGB(MEDIO, POCO, POCO));
+  this->nod.push_back(packRGB(MEDIO, POCO, MEDIO));
+  this->nod.push_back(packRGB(MEDIO, POCO, ALTO));
+  this->nod.push_back(packRGB(MEDIO, MEDIO, POCO));
+  this->nod.push_back(packRGB(MEDIO, MEDIO, MEDIO));
+  this->nod.push_back(packRGB(MEDIO, MEDIO, ALTO));
+  this->nod.push_back(packRGB(MEDIO, ALTO, POCO));
+  this->nod.push_back(packRGB(MEDIO, ALTO, MEDIO));
+  this->nod.push_back(packRGB(MEDIO, ALTO, ALTO));
 
-  this->nod.push_back( packRGB(ALTO, POCO, POCO));
-  this->nod.push_back( packRGB(ALTO, POCO, MEDIO));
-  this->nod.push_back( packRGB(ALTO, POCO, ALTO));
-  this->nod.push_back( packRGB(ALTO, MEDIO, POCO));
-  this->nod.push_back( packRGB(ALTO, MEDIO, MEDIO));
-  this->nod.push_back( packRGB(ALTO, MEDIO, ALTO));
-  this->nod.push_back( packRGB(ALTO, ALTO, POCO));
-  this->nod.push_back( packRGB(ALTO, ALTO, MEDIO));
-  this->nod.push_back( packRGB(ALTO, ALTO, ALTO));
+  this->nod.push_back(packRGB(ALTO, POCO, POCO));
+  this->nod.push_back(packRGB(ALTO, POCO, MEDIO));
+  this->nod.push_back(packRGB(ALTO, POCO, ALTO));
+  this->nod.push_back(packRGB(ALTO, MEDIO, POCO));
+  this->nod.push_back(packRGB(ALTO, MEDIO, MEDIO));
+  this->nod.push_back(packRGB(ALTO, MEDIO, ALTO));
+  this->nod.push_back(packRGB(ALTO, ALTO, POCO));
+  this->nod.push_back(packRGB(ALTO, ALTO, MEDIO));
+  this->nod.push_back(packRGB(ALTO, ALTO, ALTO));
 }
-
-
 
 void ImageSOA::cf_add_nodes_BIG(__uint16_t const POCOBIG, __uint16_t const MEDIOBIG,
-                             __uint16_t const ALTOBIG) {
-  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, ALTOBIG));
+                                __uint16_t const ALTOBIG) {
+  this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, ALTOBIG, ALTOBIG));
 
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, ALTOBIG, ALTOBIG));
 
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, ALTOBIG));
 }
 
-
-
-
-
-unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageSOA::cf_generate_graph() {
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>graph;
-    cf_add_nodes();
-   graph[this->nod[0]] = {{this->nod[1], this->nod[3], this->nod[NUEVE]}, {}}; // PPP
-    graph[this->nod[1]] = {{this->nod[0], this->nod[2], this->nod[4], this->nod[DIEZ]}, {}}; // PPM
-    graph[this->nod[2]] = {{this->nod[1], this->nod[CINCO], this->nod[ONCE]}, {}}; // PPA
-    graph[this->nod[3]] = {{this->nod[0], this->nod[4], this->nod[SEIS], this->nod[DOCE]}, {}}; // PMP
-    graph[this->nod[4]] = {{this->nod[1], this->nod[3], this->nod[CINCO], this->nod[SIETE], this->nod[TRECE]}, {}}; // PMM
-    graph[this->nod[CINCO]] = {{this->nod[2], this->nod[4], this->nod[OCHO], this->nod[CATORCE]}, {}}; // PMA
-    graph[this->nod[SEIS]] = {{this->nod[3], this->nod[SIETE], this->nod[QUINCE]}, {}}; // PAP
-    graph[this->nod[SIETE]] = {{this->nod[4], this->nod[SEIS], this->nod[OCHO], this->nod[DIECISEIS]}, {}}; // PAM
-    graph[this->nod[OCHO]] = {{this->nod[CINCO], this->nod[SIETE], this->nod[DIECISIETE]}, {}}; // PAA
-
-    graph[this->nod[NUEVE]] = {{this->nod[0], this->nod[DIEZ], this->nod[DOCE], this->nod[DIECIOCHO]}, {}}; // MPP
-    graph[this->nod[DIEZ]] = {{this->nod[1], this->nod[NUEVE], this->nod[ONCE], this->nod[TRECE], this->nod[DIECINUEVE]}, {}}; // MPM
-    graph[this->nod[ONCE]] = {{this->nod[2], this->nod[DIEZ], this->nod[CATORCE], this->nod[VEINTE]}, {}}; // MPA
-    graph[this->nod[DOCE]] = {{this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO]}, {}}; // MMP
-    graph[this->nod[TRECE]] = {{this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[CATORCE], this->nod[DIECISEIS], this->nod[VEINTIDOS]}, {}}; // MMM
-    graph[this->nod[CATORCE]] = {{this->nod[CINCO], this->nod[ONCE], this->nod[TRECE], this->nod[DIECISIETE], this->nod[VEINTITRES]}, {}}; // MMA
-    graph[this->nod[QUINCE]] = {{this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[DIECIOCHO], this->nod[VEINTICUATRO]}, {}}; // MAP
-    graph[this->nod[DIECISEIS]] = {{this->nod[SIETE], this->nod[TRECE], this->nod[QUINCE], this->nod[DIECISIETE], this->nod[VEINTICINCO]}, {}}; // MAM
-    graph[this->nod[DIECISIETE]] = {{this->nod[OCHO], this->nod[CATORCE], this->nod[DIECISEIS], this->nod[VEINTISEIS]}, {}}; // MAA
-
-    graph[this->nod[DIECIOCHO]] = {{this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE]}, {}}; // APP
-    graph[this->nod[DIECINUEVE]] = {{this->nod[DIEZ], this->nod[DIECIOCHO], this->nod[VEINTE], this->nod[VEINTIDOS]}, {}}; // APM
-    graph[this->nod[VEINTE]] = {{this->nod[ONCE], this->nod[DIECINUEVE], this->nod[VEINTITRES]}, {}}; // APA
-    graph[this->nod[VEINTIUNO]] = {{this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO]}, {}}; // AMP
-    graph[this->nod[VEINTIDOS]] = {{this->nod[TRECE], this->nod[DIECINUEVE], this->nod[VEINTIUNO], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AMM
-    graph[this->nod[VEINTITRES]] = {{this->nod[CATORCE], this->nod[VEINTE], this->nod[VEINTIDOS], this->nod[VEINTISEIS]}, {}}; // AMA
-    graph[this->nod[VEINTICUATRO]] = {{this->nod[QUINCE], this->nod[VEINTIUNO], this->nod[VEINTICINCO]}, {}}; // AAP
-    graph[this->nod[VEINTICINCO]] = {{this->nod[DIECISEIS], this->nod[VEINTIDOS], this->nod[VEINTICUATRO], this->nod[VEINTISEIS]}, {}}; // AAM
-    graph[this->nod[VEINTISEIS]] = {{this->nod[DIECISIETE], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AAA
-  return graph;
-}
-unordered_map<__uint64_t,pair<vector<__uint64_t>, vector<__uint64_t>>> ImageSOA::cf_generate_graph_BIG() {
-  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>graph;
-    const int maxval = this->get_maxval();
-    auto const newpoco = static_cast<unsigned short>((POCO*maxval)/MAX_LEVEL);
-    auto const newmedio = static_cast<unsigned short>((MEDIO*maxval)/MAX_LEVEL);
-    auto const newalto = static_cast<unsigned short>((ALTO*maxval)/MAX_LEVEL);
-    cf_add_nodes_BIG(newpoco, newmedio, newalto);
-   graph[this->nodBIG[0]] = {{this->nodBIG[1], this->nodBIG[3], this->nodBIG[NUEVE]}, {}}; // PPP
-    graph[this->nodBIG[1]] = {{this->nodBIG[0], this->nodBIG[2], this->nodBIG[4], this->nodBIG[DIEZ]}, {}}; // PPM
-    graph[this->nodBIG[2]] = {{this->nodBIG[1], this->nodBIG[CINCO], this->nodBIG[ONCE]}, {}}; // PPA
-    graph[this->nodBIG[3]] = {{this->nodBIG[0], this->nodBIG[4], this->nodBIG[SEIS], this->nodBIG[DOCE]}, {}}; // PMP
-    graph[this->nodBIG[4]] = {{this->nodBIG[1], this->nodBIG[3], this->nodBIG[CINCO], this->nodBIG[SIETE], this->nodBIG[TRECE]}, {}}; // PMM
-    graph[this->nodBIG[CINCO]] = {{this->nodBIG[2], this->nodBIG[4], this->nodBIG[OCHO], this->nodBIG[CATORCE]}, {}}; // PMA
-    graph[this->nodBIG[SEIS]] = {{this->nodBIG[3], this->nodBIG[SIETE], this->nodBIG[QUINCE]}, {}}; // PAP
-    graph[this->nodBIG[SIETE]] = {{this->nodBIG[4], this->nodBIG[SEIS], this->nodBIG[OCHO], this->nodBIG[DIECISEIS]}, {}}; // PAM
-    graph[this->nodBIG[OCHO]] = {{this->nodBIG[CINCO], this->nodBIG[SIETE], this->nodBIG[DIECISIETE]}, {}}; // PAA
-
-    graph[this->nodBIG[NUEVE]] = {{this->nodBIG[0], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[DIECIOCHO]}, {}}; // MPP
-    graph[this->nodBIG[DIEZ]] = {{this->nodBIG[1], this->nodBIG[NUEVE], this->nodBIG[ONCE], this->nodBIG[TRECE], this->nodBIG[DIECINUEVE]}, {}}; // MPM
-    graph[this->nodBIG[ONCE]] = {{this->nodBIG[2], this->nodBIG[DIEZ], this->nodBIG[CATORCE], this->nodBIG[VEINTE]}, {}}; // MPA
-    graph[this->nodBIG[DOCE]] = {{this->nodBIG[3], this->nodBIG[NUEVE], this->nodBIG[TRECE], this->nodBIG[QUINCE], this->nodBIG[VEINTIUNO]}, {}}; // MMP
-    graph[this->nodBIG[TRECE]] = {{this->nodBIG[4], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[CATORCE], this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS]}, {}}; // MMM
-    graph[this->nodBIG[CATORCE]] = {{this->nodBIG[CINCO], this->nodBIG[ONCE], this->nodBIG[TRECE], this->nodBIG[DIECISIETE], this->nodBIG[VEINTITRES]}, {}}; // MMA
-    graph[this->nodBIG[QUINCE]] = {{this->nodBIG[SEIS], this->nodBIG[DOCE], this->nodBIG[DIECISEIS], this->nodBIG[DIECIOCHO], this->nodBIG[VEINTICUATRO]}, {}}; // MAP
-    graph[this->nodBIG[DIECISEIS]] = {{this->nodBIG[SIETE], this->nodBIG[TRECE], this->nodBIG[QUINCE], this->nodBIG[DIECISIETE], this->nodBIG[VEINTICINCO]}, {}}; // MAM
-    graph[this->nodBIG[DIECISIETE]] = {{this->nodBIG[OCHO], this->nodBIG[CATORCE], this->nodBIG[DIECISEIS], this->nodBIG[VEINTISEIS]}, {}}; // MAA
-
-    graph[this->nodBIG[DIECIOCHO]] = {{this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE]}, {}}; // APP
-    graph[this->nodBIG[DIECINUEVE]] = {{this->nodBIG[DIEZ], this->nodBIG[DIECIOCHO], this->nodBIG[VEINTE], this->nodBIG[VEINTIDOS]}, {}}; // APM
-    graph[this->nodBIG[VEINTE]] = {{this->nodBIG[ONCE], this->nodBIG[DIECINUEVE], this->nodBIG[VEINTITRES]}, {}}; // APA
-    graph[this->nodBIG[VEINTIUNO]] = {{this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO]}, {}}; // AMP
-    graph[this->nodBIG[VEINTIDOS]] = {{this->nodBIG[TRECE], this->nodBIG[DIECINUEVE], this->nodBIG[VEINTIUNO], this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]}, {}}; // AMM
-    graph[this->nodBIG[VEINTITRES]] = {{this->nodBIG[CATORCE], this->nodBIG[VEINTE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTISEIS]}, {}}; // AMA
-    graph[this->nodBIG[VEINTICUATRO]] = {{this->nodBIG[QUINCE], this->nodBIG[VEINTIUNO], this->nodBIG[VEINTICINCO]}, {}}; // AAP
-    graph[this->nodBIG[VEINTICINCO]] = {{this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO], this->nodBIG[VEINTISEIS]}, {}}; // AAM
-    graph[this->nodBIG[VEINTISEIS]] = {{this->nodBIG[DIECISIETE], this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]}, {}}; // AAA
+unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
+    ImageSOA::cf_generate_graph() {
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph;
+  cf_add_nodes();
+  graph[this->nod[0]] = {
+    {this->nod[1], this->nod[3], this->nod[NUEVE]},
+    {}
+  };  // PPP
+  graph[this->nod[1]] = {
+    {this->nod[0], this->nod[2], this->nod[4], this->nod[DIEZ]},
+    {}
+  };  // PPM
+  graph[this->nod[2]] = {
+    {this->nod[1], this->nod[CINCO], this->nod[ONCE]},
+    {}
+  };  // PPA
+  graph[this->nod[3]] = {
+    {this->nod[0], this->nod[4], this->nod[SEIS], this->nod[DOCE]},
+    {}
+  };  // PMP
+  graph[this->nod[4]] = {
+    {this->nod[1], this->nod[3], this->nod[CINCO], this->nod[SIETE], this->nod[TRECE]},
+    {}
+  };  // PMM
+  graph[this->nod[CINCO]] = {
+    {this->nod[2], this->nod[4], this->nod[OCHO], this->nod[CATORCE]},
+    {}
+  };  // PMA
+  graph[this->nod[SEIS]] = {
+    {this->nod[3], this->nod[SIETE], this->nod[QUINCE]},
+    {}
+  };  // PAP
   return graph;
 }
 
+unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
+    ImageSOA::cf_generate_graph_2(
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph) {
+  graph[this->nod[SIETE]] = {
+    {this->nod[4], this->nod[SEIS], this->nod[OCHO], this->nod[DIECISEIS]},
+    {}
+  };  // PAM
+  graph[this->nod[OCHO]] = {
+    {this->nod[CINCO], this->nod[SIETE], this->nod[DIECISIETE]},
+    {}
+  };  // PAA
 
+  graph[this->nod[NUEVE]] = {
+    {this->nod[0], this->nod[DIEZ], this->nod[DOCE], this->nod[DIECIOCHO]},
+    {}
+  };  // MPP
+  graph[this->nod[DIEZ]] = {
+    {this->nod[1], this->nod[NUEVE], this->nod[ONCE], this->nod[TRECE], this->nod[DIECINUEVE]},
+    {}
+  };  // MPM
+  graph[this->nod[ONCE]] = {
+    {this->nod[2], this->nod[DIEZ], this->nod[CATORCE], this->nod[VEINTE]},
+    {}
+  };  // MPA
+  graph[this->nod[DOCE]] = {
+    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO]},
+    {}
+  };  // MMP
+  graph[this->nod[TRECE]] = {
+    {this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[CATORCE], this->nod[DIECISEIS],
+     this->nod[VEINTIDOS]},
+    {}
+  };  // MMM
+  return graph;
+}
 
+unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
+    ImageSOA::cf_generate_graph_3(
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph) {
+  graph[this->nod[CATORCE]] = {
+    {this->nod[CINCO], this->nod[ONCE], this->nod[TRECE], this->nod[DIECISIETE],
+     this->nod[VEINTITRES]},
+    {}
+  };  // MMA
+  graph[this->nod[QUINCE]] = {
+    {this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[DIECIOCHO],
+     this->nod[VEINTICUATRO]},
+    {}
+  };  // MAP
+  graph[this->nod[DIECISEIS]] = {
+    {this->nod[SIETE], this->nod[TRECE], this->nod[QUINCE], this->nod[DIECISIETE],
+     this->nod[VEINTICINCO]},
+    {}
+  };  // MAM
+  graph[this->nod[DIECISIETE]] = {
+    {this->nod[OCHO], this->nod[CATORCE], this->nod[DIECISEIS], this->nod[VEINTISEIS]},
+    {}
+  };  // MAA
 
+  graph[this->nod[DIECIOCHO]] = {
+    {this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE]},
+    {}
+  };  // APP
+  graph[this->nod[DIECINUEVE]] = {
+    {this->nod[DIEZ], this->nod[DIECIOCHO], this->nod[VEINTE], this->nod[VEINTIDOS]},
+    {}
+  };  // APM
+  graph[this->nod[VEINTE]] = {
+    {this->nod[ONCE], this->nod[DIECINUEVE], this->nod[VEINTITRES]},
+    {}
+  };  // APA
+  graph[this->nod[VEINTIUNO]] = {
+    {this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO]},
+    {}
+  };  // AMP
+  return graph;
+}
+
+unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
+    ImageSOA::cf_generate_graph_4(
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph) {
+  graph[this->nod[VEINTIDOS]] = {
+    {this->nod[TRECE], this->nod[DIECINUEVE], this->nod[VEINTIUNO], this->nod[VEINTITRES],
+     this->nod[VEINTICINCO]},
+    {}
+  };  // AMM
+  graph[this->nod[VEINTITRES]] = {
+    {this->nod[CATORCE], this->nod[VEINTE], this->nod[VEINTIDOS], this->nod[VEINTISEIS]},
+    {}
+  };  // AMA
+  graph[this->nod[VEINTICUATRO]] = {
+    {this->nod[QUINCE], this->nod[VEINTIUNO], this->nod[VEINTICINCO]},
+    {}
+  };  // AAP
+  graph[this->nod[VEINTICINCO]] = {
+    {this->nod[DIECISEIS], this->nod[VEINTIDOS], this->nod[VEINTICUATRO], this->nod[VEINTISEIS]},
+    {}
+  };  // AAM
+  graph[this->nod[VEINTISEIS]] = {
+    {this->nod[DIECISIETE], this->nod[VEINTITRES], this->nod[VEINTICINCO]},
+    {}
+  };  // AAA
+  return graph;
+}
+
+unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
+    ImageSOA::cf_generate_graph_BIG() {
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
+  int const maxval    = this->get_maxval();
+  auto const newpoco  = static_cast<unsigned short>((POCO * maxval) / MAX_LEVEL);
+  auto const newmedio = static_cast<unsigned short>((MEDIO * maxval) / MAX_LEVEL);
+  auto const newalto  = static_cast<unsigned short>((ALTO * maxval) / MAX_LEVEL);
+  cf_add_nodes_BIG(newpoco, newmedio, newalto);
+  graph[this->nodBIG[0]] = {
+    {this->nodBIG[1], this->nodBIG[3], this->nodBIG[NUEVE]},
+    {}
+  };  // PPP
+  graph[this->nodBIG[1]] = {
+    {this->nodBIG[0], this->nodBIG[2], this->nodBIG[4], this->nodBIG[DIEZ]},
+    {}
+  };  // PPM
+  graph[this->nodBIG[2]] = {
+    {this->nodBIG[1], this->nodBIG[CINCO], this->nodBIG[ONCE]},
+    {}
+  };  // PPA
+  graph[this->nodBIG[3]] = {
+    {this->nodBIG[0], this->nodBIG[4], this->nodBIG[SEIS], this->nodBIG[DOCE]},
+    {}
+  };  // PMP
+  graph[this->nodBIG[4]] = {
+    {this->nodBIG[1], this->nodBIG[3], this->nodBIG[CINCO], this->nodBIG[SIETE],
+     this->nodBIG[TRECE]},
+    {}
+  };  // PMM
+  graph[this->nodBIG[CINCO]] = {
+    {this->nodBIG[2], this->nodBIG[4], this->nodBIG[OCHO], this->nodBIG[CATORCE]},
+    {}
+  };  // PMA
+  graph[this->nodBIG[SEIS]] = {
+    {this->nodBIG[3], this->nodBIG[SIETE], this->nodBIG[QUINCE]},
+    {}
+  };  // PAP
+  return graph;
+}
+
+unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
+    ImageSOA::cf_generate_graph_BIG_2(
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph) {
+  graph[this->nodBIG[SIETE]] = {
+    {this->nodBIG[4], this->nodBIG[SEIS], this->nodBIG[OCHO], this->nodBIG[DIECISEIS]},
+    {}
+  };  // PAM
+  graph[this->nodBIG[OCHO]] = {
+    {this->nodBIG[CINCO], this->nodBIG[SIETE], this->nodBIG[DIECISIETE]},
+    {}
+  };  // PAA
+
+  graph[this->nodBIG[NUEVE]] = {
+    {this->nodBIG[0], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[DIECIOCHO]},
+    {}
+  };  // MPP
+  graph[this->nodBIG[DIEZ]] = {
+    {this->nodBIG[1], this->nodBIG[NUEVE], this->nodBIG[ONCE], this->nodBIG[TRECE],
+     this->nodBIG[DIECINUEVE]},
+    {}
+  };  // MPM
+  graph[this->nodBIG[ONCE]] = {
+    {this->nodBIG[2], this->nodBIG[DIEZ], this->nodBIG[CATORCE], this->nodBIG[VEINTE]},
+    {}
+  };  // MPA
+  graph[this->nodBIG[DOCE]] = {
+    {this->nodBIG[3], this->nodBIG[NUEVE], this->nodBIG[TRECE], this->nodBIG[QUINCE],
+     this->nodBIG[VEINTIUNO]},
+    {}
+  };  // MMP
+  graph[this->nodBIG[TRECE]] = {
+    {this->nodBIG[4], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[CATORCE],
+     this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS]},
+    {}
+  };  // MMM
+  return graph;
+}
+
+unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
+    ImageSOA::cf_generate_graph_BIG_3(
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph) {
+  graph[this->nodBIG[CATORCE]] = {
+    {this->nodBIG[CINCO], this->nodBIG[ONCE], this->nodBIG[TRECE], this->nodBIG[DIECISIETE],
+     this->nodBIG[VEINTITRES]},
+    {}
+  };  // MMA
+  graph[this->nodBIG[QUINCE]] = {
+    {this->nodBIG[SEIS], this->nodBIG[DOCE], this->nodBIG[DIECISEIS], this->nodBIG[DIECIOCHO],
+     this->nodBIG[VEINTICUATRO]},
+    {}
+  };  // MAP
+  graph[this->nodBIG[DIECISEIS]] = {
+    {this->nodBIG[SIETE], this->nodBIG[TRECE], this->nodBIG[QUINCE], this->nodBIG[DIECISIETE],
+     this->nodBIG[VEINTICINCO]},
+    {}
+  };
+  // MAM
+  graph[this->nodBIG[DIECISIETE]] = {
+    {this->nodBIG[OCHO], this->nodBIG[CATORCE], this->nodBIG[DIECISEIS], this->nodBIG[VEINTISEIS]},
+    {}
+  };  // MAA
+
+  graph[this->nodBIG[DIECIOCHO]] = {
+    {this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE]},
+    {}
+  };  // APP
+  graph[this->nodBIG[DIECINUEVE]] = {
+    {this->nodBIG[DIEZ], this->nodBIG[DIECIOCHO], this->nodBIG[VEINTE], this->nodBIG[VEINTIDOS]},
+    {}
+  };  // APM
+  graph[this->nodBIG[VEINTE]] = {
+    {this->nodBIG[ONCE], this->nodBIG[DIECINUEVE], this->nodBIG[VEINTITRES]},
+    {}
+  };  // APA
+  graph[this->nodBIG[VEINTIUNO]] = {
+    {this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO]},
+    {}
+  };  // AMP
+  return graph;
+}
+
+unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
+    ImageSOA::cf_generate_graph_BIG_4(
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph) {
+  graph[this->nodBIG[VEINTIDOS]] = {
+    {this->nodBIG[TRECE], this->nodBIG[DIECINUEVE], this->nodBIG[VEINTIUNO],
+     this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]},
+    {}
+  };  // AMM
+  graph[this->nodBIG[VEINTITRES]] = {
+    {this->nodBIG[CATORCE], this->nodBIG[VEINTE], this->nodBIG[VEINTIDOS],
+     this->nodBIG[VEINTISEIS]},
+    {}
+  };  // AMA
+  graph[this->nodBIG[VEINTICUATRO]] = {
+    {this->nodBIG[QUINCE], this->nodBIG[VEINTIUNO], this->nodBIG[VEINTICINCO]},
+    {}
+  };  // AAP
+  graph[this->nodBIG[VEINTICINCO]] = {
+    {this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO],
+     this->nodBIG[VEINTISEIS]},
+    {}
+  };  // AAM
+  graph[this->nodBIG[VEINTISEIS]] = {
+    {this->nodBIG[DIECISIETE], this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]},
+    {}
+  };  // AAA
+  return graph;
+}
 
 deque<pair<__uint32_t, __uint16_t>>
     ImageSOA::cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
@@ -526,7 +727,7 @@ deque<pair<__uint32_t, __uint16_t>>
   });
   // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
   vector<pair<__uint32_t, __uint16_t>> VectorDelete;
-  size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+  auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
@@ -555,11 +756,10 @@ deque<pair<__uint32_t, __uint16_t>>
   return left_elems;
 }
 
-
 deque<pair<__uint64_t, __uint16_t>>
     ImageSOA::cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
-                                        unordered_map<__uint64_t, __uint64_t> & Deleteitems,
-                                        int & num_left) const {
+                                      unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                      int & num_left) const {
   vector<pair<__uint64_t, __uint16_t>> myVector(myMapBIG.begin(), myMapBIG.end());
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
@@ -567,7 +767,7 @@ deque<pair<__uint64_t, __uint16_t>>
 
   // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
   vector<pair<__uint64_t, __uint16_t>> VectorDelete;
-  size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+  auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
@@ -595,7 +795,6 @@ deque<pair<__uint64_t, __uint16_t>>
   deque const left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
   return left_elems;
 }
-
 
 void ImageSOA::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) {
   write_out(this->get_maxval());
@@ -616,7 +815,9 @@ void ImageSOA::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitem
     write_binary_8(output_file, blu);
   }
 
-  output_file.close();}
+  output_file.close();
+}
+
 void ImageSOA::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems) {
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
@@ -635,95 +836,125 @@ void ImageSOA::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Delete
     write_binary_16(output_file, swap16(grn));
     write_binary_16(output_file, swap16(blu));
   }
-  output_file.close();}
+  output_file.close();
+}
 
-
-
-
-void ImageSOA::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
-  // Convierto myMap a vector de pares y ordeno
-  unordered_map<__uint32_t, __uint32_t> Deleteitems;
-  int num_left = 0;
-  auto left_elems= cf_check_first_part_small(myMap, Deleteitems, num_left);
-  params_same_vector_small const params = {.father_vector = left_elems, .value = 1,
-    .counter = left_elems.size() };
-  auto bluevalues = cf_same_bgr_vector(params);
-  // Para saber que elemento de bluevalues utilizar
-  Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
-  unordered_map<__uint32_t, __uint32_t> toSave;
-  // Me recorro las keys de myMap
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
-  cf_finish_graph(myMap, Deleteitems,toSave,graph);
-
-  for (auto &entry : Deleteitems) {
-    __uint32_t const color_to_delete = entry.first;
-    double min_distance = MAX_DIST;
+void ImageSOA::cf_search_in_graph_small(
+    unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph) {
+  for (auto & entry : Deleteitems) {
+    __uint32_t const color_to_delete             = entry.first;
+    double min_distance                          = MAX_DIST;
     unordered_map<__uint32_t, __uint8_t> visited = {};
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
-    if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
-}
+    if (node_it == graph.end()) { continue; }
     visited[entry.second] = 0;
     // Primero, verificar la distancia en el nodo principal
-    //bool found_in_main_node = false;
+    // bool found_in_main_node = false;
     for (__uint32_t const candidate : node_it->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
-        entry.second = candidate;}}
-    cf_find_neigh_small const params = {.color_to_delete=color_to_delete,.graph=&graph,
-      .neighbors=&node_it->second.first,
-      .min_distance=&min_distance,
-      .visited_node=&visited};
-    __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params);
-    // Si encontramos un reemplazo adecuado, guardarlo en Deleteitems
-    if (replacement_color != 0) {entry.second = replacement_color; }}
-  cf_write_in_exit(Deleteitems);
+        entry.second = candidate;
+      }
+    }
+    cf_find_neigh_small const params_s = {.color_to_delete = color_to_delete,
+                                          .graph           = &graph,
+                                          .neighbors       = &node_it->second.first,
+                                          .min_distance    = &min_distance,
+                                          .visited_node    = &visited};
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params_s);
+    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
+    if (replacement_color != 0) { entry.second = replacement_color; }
+  }
 }
 
-
-void ImageSOA::cutfreq_max(const unordered_map<__uint64_t, __uint16_t>& myMapBIG) {
-  // Convierto myMap a vector de pares y ordeno
-  unordered_map<__uint64_t, __uint64_t> Deleteitems;
-  int num_left = 0;
-  auto left_elems= cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
-  auto bluevalues = cf_same_bgr_vector_BIG(left_elems, 1, left_elems.size());
-
-  // Para saber que elemento de bluevalues utilizar
-  Deleteitems = cf_check_colors_to_delete_BIG(Deleteitems, num_left, bluevalues);
-  unordered_map<__uint64_t, __uint64_t> toSave;
-  // Me recorro las keys de myMap
-  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph = cf_generate_graph_BIG();
-  cf_finish_graph_BIG(myMapBIG, Deleteitems,toSave,graph);
-
-  for (auto &entry : Deleteitems) {
-    __uint64_t const color_to_delete = entry.first;
-    double min_distance = MAX_DIST;
+void ImageSOA::cf_search_in_graph_BIG(
+    unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph) {
+  for (auto & entry : Deleteitems) {
+    __uint64_t const color_to_delete             = entry.first;
+    double min_distance                          = MAX_DIST;
     unordered_map<__uint64_t, __uint8_t> visited = {};
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
-    if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
-    }
+    if (node_it == graph.end()) { continue; }
     visited[entry.second] = 0;
-
     // Primero, verificar la distancia en el nodo principal
-    //bool found_in_main_node = false;
+    // bool found_in_main_node = false;
     for (__uint64_t const candidate : node_it->second.second) {
       double const distance = get_distance_BIG(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
-        entry.second = candidate; }}
-    cf_find_neigh_BIG const params = {.color_to_delete=color_to_delete,.graph=&graph,.neighbors=&node_it->second.first,
-      .min_distance=&min_distance,
-      .visited_node=&visited};
-    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(&params);
+        entry.second = candidate;
+      }
+    }
+    cf_find_neigh_BIG const params_s   = {.color_to_delete = color_to_delete,
+                                          .graph           = &graph,
+                                          .neighbors       = &node_it->second.first,
+                                          .min_distance    = &min_distance,
+                                          .visited_node    = &visited};
+    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(&params_s);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
-    if (replacement_color != 0) {
-      entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
-    }}
-  cf_write_in_exit_BIG(Deleteitems);
+    if (replacement_color != 0) { entry.second = replacement_color; }
+  }
 }
 
+
+
+
+
+void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
+  // Convertir myMap a vector de pares y ordenar
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left                          = 0;
+  auto left_elems                       = cf_check_first_part_small(myMap, Deleteitems, num_left);
+  params_same_vector_small const params = {
+    .father_vector = left_elems, .value = 1, .counter = left_elems.size()};
+  auto bluevalues = cf_same_bgr_vector(params);
+
+  // Chequear y actualizar colores para eliminar
+  Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
+
+  unordered_map<__uint32_t, __uint32_t> toSave;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      cf_generate_graph();
+  cf_generate_graph_2(graph);
+  cf_generate_graph_3(graph);
+  cf_generate_graph_4(graph);
+
+  // Configurar parámetros para la función de finalización del grafo
+  params_finish_graph const params_graph = {
+    .myMap = &myMap, .Deleteitems = &Deleteitems, .toSave = &toSave, .graph = &graph};
+  cf_finish_graph(&params_graph);
+  cf_search_in_graph_small(Deleteitems, graph);
+  cf_write_in_exit(Deleteitems);
+}
+
+void ImageSOA::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBIG) {
+  // Convierto myMap a vector de pares y ordeno
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  int num_left                          = 0;
+  auto left_elems                       = cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
+  params_same_vector_BIG const params_b = {
+    .father_vector = left_elems, .value = 1, .counter = left_elems.size()};
+  auto bluevalues = cf_same_bgr_vector_BIG(params_b);
+  // Para saber que elemento de bluevalues utilizar
+  Deleteitems = cf_check_colors_to_delete_BIG(Deleteitems, num_left, bluevalues);
+  unordered_map<__uint64_t, __uint64_t> toSave;
+  // Me recorro las keys de myMap
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph =
+      cf_generate_graph_BIG();
+  cf_generate_graph_BIG_2(graph);
+  cf_generate_graph_BIG_3(graph);
+  cf_generate_graph_BIG_4(graph);
+  params_finish_graph_BIG const params_graph = {
+    .myMap = &myMapBIG, .Deleteitems = &Deleteitems, .toSave = &toSave, .graph = &graph};
+  cf_finish_graph_BIG(&params_graph);
+  cf_search_in_graph_BIG(Deleteitems, graph);
+  cf_write_in_exit_BIG(Deleteitems);
+}
 
 int ImageSOA::cutfreq() {
   get_imgdata();
@@ -741,8 +972,8 @@ int ImageSOA::cutfreq() {
   // ofstream output_file(this->get_output_file(), ios::binary);
   if (maxval == MIN_LEVEL) {
     unordered_map<__uint32_t, __uint16_t> myMap;
-    myMap                        = cf_load_and_map_8(width, move(input_file), height);
-    size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+    myMap                      = cf_load_and_map_8(width, std::move(input_file), height);
+    auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMap.size()) {
       cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "
               "pixeles unicos"
@@ -750,11 +981,10 @@ int ImageSOA::cutfreq() {
       return -1;
     }
     cutfreq_min(myMap);
-    cout << "Pinga";
   } else {
     unordered_map<__uint64_t, __uint16_t> myMapBIG;
-    myMapBIG = cf_load_and_map_8BIG(width, move(input_file), height);
-    size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
+    myMapBIG                   = cf_load_and_map_8BIG(width, std::move(input_file), height);
+    auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMapBIG.size()) {
       cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "
               "pixeles unicos"
@@ -765,8 +995,6 @@ int ImageSOA::cutfreq() {
   }
   return 0;
 }
-
-
 
 void ImageSOA::cp_export(ofstream & output_file,
                          unordered_map<unsigned int, unsigned int> const & color_map,
@@ -786,6 +1014,26 @@ void ImageSOA::cp_export(ofstream & output_file,
   }
 }
 
+void ImageSOA::cp_export_BIG(ofstream & output_file,
+                             unordered_map<unsigned long int, unsigned int> const & color_map,
+                             list<unsigned int> const & indexes) {
+  unsigned long int const num_colors = color_map.size();
+  for (unsigned int const index : indexes) {
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(index));
+    } else {
+      cerr << "Error: demasiados colores distintos.\n";
+      return;
+    }
+  }
+}
+
+
+
 int ImageSOA::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -798,7 +1046,8 @@ int ImageSOA::compress_min() {
     unsigned char const red         = read_binary_8(input_file);
     unsigned char const grn         = read_binary_8(input_file);
     unsigned char const blu         = read_binary_8(input_file);
-    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    unsigned int const concatenated = packRGB(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;
@@ -828,14 +1077,15 @@ int ImageSOA::compress_max() {
   ofstream output_file(this->get_output_file(), ios::binary);
   auto width  = static_cast<unsigned int>(this->get_width());
   auto height = static_cast<unsigned int>(this->get_height());
-  unordered_map<unsigned int, unsigned int> color_map;
+  unordered_map<unsigned long int, unsigned int> color_map;
   list<unsigned int> indexes;
   soa_rgb_big unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
     unsigned short const red        = read_binary_16(input_file);
     unsigned short const grn        = read_binary_16(input_file);
     unsigned short const blu        = read_binary_16(input_file);
-    unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        unsigned long int const concatenated = packRGBIG(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;
@@ -853,7 +1103,7 @@ int ImageSOA::compress_max() {
     write_binary_16(output_file, unique_colors.g[i]);
     write_binary_16(output_file, unique_colors.b[i]);
   }
-  cp_export(output_file, color_map, indexes);
+  cp_export_BIG(output_file, color_map, indexes);
   input_file.close();
   output_file.close();
   return 0;
