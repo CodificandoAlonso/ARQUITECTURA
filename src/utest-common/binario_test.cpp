@@ -6,178 +6,178 @@ class BinaryTest : public ::testing::Test {
 };
 
 TEST_F(BinaryTest, Read_Binary_8Correcto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   uint8_t value = 0x00;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   output.write(reinterpret_cast<char*>(&value), sizeof(value));
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint8_t const readValue = read_binary_8(input);
   input.close();
   EXPECT_EQ(readValue, 0x00);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Read_Binary_8Incorrecto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   uint8_t value = 0x00;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   output.write(reinterpret_cast<char*>(&value), sizeof(value));
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint8_t const readValue = read_binary_8(input);
   input.close();
   EXPECT_NE(readValue, 0xFF);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Read_Binary_16Correcto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   uint16_t value = 0x0000;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   output.write(reinterpret_cast<char*>(&value), sizeof(value));
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint16_t const readValue = read_binary_16(input);
   input.close();
   EXPECT_EQ(readValue, 0x0000);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Read_Binary_16Incorrecto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   uint16_t value = 0x0000;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   output.write(reinterpret_cast<char*>(&value), sizeof(value));
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint16_t const readValue = read_binary_16(input);
   input.close();
   EXPECT_NE(readValue, 0xFFFF);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Write_Binary_8Correcto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   constexpr uint8_t value = 0x00;
   write_binary_8(output, value);
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint8_t readValue = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   input.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
   input.close();
   EXPECT_EQ(readValue, 0x00);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Write_Binary_8Incorrecto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   constexpr uint8_t value = 0x00;
   write_binary_8(output, value);
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint8_t readValue = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   input.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
   input.close();
   EXPECT_NE(readValue, 0xFF);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Write_Binary_16Correcto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   constexpr uint16_t value = 0x0000;
   write_binary_16(output, value);
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint16_t readValue = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   input.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
   input.close();
   EXPECT_EQ(readValue, 0x0000);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Write_Binary_16Incorrecto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   constexpr uint16_t value = 0x0000;
   write_binary_16(output, value);
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint16_t readValue = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   input.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
   input.close();
   EXPECT_NE(readValue, 0xFFFF);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Write_Binary_32Correcto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   constexpr uint32_t value = 0x000000;
   write_binary_32(output, value);
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint32_t readValue = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   input.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
   input.close();
   EXPECT_EQ(readValue, 0x000000);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
 TEST_F(BinaryTest, Write_Binary_32Incorrecto) {
-  std::ofstream output("test.bin", std::ios::binary);
+  ofstream output("test.bin", ios::binary);
   constexpr uint32_t value = 0x000000;
   write_binary_32(output, value);
   output.close();
 
-  std::ifstream input("test.bin", std::ios::binary);
+  ifstream input("test.bin", ios::binary);
   uint32_t readValue = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   input.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
   input.close();
   EXPECT_NE(readValue, 0xFFFFFF);
 
-  if (std::remove("test.bin") != 0) {
-    std::perror("Error al borrar el fichero");
+  if (remove("test.bin") != 0) {
+    perror("Error al borrar el fichero");
   }
 }
 
@@ -211,7 +211,7 @@ TEST_F(BinaryTest, Mix3CharCorrecto) {
   constexpr unsigned char ch1 = 0x12; // 00010010
   constexpr unsigned char ch2 = 0x34; // 00110100
   constexpr unsigned char ch3 = 0x56; // 01010110
-  std::string const result = mix3char(ch1, ch2, ch3);
+  string const result = mix3char(ch1, ch2, ch3);
   EXPECT_EQ(result, "000100100011010001010110");
 }
 
@@ -219,7 +219,7 @@ TEST_F(BinaryTest, Mix3CharIncorrecto) {
   constexpr unsigned char ch1 = 0x12; // 00010010
   constexpr unsigned char ch2 = 0x34; // 00110100
   constexpr unsigned char ch3 = 0x56; // 01010110
-  std::string const result = mix3char(ch1, ch2, ch3);
+  string const result = mix3char(ch1, ch2, ch3);
   EXPECT_NE(result, "010101100001001000110100");
 }
 

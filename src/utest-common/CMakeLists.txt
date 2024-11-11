@@ -4,7 +4,6 @@
 find_package(GTest REQUIRED)
 
 add_executable(utest-common
-        AVLTree_test.cpp
         binario_test.cpp
         progargs_test.cpp
         struct-rgb_test.cpp

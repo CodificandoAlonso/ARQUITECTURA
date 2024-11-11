@@ -47,6 +47,7 @@ private:
     gsl::owner<ImageSOA*> imageSOA = nullptr;
     std::string test_image_path;
 
+
 protected:
     void SetUp() override {
         std::vector<std::string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
