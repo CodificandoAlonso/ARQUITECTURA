@@ -9,6 +9,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+
 #include <unordered_map>
 #include <vector>
 using namespace std;
@@ -183,6 +184,8 @@ class Image {
     int height = 0;
     int maxval = 0;
     std::unique_ptr<Image> image;
+  
+  friend class ImageTest_InfoFunction_Test;
 };
 
 #endif  // PROGARGS_HPP

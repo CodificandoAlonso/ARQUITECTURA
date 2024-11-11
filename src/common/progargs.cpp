@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <vector>
 
+
 // Constantes
 static constexpr int MAX_LEVEL    = 65535;
 static constexpr int MIN_LEVEL    = 255;
@@ -106,8 +107,7 @@ bool Image::cutfreq_constraints(int const argc, vector<string> const & argv) {
 bool Image::compress_constraints(int const argc) {
   // Si la opción es compress, el número de argumentos debe ser exactamente 4.
   if (argc != 4) {
-    cerr << "Error: Invalid extra arguments for compress: " << argc << '\n';
-    return true;
+    throw runtime_error("Error: Invalid number of arguments for compress: " + to_string(argc));
   }
   return false;
 }
@@ -121,8 +121,7 @@ int Image::check_args() {
   vector<string> argv = this->argv;
 
   if (argc <= 3) {
-    cerr << "Error: Invalid number of arguments: " << argc << '\n';
-    return -1;
+    throw runtime_error("Error: Invalid number of arguments: " + to_string(argc));
   }
   this->input_file  = argv[1];
   this->output_file = argv[2];
@@ -131,7 +130,7 @@ int Image::check_args() {
   string const & option = argv[3];
   if (option != "info" && option != "maxlevel" && option != "resize" && option != "cutfreq" &&
       option != "compress") {
-    cerr << "Error: Invalid option: " << option << '\n';
+    throw runtime_error("Error: Invalid option: " + option);
     return -1;
   }
   this->optype = option;
