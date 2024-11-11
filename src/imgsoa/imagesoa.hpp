@@ -104,7 +104,35 @@ class ImageSOA : public Image {
     vector<__uint32_t> nod;
     vector<__uint64_t> nodBIG;
 
-    friend class ImageSOATest_CompressOperation_Test;
+    friend class ImageSOATest_RszObtainSquareMax_Test;
+    friend class ImageSOATest_RszObtainSquareMaxFailure_Test;
+    friend class ImageSOATest_RszObtainSquareMin_Test;
+    friend class ImageSOATest_RszObtainSquareMinFailure_Test;
+    friend class ImageSOATest_RszInterpolateMinSuccess_Test;
+    friend class ImageSOATest_RszInterpolateMinFailure_Test;
+    friend class ImageSOATest_RszInterpolateMaxSuccess_Test;
+    friend class ImageSOATest_RszInterpolateMaxOutOfBounds_Test;
+    friend class ImageSOATest_RszInterpolateMaxInvalidUParam_Test;
+    friend class ImageSOATest_RszInterpolateMaxInvalidTParam_Test;
+    friend class ImageSOATest_ReadImageRGBSmallSuccess_Test;
+    friend class ImageSOATest_ReadImageRGBSmallFileNotFound_Test;
+    friend class ImageSOATest_ReadImageRGBSmallIncompleteData_Test;
+    friend class ImageSOATest_ReadImageRGBSmallCorruptData_Test;
+    friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
+    friend class ImageSOATest_ReadImageRGBBig_Success_Test;
+    friend class ImageSOATest_ReadImageRGBBig_FileNotOpen_Test;
+    friend class ImageSOATest_ReadImageRGBBig_FileReadError_Test;
+    friend class ImageSOATest_SortAndMapKeys_Success_Test;
+    friend class ImageSOATest_SortAndMapKeys_EmptyMap_Test;
+    friend class ImageSOATest_SortAndMapKeys_SingleElement_Test;
+    friend class ImageSOATest_SortAndMapKeys_SameDistanceToBlack_Test;
+    friend class ImageSOATest_SortAndMapKeys_LargeMap_Test;
+    friend class ImageSOATest_LoadAndMap8_Success_Test;
+    friend class ImageSOATest_SameBGRVector_Success_Test;
+    friend class ImageSOATest_SameBGRVector_EmptyInput_Test;
+    friend class ImageSOATest_SameBGRVector_InsufficientElements_Test;
+
+
 };
 
 #endif  // IMAGESOA_HPP

@@ -8,7 +8,6 @@
 #include <deque>
 #include <fstream>
 #include <memory>
-#include <string>
 
 #include <unordered_map>
 #include <vector>
@@ -165,6 +164,9 @@ class Image {
     static void cf_finish_graph(params_finish_graph const * params);
 
     static void cf_finish_graph_BIG(params_finish_graph_BIG const * params);
+      const std::vector<std::string>& getArgv() const;
+
+      static const unique_ptr<Image>& getImage();
 
   private:
     void min_min();
@@ -186,6 +188,7 @@ class Image {
     std::unique_ptr<Image> image;
   
   friend class ImageTest_InfoFunction_Test;
+  friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
 };
 
 #endif  // PROGARGS_HPP
