@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
   #include <vector>
+#include<deque>
+#include<unordered_map>
   using namespace std;
 
   class Image {
@@ -48,6 +50,67 @@
 
       static const unique_ptr<Image>& getImage();
 
+static deque<pair<__uint32_t, __uint16_t>>
+        cf_same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int value,
+                        size_t counter);
+
+    static deque<pair<__uint64_t, __uint16_t>>
+        cf_same_bgr_vector_BIG(deque<pair<__uint64_t, __uint16_t>> father_vector, int value,
+                               size_t counter);
+
+    static int cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int color,
+                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+                                deque<pair<__uint32_t, __uint16_t>> & bluevalues);
+
+    static int cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector, int color,
+                                unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                deque<pair<__uint64_t, __uint16_t>> & bluevalues);
+    static void cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
+                                  size_t index);
+
+    static void cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
+                                 size_t index);
+
+    static size_t cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
+                                 __uint64_t & first);
+
+    static size_t cf_search_in_blue(deque<pair<__uint32_t, __uint16_t>> & pairs, __uint32_t & first);
+
+    static unordered_map<__uint32_t, __uint32_t>
+        cf_check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
+                               deque<pair<__uint32_t, __uint16_t>> bluevalues);
+
+    static unordered_map<__uint64_t, __uint64_t>
+        cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
+                                      int num_left, deque<pair<__uint64_t, __uint16_t>> bluevalues);
+
+    static __uint32_t cf_find_closest_in_neighbors(
+        __uint32_t color_to_delete,
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> const & graph,
+        vector<__uint32_t> const & neighbors, double & min_distance,
+        unordered_map<__uint32_t, __uint8_t> & visited_node);
+
+    __uint64_t cf_find_closest_in_neighbors_BIG(
+        __uint64_t color_to_delete,
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const & graph,
+        vector<__uint64_t> const & neighbors, double & min_distance,
+        unordered_map<__uint64_t, __uint8_t> & visited_node);
+
+    static void cf_finish_graph(
+        const unordered_map<__uint32_t, __uint16_t>& myMap,
+        unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+        unordered_map<__uint32_t, __uint32_t> & toSave,
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph);
+
+    static void cf_finish_graph_BIG(
+        unordered_map<__uint64_t, __uint16_t> myMap,
+        unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+        unordered_map<__uint64_t, __uint64_t> & toSave,
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph);
+
+
+
+
     private:
       void min_min();
       void max_min();
@@ -66,6 +129,7 @@
       int height = 0;
       int maxval = 0;
       std::unique_ptr<Image> image;
+
   };
 
   #endif  // PROGARGS_HPP

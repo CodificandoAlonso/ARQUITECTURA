@@ -23,40 +23,35 @@
 #include <unordered_map>
 #include <vector>
 
-static int const MAX_LEVEL = 65535;
-static int const MIN_LEVEL = 255;
-static int const BYTE      = 8;
-static constexpr int POCO = 75;
-static constexpr int MEDIO = 150;
-static constexpr int ALTO = 240;
-static constexpr size_t NUEVE = 9;
-static constexpr size_t SEIS = 6;
-static constexpr size_t SIETE = 7;
-static constexpr size_t OCHO = 8;
-static constexpr int MAX_DIST = 100000;
-static constexpr size_t CINCO = 5;
-static constexpr size_t DIEZ = 10;
-static constexpr size_t ONCE = 11;
-static constexpr size_t DOCE = 12;
-static constexpr size_t TRECE = 13;
-static constexpr size_t CATORCE = 14;
-static constexpr size_t QUINCE = 15;
-static constexpr size_t DIECISEIS = 16;
-static constexpr size_t DIECISIETE = 17;
-static constexpr size_t DIECIOCHO = 18;
-static constexpr size_t DIECINUEVE = 19;
-static constexpr size_t VEINTE = 20;
-static constexpr size_t VEINTIUNO = 21;
-static constexpr size_t VEINTIDOS = 22;
-static constexpr size_t VEINTITRES = 23;
+static int const MAX_LEVEL           = 65535;
+static int const MIN_LEVEL           = 255;
+static int const BYTE                = 8;
+static constexpr int POCO            = 75;
+static constexpr int MEDIO           = 150;
+static constexpr int ALTO            = 240;
+static constexpr size_t NUEVE        = 9;
+static constexpr size_t SEIS         = 6;
+static constexpr size_t SIETE        = 7;
+static constexpr size_t OCHO         = 8;
+static constexpr int MAX_DIST        = 100000;
+static constexpr size_t CINCO        = 5;
+static constexpr size_t DIEZ         = 10;
+static constexpr size_t ONCE         = 11;
+static constexpr size_t DOCE         = 12;
+static constexpr size_t TRECE        = 13;
+static constexpr size_t CATORCE      = 14;
+static constexpr size_t QUINCE       = 15;
+static constexpr size_t DIECISEIS    = 16;
+static constexpr size_t DIECISIETE   = 17;
+static constexpr size_t DIECIOCHO    = 18;
+static constexpr size_t DIECINUEVE   = 19;
+static constexpr size_t VEINTE       = 20;
+static constexpr size_t VEINTIUNO    = 21;
+static constexpr size_t VEINTIDOS    = 22;
+static constexpr size_t VEINTITRES   = 23;
 static constexpr size_t VEINTICUATRO = 24;
-static constexpr size_t VEINTICINCO = 25;
-static constexpr size_t VEINTISEIS = 26;
-
-
-
-
-
+static constexpr size_t VEINTICINCO  = 25;
+static constexpr size_t VEINTISEIS   = 26;
 
 using namespace std;
 
@@ -78,10 +73,9 @@ int ImageAOS::process_operation() {
   } else if (this->get_optype() == "compress") {
     // Implementación de la operación de compresión usando AOS (Array of Structures)
     if (compress() < 0) { return -1; }
-  } else if(this->get_optype() == "cutfreq") {
+  } else if (this->get_optype() == "cutfreq") {
     if (cutfreq() < 0) { return -1; }
-    }
-  else {
+  } else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
     return -1;
   }
@@ -393,10 +387,8 @@ int ImageAOS::compress() {
   return 0;
 }
 
-
-
 unordered_map<__uint32_t, __uint16_t> ImageAOS::cf_load_and_map_8(int width, ifstream input_file,
-                                                               int height) {
+                                                                  int height) {
   unordered_map<__uint32_t, __uint16_t> myMap;
   unsigned char red = 0;
   unsigned char grn = 0;
@@ -415,10 +407,8 @@ unordered_map<__uint32_t, __uint16_t> ImageAOS::cf_load_and_map_8(int width, ifs
   return myMap;
 }
 
-
-
 unordered_map<__uint64_t, __uint16_t> ImageAOS::cf_load_and_map_8BIG(int width, ifstream input_file,
-                                                                  int height) {
+                                                                     int height) {
   unsigned short red = 0;
   unsigned short grn = 0;
   unsigned short blu = 0;
@@ -440,303 +430,74 @@ unordered_map<__uint64_t, __uint16_t> ImageAOS::cf_load_and_map_8BIG(int width, 
   return myMap;
 }
 
-deque<pair<__uint32_t, __uint16_t>>
-    ImageAOS::cf_same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int const value,
-                              size_t const counter) {
-  // Value será 1 para blue, 2 para green y 3 para red
-  deque<pair<__uint32_t, __uint16_t>> color_vector;
-  __uint8_t color = 0;
-  for (size_t i = 0; i < counter; i++) {
-    if (value == 1) { color = extractblue(father_vector[i].first); }
-    if (value == 2) { color = extractgreen(father_vector[i].first); }
-    if (value == 3) { color = extractred(father_vector[i].first); }
-    color_vector.emplace_back(father_vector[i].first, color);
-  }
-  ranges::sort(color_vector, [](auto const & op1, auto const & op2) {
-    return op1.second > op2.second;
-  });
-  return color_vector;
-}
-deque<pair<__uint64_t, __uint16_t>>
-    ImageAOS::cf_same_bgr_vector_BIG(deque<pair<__uint64_t, __uint16_t>> father_vector, int const value,
-                              size_t const counter) {
-  // Value será 1 para blue, 2 para green y 3 para red
-  deque<pair<__uint64_t, __uint16_t>> color_vector;
-  __uint16_t color = 0;
-  for (size_t i = 0; i < counter; i++) {
-    if (value == 1) { color = extractblueBIG(father_vector[i].first); }
-    if (value == 2) { color = extractgreenBIG(father_vector[i].first); }
-    if (value == 3) { color = extractredBIG(father_vector[i].first); }
-    color_vector.emplace_back(father_vector[i].first, color);
-  }
-  ranges::sort(color_vector, [](auto const & op1, auto const & op2) {
-    return op1.second > op2.second;
-  });
-  return color_vector;
-}
-
-
-
-int ImageAOS::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
-                               unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-                               deque<pair<__uint32_t, __uint16_t>> & bluevalues) {
-  size_t my_index = 0;
-  // 1 para azul, 0 para verde
-  size_t meanwhile = 0;
-  while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
-  if (meanwhile == 1) {
-    __uint8_t value0 = 0;
-    __uint8_t value1 = 0;
-    if (color == 1) {
-      value0 = extractgreen(color_vector[0].first);
-      value1 = extractgreen(color_vector[1].first);
-    } else {
-      value0 = extractred(color_vector[0].first);
-      value1 = extractred(color_vector[1].first);
-    }
-    if (value0 - value1 > 0) {
-      Deleteitems[{color_vector[0].first}] = 0;
-      // color_vector.pop_front();
-      my_index = cf_search_in_blue(bluevalues, color_vector[0].first);
-      cf_delete_from_deque(bluevalues, my_index);
-    } else {
-      Deleteitems[{color_vector[1].first}] = 0;
-      my_index                             = cf_search_in_blue(bluevalues, color_vector[1].first);
-      cf_delete_from_deque(bluevalues, my_index);
-    }
-    return 0;
-  }
-  return static_cast<int>(meanwhile + 1);
-}
-
-int ImageAOS::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector, int const color,
-                               unordered_map<__uint64_t, __uint64_t> & Deleteitems,
-                               deque<pair<__uint64_t, __uint16_t>> & bluevalues) {
-  size_t my_index = 0;
-  // 1 para azul, 0 para verde
-  size_t meanwhile = 0;
-  while (color_vector[meanwhile].second == color_vector[meanwhile + 1].second) { meanwhile++; }
-  if (meanwhile == 1) {
-    __uint16_t value0 = 0;
-    __uint16_t value1 = 0;
-    if (color == 1) {
-      value0 = extractgreenBIG(color_vector[0].first);
-      value1 = extractgreenBIG(color_vector[1].first);
-    } else {
-      value0 = extractredBIG(color_vector[0].first);
-      value1 = extractredBIG(color_vector[1].first);
-    }
-    if (value0 - value1 > 0) {
-      Deleteitems[{color_vector[0].first}] = 0;
-      // color_vector.pop_front();
-      my_index = cf_search_in_blue_BIG(bluevalues, color_vector[0].first);
-      cf_delete_from_deque_BIG(bluevalues, my_index);
-    } else {
-      Deleteitems[{color_vector[1].first}] = 0;
-      my_index                             = cf_search_in_blue_BIG(bluevalues, color_vector[1].first);
-      cf_delete_from_deque_BIG(bluevalues, my_index);
-    }
-    return 0;
-  }
-  return static_cast<int>(meanwhile + 1);
-}
-
-
-
-void ImageAOS::cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
-                                 size_t index) {
-  swap(deque_general[0], deque_general[index]);
-  deque_general.pop_front();
-}
-
-
-
-
-void ImageAOS::cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
-                                 size_t index) {
-  swap(deque_general[0], deque_general[index]);
-  deque_general.pop_front();
-}
-
-
-size_t ImageAOS::cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
-                                __uint64_t & first) {
-  for (size_t i = 0; i < pairs.size(); i++) {
-    if (pairs[i].first == first) { return i; }
-  }
-  return 0;
-}
-
-size_t ImageAOS::cf_search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
-                                __uint32_t & first) {
-  for (size_t i = 0; i < pairs.size(); i++) {
-    if (pairs[i].first == first) { return i; }
-  }
-  return 0;
-}
-
-unordered_map<__uint32_t, __uint32_t>
-    ImageAOS::cf_check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems,
-                                     int num_left, deque<pair<__uint32_t, __uint16_t>> bluevalues) {
-  size_t my_index = 0;
-  while (num_left > 0) {
-    if(bluevalues.size() >1){
-      if (bluevalues[0].second == bluevalues[1].second) {
-        if (int my_meanwhile = cf_check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
-            my_meanwhile > 0) {
-          if (my_meanwhile < num_left) {
-            auto iterator = static_cast<size_t>(my_meanwhile);
-            for (size_t iii = 0; iii < iterator; iii++) {
-              Deleteitems[bluevalues[0].first] = 0;
-              bluevalues.pop_front();
-              num_left--;}
-          } else {
-            auto greenvalues = cf_same_bgr_vector(bluevalues, 2, static_cast<size_t>(my_meanwhile));
-            if (greenvalues[0].second == greenvalues[1].second) {
-              my_meanwhile = cf_check_and_delete(greenvalues, 0, Deleteitems, bluevalues);
-              if (my_meanwhile > 0) {
-                auto redvalues = cf_same_bgr_vector(greenvalues, 3, static_cast<size_t>(my_meanwhile));
-                Deleteitems[{redvalues[0].first}] = 0;
-                my_index                          = cf_search_in_blue(bluevalues, redvalues[0].first);
-                cf_delete_from_deque(bluevalues, my_index);
-                num_left--;
-              } else {
-                num_left--;}
-            } else {
-              Deleteitems[{greenvalues[0].first}] = 0;
-              my_index                            = cf_search_in_blue(bluevalues, greenvalues[0].first);
-              cf_delete_from_deque(bluevalues, my_index);
-              num_left--;}}} else {
-              num_left--;}} else {
-        Deleteitems[{bluevalues[0].first}] = 0;
-        bluevalues.pop_front();
-        num_left--;}}
-    else {
-      Deleteitems[{bluevalues[0].first}] = 0;
-      bluevalues.pop_front();
-      num_left--;}}
-  return Deleteitems;
-}
-
-
-unordered_map<__uint64_t, __uint64_t>
-    ImageAOS::cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
-                                     int num_left, deque<pair<__uint64_t, __uint16_t>> bluevalues) {
-  size_t my_index = 0;
-  while (num_left > 0) {
-    if(bluevalues.size() >1){
-      if (bluevalues[0].second == bluevalues[1].second) {
-        if (int my_meanwhile = cf_check_and_delete_BIG(bluevalues, 1, Deleteitems, bluevalues);
-            my_meanwhile > 0) {
-          if (my_meanwhile < num_left) {
-            auto iterator = static_cast<size_t>(my_meanwhile);
-            for (size_t iii = 0; iii < iterator; iii++) {
-              Deleteitems[bluevalues[0].first] = 0;
-              bluevalues.pop_front();
-              num_left--;}
-          } else {
-            auto greenvalues = cf_same_bgr_vector_BIG(bluevalues, 2, static_cast<size_t>(my_meanwhile));
-            if (greenvalues[0].second == greenvalues[1].second) {
-              my_meanwhile = cf_check_and_delete_BIG(greenvalues, 0, Deleteitems, bluevalues);
-              if (my_meanwhile > 0) {
-                auto redvalues = cf_same_bgr_vector_BIG(greenvalues, 3, static_cast<size_t>(my_meanwhile));
-                Deleteitems[{redvalues[0].first}] = 0;
-                my_index                          = cf_search_in_blue_BIG(bluevalues, redvalues[0].first);
-                cf_delete_from_deque_BIG(bluevalues, my_index);
-                num_left--;
-              } else {
-                num_left--;}
-            } else {
-              Deleteitems[{greenvalues[0].first}] = 0;
-              my_index                            = cf_search_in_blue_BIG(bluevalues, greenvalues[0].first);
-              cf_delete_from_deque_BIG(bluevalues, my_index);
-              num_left--;}}} else {
-              num_left--;}} else {
-        Deleteitems[{bluevalues[0].first}] = 0;
-        bluevalues.pop_front();
-        num_left--;}}
-    else {
-      Deleteitems[{bluevalues[0].first}] = 0;
-      bluevalues.pop_front();
-      num_left--;}}
-  return Deleteitems;
-}
-
-
-
 void ImageAOS::cf_add_nodes() {
-    this->nod.push_back( packRGB(POCO, POCO, POCO));
-  this->nod.push_back( packRGB(POCO, POCO, MEDIO));
-  this->nod.push_back( packRGB(POCO, POCO, ALTO));
-  this->nod.push_back( packRGB(POCO, MEDIO, POCO));
- this->nod.push_back( packRGB(POCO, MEDIO, MEDIO));
-  this->nod.push_back( packRGB(POCO, MEDIO, ALTO));
-  this->nod.push_back( packRGB(POCO, ALTO, POCO));
-  this->nod.push_back( packRGB(POCO, ALTO, MEDIO));
-  this->nod.push_back( packRGB(POCO, ALTO, ALTO));
+  this->nod.push_back(packRGB(POCO, POCO, POCO));
+  this->nod.push_back(packRGB(POCO, POCO, MEDIO));
+  this->nod.push_back(packRGB(POCO, POCO, ALTO));
+  this->nod.push_back(packRGB(POCO, MEDIO, POCO));
+  this->nod.push_back(packRGB(POCO, MEDIO, MEDIO));
+  this->nod.push_back(packRGB(POCO, MEDIO, ALTO));
+  this->nod.push_back(packRGB(POCO, ALTO, POCO));
+  this->nod.push_back(packRGB(POCO, ALTO, MEDIO));
+  this->nod.push_back(packRGB(POCO, ALTO, ALTO));
 
-  this->nod.push_back( packRGB(MEDIO, POCO, POCO));
-  this->nod.push_back( packRGB(MEDIO, POCO, MEDIO));
-  this->nod.push_back( packRGB(MEDIO, POCO, ALTO));
-  this->nod.push_back( packRGB(MEDIO, MEDIO, POCO));
-  this->nod.push_back( packRGB(MEDIO, MEDIO, MEDIO));
-  this->nod.push_back(   packRGB(MEDIO, MEDIO, ALTO));
-  this->nod.push_back( packRGB(MEDIO, ALTO, POCO));
-  this->nod.push_back( packRGB(MEDIO, ALTO, MEDIO));
-  this->nod.push_back( packRGB(MEDIO, ALTO, ALTO));
+  this->nod.push_back(packRGB(MEDIO, POCO, POCO));
+  this->nod.push_back(packRGB(MEDIO, POCO, MEDIO));
+  this->nod.push_back(packRGB(MEDIO, POCO, ALTO));
+  this->nod.push_back(packRGB(MEDIO, MEDIO, POCO));
+  this->nod.push_back(packRGB(MEDIO, MEDIO, MEDIO));
+  this->nod.push_back(packRGB(MEDIO, MEDIO, ALTO));
+  this->nod.push_back(packRGB(MEDIO, ALTO, POCO));
+  this->nod.push_back(packRGB(MEDIO, ALTO, MEDIO));
+  this->nod.push_back(packRGB(MEDIO, ALTO, ALTO));
 
-  this->nod.push_back( packRGB(ALTO, POCO, POCO));
-  this->nod.push_back( packRGB(ALTO, POCO, MEDIO));
-  this->nod.push_back( packRGB(ALTO, POCO, ALTO));
-  this->nod.push_back( packRGB(ALTO, MEDIO, POCO));
-  this->nod.push_back( packRGB(ALTO, MEDIO, MEDIO));
-  this->nod.push_back( packRGB(ALTO, MEDIO, ALTO));
-  this->nod.push_back( packRGB(ALTO, ALTO, POCO));
-  this->nod.push_back( packRGB(ALTO, ALTO, MEDIO));
-  this->nod.push_back( packRGB(ALTO, ALTO, ALTO));
+  this->nod.push_back(packRGB(ALTO, POCO, POCO));
+  this->nod.push_back(packRGB(ALTO, POCO, MEDIO));
+  this->nod.push_back(packRGB(ALTO, POCO, ALTO));
+  this->nod.push_back(packRGB(ALTO, MEDIO, POCO));
+  this->nod.push_back(packRGB(ALTO, MEDIO, MEDIO));
+  this->nod.push_back(packRGB(ALTO, MEDIO, ALTO));
+  this->nod.push_back(packRGB(ALTO, ALTO, POCO));
+  this->nod.push_back(packRGB(ALTO, ALTO, MEDIO));
+  this->nod.push_back(packRGB(ALTO, ALTO, ALTO));
 }
-
-
 
 void ImageAOS::cf_add_nodes_BIG(__uint16_t const POCOBIG, __uint16_t const MEDIOBIG,
-                             __uint16_t const ALTOBIG) {
-  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, POCOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, MEDIOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(POCOBIG, ALTOBIG, ALTOBIG));
+                                __uint16_t const ALTOBIG) {
+  this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(POCOBIG, ALTOBIG, ALTOBIG));
 
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, POCOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, MEDIOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(MEDIOBIG, ALTOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(MEDIOBIG, ALTOBIG, ALTOBIG));
 
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, POCOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, MEDIOBIG, ALTOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, POCOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, MEDIOBIG));
-  this->nodBIG.push_back( packRGBIG(ALTOBIG, ALTOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, POCOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, POCOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, POCOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, MEDIOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, MEDIOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, MEDIOBIG, ALTOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, POCOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, MEDIOBIG));
+  this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, ALTOBIG));
 }
 
-
-
-
-
-unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageAOS::cf_generate_graph() {
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>graph;
+unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
+    ImageAOS::cf_generate_graph() {
+ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>graph;
     cf_add_nodes();
    graph[this->nod[0]] = {{this->nod[1], this->nod[3], this->nod[NUEVE]}, {}}; // PPP
     graph[this->nod[1]] = {{this->nod[0], this->nod[2], this->nod[4], this->nod[DIEZ]}, {}}; // PPM
@@ -769,8 +530,10 @@ unordered_map<__uint32_t,pair<vector<__uint32_t>, vector<__uint32_t>>> ImageAOS:
     graph[this->nod[VEINTISEIS]] = {{this->nod[DIECISIETE], this->nod[VEINTITRES], this->nod[VEINTICINCO]}, {}}; // AAA
   return graph;
 }
-unordered_map<__uint64_t,pair<vector<__uint64_t>, vector<__uint64_t>>> ImageAOS::cf_generate_graph_BIG() {
-  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>graph;
+
+unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
+    ImageAOS::cf_generate_graph_BIG() {
+   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>graph;
     const int maxval = this->get_maxval();
     auto const newpoco = static_cast<unsigned short>((POCO*maxval)/MAX_LEVEL);
     auto const newmedio = static_cast<unsigned short>((MEDIO*maxval)/MAX_LEVEL);
@@ -807,66 +570,6 @@ unordered_map<__uint64_t,pair<vector<__uint64_t>, vector<__uint64_t>>> ImageAOS:
     graph[this->nodBIG[VEINTISEIS]] = {{this->nodBIG[DIECISIETE], this->nodBIG[VEINTITRES], this->nodBIG[VEINTICINCO]}, {}}; // AAA
   return graph;
 }
-
-
-
-
-//NOLINTBEGIN(misc-no-recursion)
-__uint32_t ImageAOS::cf_find_closest_in_neighbors(
-    __uint32_t color_to_delete,const unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> &graph,
-    const vector<__uint32_t> &neighbors,
-    double &min_distance, unordered_map<__uint32_t, __uint8_t> &visited_node) {
-  __uint32_t closest_color = 0;
-  bool found_closest = false;
-  for (__uint32_t const neighbor : neighbors) {
-    auto iter = graph.find(neighbor);
-    if(visited_node.contains(neighbor)){continue;}
-    for (__uint32_t const candidate : iter->second.second) {
-      if (double const distance = get_distance(color_to_delete, candidate);distance <= min_distance) {
-        min_distance = distance;
-        closest_color = candidate;
-        found_closest = true;}}
-    visited_node[neighbor] = 0;}
-  if (found_closest) {return closest_color;}
-  if (min_distance ==MAX_DIST) {
-    for (__uint32_t const neighbor : neighbors) {
-      auto iter = graph.find(neighbor);
-      closest_color = cf_find_closest_in_neighbors(color_to_delete, graph, iter->second.first, min_distance,visited_node);
-      if (closest_color != 0) { return closest_color;}}}
-  return 0;
-}
-//NOLINTEND(misc-no-recursion)
-
-//NOLINTBEGIN(misc-no-recursion)
-__uint64_t ImageAOS::cf_find_closest_in_neighbors_BIG(
-    __uint64_t color_to_delete,const unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> &graph,
-    const vector<__uint64_t> &neighbors,
-    double &min_distance, unordered_map<__uint64_t, __uint8_t> &visited_node) {
-  __uint64_t closest_color = 0;
-  bool found_closest = false;
-  for (__uint64_t const neighbor : neighbors) {
-    auto iter = graph.find(neighbor);
-    if(visited_node.contains(neighbor)){continue;}
-    for (__uint64_t const candidate : iter->second.second) {
-      if (double const distance = get_distance_BIG(color_to_delete, candidate);distance <= min_distance) {
-        min_distance = distance;
-        closest_color = candidate;
-        found_closest = true;}}
-    visited_node[neighbor] = 0;}
-  if (found_closest) {return closest_color;}
-  if (min_distance ==MAX_DIST) {
-    for (__uint64_t const neighbor : neighbors) {
-      auto iter = graph.find(neighbor);
-      closest_color = cf_find_closest_in_neighbors_BIG(color_to_delete, graph, iter->second.first, min_distance,visited_node);
-      if (closest_color != 0) { return closest_color;}}}
-  return 0;
-}
-//NOLINTEND(misc-no-recursion)
-
-
-
-
-
 
 deque<pair<__uint32_t, __uint16_t>>
     ImageAOS::cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
@@ -907,11 +610,10 @@ deque<pair<__uint32_t, __uint16_t>>
   return left_elems;
 }
 
-
 deque<pair<__uint64_t, __uint16_t>>
     ImageAOS::cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
-                                        unordered_map<__uint64_t, __uint64_t> & Deleteitems,
-                                        int & num_left) const {
+                                      unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                      int & num_left) const {
   vector<pair<__uint64_t, __uint16_t>> myVector(myMapBIG.begin(), myMapBIG.end());
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
@@ -948,57 +650,6 @@ deque<pair<__uint64_t, __uint16_t>>
   return left_elems;
 }
 
-
-
-void ImageAOS::cf_finish_graph(
-    unordered_map<__uint32_t, __uint16_t> myMap,
-    unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-    unordered_map<__uint32_t, __uint32_t> & toSave,
-    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph) {
-  for (auto const & key : myMap | views::keys) {
-    // me recorro las keys de graph
-    // me recorro graph
-    double distance = MAX_DIST;
-    for (auto const & key1 : graph | views::keys) {
-      double const new_distance = get_distance(key, key1);
-      if (new_distance <= distance) {
-        distance = new_distance;
-        if (!Deleteitems.contains(key)) {
-          toSave[key] = key1;
-        } else {
-          Deleteitems[key] = key1;
-        }
-      }
-    }
-    if (!Deleteitems.contains(key)) { graph[toSave[key]].second.push_back(key); }
-  }
-}
-void ImageAOS::cf_finish_graph_BIG(
-    unordered_map<__uint64_t, __uint16_t> myMap,
-    unordered_map<__uint64_t, __uint64_t> & Deleteitems,
-    unordered_map<__uint64_t, __uint64_t> & toSave,
-    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph) {
-  for (auto const & key : myMap | views::keys) {
-    // me recorro las keys de graph
-    // me recorro graph
-    double distance = MAX_DIST;
-    for (auto const & key1 : graph | views::keys) {
-      double const new_distance = get_distance_BIG(key, key1);
-      if (new_distance <= distance) {
-        distance = new_distance;
-        if (!Deleteitems.contains(key)) {
-          toSave[key] = key1;
-        } else {
-          Deleteitems[key] = key1;
-        }
-      }
-    }
-    if (!Deleteitems.contains(key)) { graph[toSave[key]].second.push_back(key); }
-  }
-}
-
-
-
 void ImageAOS::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) {
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
@@ -1018,7 +669,9 @@ void ImageAOS::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitem
     write_binary_8(output_file, blu);
   }
 
-  output_file.close();}
+  output_file.close();
+}
+
 void ImageAOS::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems) {
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
@@ -1037,97 +690,86 @@ void ImageAOS::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Delete
     write_binary_16(output_file, swap16(grn));
     write_binary_16(output_file, swap16(blu));
   }
-  output_file.close();}
+  output_file.close();
+}
 
-
-
-
-void ImageAOS::cutfreq_min(const unordered_map<__uint32_t, __uint16_t>& myMap) {
+void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
   // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
-  int num_left = 0;
-  auto left_elems= cf_check_first_part_small(myMap, Deleteitems, num_left);
+  int num_left    = 0;
+  auto left_elems = cf_check_first_part_small(myMap, Deleteitems, num_left);
   auto bluevalues = cf_same_bgr_vector(left_elems, 1, left_elems.size());
-
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
   unordered_map<__uint32_t, __uint32_t> toSave;
   // Me recorro las keys de myMap
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = cf_generate_graph();
-  cf_finish_graph(myMap, Deleteitems,toSave,graph);
-
-  for (auto &entry : Deleteitems) {
-    __uint32_t const color_to_delete = entry.first;
-    double min_distance = MAX_DIST;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      cf_generate_graph();
+  cf_finish_graph(myMap, Deleteitems, toSave, graph);
+  for (auto & entry : Deleteitems) {
+    __uint32_t const color_to_delete             = entry.first;
+    double min_distance                          = MAX_DIST;
     unordered_map<__uint32_t, __uint8_t> visited = {};
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
-    if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
-}
+    if (node_it == graph.end()) {
+      continue;  // Si no se encuentra el nodo, omitir
+    }
     visited[entry.second] = 0;
-
     // Primero, verificar la distancia en el nodo principal
-    //bool found_in_main_node = false;
+    // bool found_in_main_node = false;
     for (__uint32_t const candidate : node_it->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
-        entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
-        //found_in_main_node = true;
-      }
-    }
-    __uint32_t const replacement_color = cf_find_closest_in_neighbors(color_to_delete, graph, node_it->second.first, min_distance, visited);
+        entry.second = candidate;}}
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(
+        color_to_delete, graph, node_it->second.first, min_distance, visited);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) {
-      entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
-    }}
+      entry.second = replacement_color; }}
   cf_write_in_exit(Deleteitems);
-  }
+}
 
 
-
-void ImageAOS::cutfreq_max(const unordered_map<__uint64_t, __uint16_t>& myMapBIG) {
+void ImageAOS::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBIG) {
   // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint64_t, __uint64_t> Deleteitems;
-  int num_left = 0;
-  auto left_elems= cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
+  int num_left    = 0;
+  auto left_elems = cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
   auto bluevalues = cf_same_bgr_vector_BIG(left_elems, 1, left_elems.size());
-
   // Para saber que elemento de bluevalues utilizar
   Deleteitems = cf_check_colors_to_delete_BIG(Deleteitems, num_left, bluevalues);
   unordered_map<__uint64_t, __uint64_t> toSave;
   // Me recorro las keys de myMap
-  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph = cf_generate_graph_BIG();
-  cf_finish_graph_BIG(myMapBIG, Deleteitems,toSave,graph);
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph =
+      cf_generate_graph_BIG();
+  cf_finish_graph_BIG(myMapBIG, Deleteitems, toSave, graph);
 
-  for (auto &entry : Deleteitems) {
-    __uint64_t const color_to_delete = entry.first;
-    double min_distance = MAX_DIST;
+  for (auto & entry : Deleteitems) {
+    __uint64_t const color_to_delete             = entry.first;
+    double min_distance                          = MAX_DIST;
     unordered_map<__uint64_t, __uint8_t> visited = {};
     // Obtener el nodo correspondiente al color a eliminar
     auto node_it = graph.find(entry.second);
-    if (node_it == graph.end()) { continue; // Si no se encuentra el nodo, omitir
+    if (node_it == graph.end()) {
+      continue;  // Si no se encuentra el nodo, omitir
     }
     visited[entry.second] = 0;
-
     // Primero, verificar la distancia en el nodo principal
-    //bool found_in_main_node = false;
+    // bool found_in_main_node = false;
     for (__uint64_t const candidate : node_it->second.second) {
       double const distance = get_distance_BIG(color_to_delete, candidate);
       if (distance < min_distance) {
         min_distance = distance;
-        entry.second = candidate;  // Guardar en Deleteitems el candidato encontrado
-        //found_in_main_node = true;
-      }
-    }
-    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(color_to_delete, graph, node_it->second.first, min_distance, visited);
+        entry.second = candidate;}}
+    __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(
+        color_to_delete, graph, node_it->second.first, min_distance, visited);
     // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) {
-      entry.second = replacement_color;  // Guardar el color reemplazo en Deleteitems
-    }}
+      entry.second = replacement_color;}}
   cf_write_in_exit_BIG(Deleteitems);
 }
-
 
 int ImageAOS::cutfreq() {
   get_imgdata();
@@ -1157,7 +799,7 @@ int ImageAOS::cutfreq() {
     cout << "Pinga";
   } else {
     unordered_map<__uint64_t, __uint16_t> myMapBIG;
-    myMapBIG = cf_load_and_map_8BIG(width, move(input_file), height);
+    myMapBIG                     = cf_load_and_map_8BIG(width, move(input_file), height);
     size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
     if (elems_to_delete >= myMapBIG.size()) {
       cerr << "El numero de pixeles menos frecuentes a eliminar es mayor que el numero de "
@@ -1169,5 +811,4 @@ int ImageAOS::cutfreq() {
   }
   return 0;
 }
-
 
