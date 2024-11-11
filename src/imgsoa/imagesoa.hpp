@@ -7,9 +7,9 @@
 
 #include "common/progargs.hpp"
 
-#include <common/AVLTree.hpp>
 #include <common/struct-rgb.hpp>
 #include <deque>
+#include <list>
 #include <unordered_map>
 #include <vector>
 
@@ -20,32 +20,12 @@ class ImageSOA : public Image {
   public:
     ImageSOA(int argc, vector<string> const & argv);
     int process_operation();
-    std::string get_input_file() {
-      return this->input_file;
-    }
-    std::string get_output_file() {
-        return this->output_file;
-      }
-    int (*get_compress())();
-
-    std::string get_optype() const {
-      return this->optype;
-    }
-
 
   private:
-    static deque<pair<__uint32_t, __uint16_t>>
-        same_bgr_vector(deque<pair<__uint32_t, __uint16_t>> father_vector, int value,
-                        size_t counter);
-    static int check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int color,
-                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-                                deque<pair<__uint32_t, __uint16_t>> & bluevalues);
-    unordered_map<__uint32_t, __uint16_t> load_and_map_8(int width, ifstream input_file,
-                                                         int height);
-    static vector<__uint32_t> sort_and_map_keys(unordered_map<__uint32_t, __uint16_t> const & myMap,
-                                         unordered_map<__uint32_t, size_t> & color_to_index);
-    unordered_map<__uint64_t, __uint16_t> load_and_map_8BIG(int width, ifstream input_file,
+    unordered_map<__uint32_t, __uint16_t> cf_load_and_map_8(int width, ifstream input_file,
                                                             int height);
+    unordered_map<__uint64_t, __uint16_t> cf_load_and_map_8BIG(int width, ifstream input_file,
+                                                               int height);
 
     [[nodiscard]] int resize();
     int resize_min(ofstream & output_file);
@@ -60,28 +40,71 @@ class ImageSOA : public Image {
     [[nodiscard]] int compress();
     int compress_min();
     int compress_max();
-    void cp_export_min(ofstream & output_file, AVLTree tree, soa_rgb_small const & image);
-    void cp_export_max(ofstream & output_file, AVLTree tree, soa_rgb_big const & image);
-    static void delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
-                                  size_t index);
-    static size_t search_in_blue(deque<pair<__uint32_t, __uint16_t>> & pairs, __uint32_t & first);
-    static unordered_map<__uint32_t, __uint32_t>
-        check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems, int num_left,
-                               deque<pair<__uint32_t, __uint16_t>> bluevalues);
-    static __uint32_t get_aitems(size_t index, vector<__uint32_t> const & sorted_colors,
-                                 unordered_map<__uint32_t, __uint32_t> const & Deleteitems);
+    static void cp_export(ofstream & output_file,
+                          unordered_map<unsigned int, unsigned int> const & color_map,
+                          list<unsigned int> const & indexes);
+    static void cp_export_BIG(ofstream & output_file,
+                       unordered_map<unsigned long int, unsigned int> const & color_map,
+                       list<unsigned int> const & indexes);
+    static void cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
+                                     size_t index);
 
-    void cutfreq_min(unordered_map<__uint32_t, __uint16_t> myMap);
-    static void cutfreq_max(unordered_map<__uint64_t, __uint16_t> myMapBIG);
+    void cf_add_nodes();
+
+    void cf_add_nodes_BIG(__uint16_t POCOBIG, __uint16_t MEDIOBIG, __uint16_t ALTOBIG);
+
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> cf_generate_graph();
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> cf_generate_graph_2(
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph);
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> cf_generate_graph_3(
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph);
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> cf_generate_graph_4(
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph);
+
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> cf_generate_graph_BIG();
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> cf_generate_graph_BIG_2(
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph);
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> cf_generate_graph_BIG_3(
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph);
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> cf_generate_graph_BIG_4(
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph);
+
+    deque<pair<__uint32_t, __uint16_t>>
+        cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
+                                  unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+                                  int & num_left) const;
+
+    deque<pair<__uint64_t, __uint16_t>>
+        cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
+                                unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+                                int & num_left) const;
+
+    void cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems);
+
+    void cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems);
+    static void cf_search_in_graph_small(
+        unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+        unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph);
+    static void cf_search_in_graph_BIG(
+        unordered_map<__uint64_t, __uint64_t> & Deleteitems,
+        unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph);
+
+    void cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap);
+
+    void cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBIG);
+
     [[nodiscard]] int cutfreq();
-    soa_rgb_small read_image_rgb_small(ifstream & input_file) const;
-    soa_rgb_big read_image_rgb_big(ifstream & input_file) const;
-    soa_rgb_small soa_small;
-    soa_rgb_small soa_big;
 
-    std::string input_file;
-    std::string output_file;
-    std::string optype;
+    soa_rgb_small read_image_rgb_small(ifstream & input_file) const;
+
+    soa_rgb_big read_image_rgb_big(ifstream & input_file) const;
+
+    soa_rgb_small soa_small;
+    soa_rgb_big soa_big;
+    vector<__uint32_t> nod;
+    vector<__uint64_t> nodBIG;
+
+    friend class ImageSOATest_CompressOperation_Test;
 };
 
 #endif  // IMAGESOA_HPP
