@@ -1015,7 +1015,7 @@ void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) 
 void ImageAOS::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBIG) {
   unordered_map<__uint64_t, __uint64_t> Deleteitems;
   int num_left                          = 0;
-  auto left_elems                       = cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
+  auto const left_elems                 = cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
   params_same_vector_BIG const params_b = {
     .father_vector = left_elems, .value = 1, .counter = left_elems.size()};
   auto bluevalues = cf_same_bgr_vector_BIG(params_b);

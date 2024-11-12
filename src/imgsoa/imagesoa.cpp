@@ -729,8 +729,8 @@ deque<pair<__uint32_t, __uint16_t>>
   vector<pair<__uint32_t, __uint16_t>> VectorDelete;
   auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
-  // Añado al vector delete el numero de elementos que pide
   VectorDelete.reserve(elems_to_delete);
+  // Añado al vector delete el numero de elementos que pide
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
@@ -903,6 +903,10 @@ void ImageSOA::cf_search_in_graph_BIG(
   }
 }
 
+
+
+
+
 void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
   // Convertir myMap a vector de pares y ordenar
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
@@ -1030,6 +1034,8 @@ void ImageSOA::cp_export_BIG(ofstream & output_file,
   }
 }
 
+
+
 int ImageSOA::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -1039,10 +1045,10 @@ int ImageSOA::compress_min() {
   list<unsigned int> indexes;
   soa_rgb_small unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char const red = read_binary_8(input_file);
-    unsigned char const grn = read_binary_8(input_file);
-    unsigned char const blu = read_binary_8(input_file);
-    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    unsigned char const red         = read_binary_8(input_file);
+    unsigned char const grn         = read_binary_8(input_file);
+    unsigned char const blu         = read_binary_8(input_file);
+    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
     unsigned int const concatenated = packRGB(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
@@ -1077,11 +1083,11 @@ int ImageSOA::compress_max() {
   list<unsigned int> indexes;
   soa_rgb_big unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short const red = read_binary_16(input_file);
-    unsigned short const grn = read_binary_16(input_file);
-    unsigned short const blu = read_binary_16(input_file);
-    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    unsigned long int const concatenated = packRGBIG(red, grn, blu);
+    unsigned short const red        = read_binary_16(input_file);
+    unsigned short const grn        = read_binary_16(input_file);
+    unsigned short const blu        = read_binary_16(input_file);
+    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+        unsigned long int const concatenated = packRGBIG(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;

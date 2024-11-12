@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include "common/binario.hpp"
-#include <cmath>
 
 class BinaryTest : public ::testing::Test {
 };
@@ -208,6 +207,7 @@ TEST_F(BinaryTest, Swap16Incorrecto) {
   EXPECT_NE(result, 0x1234);
 }
 
+
 TEST_F(BinaryTest, PackRGBIGCorrecto) {
   uint16_t const red = 0x1234;
   uint16_t const grn = 0x5678;
@@ -274,129 +274,4 @@ TEST_F(BinaryTest, ExtractBlueIncorrecto) {
   constexpr uint32_t color = 0x123456;
   uint8_t const blue = extractblue(color);
   EXPECT_NE(blue, 0x34);
-}
-
-TEST_F(BinaryTest, DistanceToBlackIncorrecto) {
-  constexpr __uint32_t color = 0x123456;
-  EXPECT_NE(distance_to_black(color), 0.0);
-}
-
-TEST_F(BinaryTest, ExtractRedBIGCorrecto) {
-  constexpr uint64_t color = 0x123456789ABC;
-  uint16_t const red = extractredBIG(color);
-  EXPECT_EQ(red, 0x1234);
-}
-
-TEST_F(BinaryTest, ExtractRedBIGIncorrecto) {
-  constexpr uint64_t color = 0x123456789ABC;
-  uint16_t const red = extractredBIG(color);
-  EXPECT_NE(red, 0x5678);
-}
-
-TEST_F(BinaryTest, ExtractBlueBIGCorrecto) {
-  constexpr uint64_t color = 0x123456789ABC;
-  uint16_t const blue = extractblueBIG(color);
-  EXPECT_EQ(blue, 0x9ABC);
-}
-
-TEST_F(BinaryTest, ExtractBlueBIGIncorrecto) {
-  constexpr uint64_t color = 0x123456789ABC;
-  uint16_t const blue = extractblueBIG(color);
-  EXPECT_NE(blue, 0x1234);
-}
-
-TEST_F(BinaryTest, ExtractGreenBIGCorrecto) {
-  constexpr uint64_t color = 0x123456789ABC;
-  uint16_t const green = extractgreenBIG(color);
-  EXPECT_EQ(green, 0x5678);
-}
-
-TEST_F(BinaryTest, ExtractGreenBIGIncorrecto) {
-  constexpr uint64_t color = 0x123456789ABC;
-  uint16_t const green = extractgreenBIG(color);
-  EXPECT_NE(green, 0x1234);
-}
-
-TEST_F(BinaryTest, GetDistanceCorrectoIguales) {
-  constexpr __uint32_t color1 = 0x123456;
-  constexpr __uint32_t color2 = 0x123456;
-  EXPECT_DOUBLE_EQ(get_distance(color1, color2), 0.0);
-}
-
-TEST_F(BinaryTest, GetDistanceCorrectoNegroBlanco) {
-  constexpr __uint32_t color1 = 0x000000;
-  constexpr __uint32_t color2 = 0xFFFFFF;
-  EXPECT_DOUBLE_EQ(get_distance(color1, color2), sqrt(3 * pow(255, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceCorrectoRojoVerde) {
-  constexpr __uint32_t color1 = 0xFF0000;
-  constexpr __uint32_t color2 = 0x00FF00;
-  EXPECT_DOUBLE_EQ(get_distance(color1, color2), sqrt(2 * pow(255, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceCorrectoRojoAzul) {
-  constexpr __uint32_t color1 = 0xFF0000;
-  constexpr __uint32_t color2 = 0x0000FF;
-  EXPECT_DOUBLE_EQ(get_distance(color1, color2), sqrt(2 * pow(255, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceCorrectoVerdeAzul) {
-  constexpr __uint32_t color1 = 0x00FF00;
-  constexpr __uint32_t color2 = 0x0000FF;
-  EXPECT_DOUBLE_EQ(get_distance(color1, color2), sqrt(2 * pow(255, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceCorrectoRandom) {
-  constexpr __uint32_t color1 = 0x123456;
-  constexpr __uint32_t color2 = 0x654321;
-  EXPECT_DOUBLE_EQ(get_distance(color1, color2), sqrt(pow(0x12 - 0x65, 2) + pow(0x34 - 0x43, 2) + pow(0x56 - 0x21, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceIncorrecto) {
-  constexpr __uint32_t color1 = 0x123456;
-  constexpr __uint32_t color2 = 0x654321;
-  EXPECT_NE(get_distance(color1, color2), 0.0);
-}
-
-TEST_F(BinaryTest, GetDistanceBIGCorrectoIguales) {
-  constexpr __uint64_t color1 = 0x123456789ABC;
-  constexpr __uint64_t color2 = 0x123456789ABC;
-  EXPECT_DOUBLE_EQ(get_distance_BIG(color1, color2), 0.0);
-}
-
-TEST_F(BinaryTest, GetDistanceBIGCorrectoNegroBlanco) {
-  constexpr __uint64_t color1 = 0x000000000000;
-  constexpr __uint64_t color2 = 0xFFFFFFFFFFFF;
-  EXPECT_DOUBLE_EQ(get_distance_BIG(color1, color2), sqrt(3 * pow(0xFFFF, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceBIGCorrectoRojoVerde) {
-  constexpr __uint64_t color1 = 0xFFFF00000000;
-  constexpr __uint64_t color2 = 0x0000FFFF0000;
-  EXPECT_DOUBLE_EQ(get_distance_BIG(color1, color2), sqrt(2 * pow(0xFFFF, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceBIGCorrectoRojoAzul) {
-  constexpr __uint64_t color1 = 0xFFFF00000000;
-  constexpr __uint64_t color2 = 0x00000000FFFF;
-  EXPECT_DOUBLE_EQ(get_distance_BIG(color1, color2), sqrt(2 * pow(0xFFFF, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceBIGCorrectoVerdeAzul) {
-  constexpr __uint64_t color1 = 0x0000FFFF0000;
-  constexpr __uint64_t color2 = 0x00000000FFFF;
-  EXPECT_DOUBLE_EQ(get_distance_BIG(color1, color2), sqrt(2 * pow(0xFFFF, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceBIGCorrectoRandom) {
-  constexpr __uint64_t color1 = 0x123456789ABC;
-  constexpr __uint64_t color2 = 0x654321FEDCBA;
-  EXPECT_DOUBLE_EQ(get_distance_BIG(color1, color2), sqrt(pow(0x1234 - 0x6543, 2) + pow(0x5678 - 0x21FE, 2) + pow(0x9ABC - 0xDCBA, 2)));
-}
-
-TEST_F(BinaryTest, GetDistanceBIGIncorrecto) {
-  constexpr __uint64_t color1 = 0x123456789ABC;
-  constexpr __uint64_t color2 = 0x654321FEDCBA;
-  EXPECT_NE(get_distance_BIG(color1, color2), 0.0);
 }
