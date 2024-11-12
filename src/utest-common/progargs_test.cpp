@@ -43,12 +43,6 @@ class ImageTest : public ::testing::Test {
   [[nodiscard]] std::vector<std::string> const& getArgv() const {
     return argv;
   }
-
-  private:
-  string input_file;
-  string output_file;
-  ifstream if_input_file;
-  ofstream of_output_file;
 };
 
 
