@@ -799,7 +799,7 @@ __uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * par
       // Obtener nodo del grafo
       auto iter = params->graph->find(neighbor);
       for (__uint64_t const candidate : iter->second.second) {
-        if (double const distance = get_distance(params->color_to_delete, candidate);
+        if (double const distance = get_distance_BIG(params->color_to_delete, candidate);
             distance < min_distance) {
           min_distance  = distance;
           closest_color = candidate;

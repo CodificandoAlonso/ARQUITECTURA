@@ -45,14 +45,14 @@ struct cf_find_neigh_BIG {
 
 struct params_same_vector_small {
     deque<pair<__uint32_t, __uint16_t>> father_vector;
-    int value;
-    size_t counter;
+    int value = 0;
+    size_t counter = 0;
 };
 
 struct params_same_vector_BIG {
     deque<pair<__uint64_t, __uint16_t>> father_vector;
-    int value;
-    size_t counter;
+    int value = 0;
+    size_t counter = 0;
 };
 
 struct params_equal_blu {
