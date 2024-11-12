@@ -35,13 +35,6 @@ static constexpr int NUM_26 = 26;
 static constexpr int NUM_27 = 27;
 static constexpr int NUM_28 = 28;
 static constexpr int NUM_29 = 29;
-static constexpr int NUM_1000 = 1000;
-static constexpr __uint32_t BLACK = 0x000000;
-static constexpr __uint32_t WHITE = 0xFFFFFF;
-static constexpr __uint32_t RED = 0xFF0000;
-static constexpr __uint32_t GREEN = 0x00FF00;
-static constexpr __uint32_t BLUE = 0x0000FF;
-
 class ImageSOATest : public ::testing::Test {
 private:
     gsl::owner<ImageSOA*> imageSOA = nullptr;

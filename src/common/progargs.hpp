@@ -143,6 +143,7 @@ class Image {
                                         int & num_left,
                                         deque<pair<__uint64_t, __uint16_t>> & bluevalues);
     static void cf_equal_blue_case(params_equal_blu * params);
+
     static void cf_equal_blue_case_BIG(params_equal_blu_BIG * params);
 
     static unordered_map<__uint32_t, __uint32_t>

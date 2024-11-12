@@ -207,21 +207,6 @@ TEST_F(BinaryTest, Swap16Incorrecto) {
   EXPECT_NE(result, 0x1234);
 }
 
-TEST_F(BinaryTest, Mix3CharCorrecto) {
-  constexpr unsigned char ch1 = 0x12; // 00010010
-  constexpr unsigned char ch2 = 0x34; // 00110100
-  constexpr unsigned char ch3 = 0x56; // 01010110
-  string const result = mix3char(ch1, ch2, ch3);
-  EXPECT_EQ(result, "000100100011010001010110");
-}
-
-TEST_F(BinaryTest, Mix3CharIncorrecto) {
-  constexpr unsigned char ch1 = 0x12; // 00010010
-  constexpr unsigned char ch2 = 0x34; // 00110100
-  constexpr unsigned char ch3 = 0x56; // 01010110
-  string const result = mix3char(ch1, ch2, ch3);
-  EXPECT_NE(result, "010101100001001000110100");
-}
 
 TEST_F(BinaryTest, PackRGBIGCorrecto) {
   uint16_t const red = 0x1234;

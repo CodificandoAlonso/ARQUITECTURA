@@ -67,14 +67,6 @@ unsigned short swap16(unsigned short opr) {
 }
 
 
-string mix3char(const unsigned char ch1, const unsigned char ch2, const unsigned char ch3) {
-      bitset<BYTE> const byte1(ch1);
-      bitset<BYTE> const byte2(ch2);
-      bitset<BYTE> const byte3(ch3);
-    return byte1.to_string() + byte2.to_string() + byte3.to_string();
-
-}
-
 
 uint64_t packRGBIG(uint16_t const red, uint16_t const grn, uint16_t const blu) {
   return (static_cast<uint64_t>(red) << BYTE_4) | (static_cast<uint64_t>(grn) << BYTE_2) | blu;
@@ -98,13 +90,6 @@ uint8_t extractgreen(uint32_t const color) {
 
 uint8_t extractblue(uint32_t const color) {
   return color & FFF;
-}
-
-double distance_to_black(__uint32_t const color) {
-  __uint8_t const red = color >> BYTE_2 & FFF;
-  __uint8_t const grn = color >> BYTE & FFF;
-  __uint8_t const blu = color & FFF;
-  return sqrt(pow(red,2) + pow(grn, 2) + pow(blu, 2));
 }
 
 uint16_t extractredBIG(uint64_t const color) {

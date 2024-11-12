@@ -839,37 +839,6 @@ void ImageSOA::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Delete
   output_file.close();
 }
 
-void ImageSOA::cf_search_in_graph_small(
-    unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph) {
-  for (auto & entry : Deleteitems) {
-    __uint32_t const color_to_delete             = entry.first;
-    double min_distance                          = MAX_DIST;
-    unordered_map<__uint32_t, __uint8_t> visited = {};
-    // Obtener el nodo correspondiente al color a eliminar
-    auto node_it = graph.find(entry.second);
-    if (node_it == graph.end()) { continue; }
-    visited[entry.second] = 0;
-    // Primero, verificar la distancia en el nodo principal
-    // bool found_in_main_node = false;
-    for (__uint32_t const candidate : node_it->second.second) {
-      double const distance = get_distance(color_to_delete, candidate);
-      if (distance < min_distance) {
-        min_distance = distance;
-        entry.second = candidate;
-      }
-    }
-    cf_find_neigh_small const params_s = {.color_to_delete = color_to_delete,
-                                          .graph           = &graph,
-                                          .neighbors       = &node_it->second.first,
-                                          .min_distance    = &min_distance,
-                                          .visited_node    = &visited};
-    __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params_s);
-    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
-    if (replacement_color != 0) { entry.second = replacement_color; }
-  }
-}
-
 void ImageSOA::cf_search_in_graph_BIG(
     unordered_map<__uint64_t, __uint64_t> & Deleteitems,
     unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph) {
@@ -901,9 +870,36 @@ void ImageSOA::cf_search_in_graph_BIG(
   }
 }
 
-
-
-
+void ImageSOA::cf_search_in_graph_small(
+    unordered_map<__uint32_t, __uint32_t> & Deleteitems,
+    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph) {
+  for (auto & entry : Deleteitems) {
+    __uint32_t const color_to_delete             = entry.first;
+    double min_distance                          = MAX_DIST;
+    unordered_map<__uint32_t, __uint8_t> visited = {};
+    // Obtener el nodo correspondiente al color a eliminar
+    auto node_it = graph.find(entry.second);
+    if (node_it == graph.end()) { continue; }
+    visited[entry.second] = 0;
+    // Primero, verificar la distancia en el nodo principal
+    // bool found_in_main_node = false;
+    for (__uint32_t const candidate : node_it->second.second) {
+      double const distance = get_distance(color_to_delete, candidate);
+      if (distance < min_distance) {
+        min_distance = distance;
+        entry.second = candidate;
+      }
+    }
+    cf_find_neigh_small const params_s = {.color_to_delete = color_to_delete,
+                                          .graph           = &graph,
+                                          .neighbors       = &node_it->second.first,
+                                          .min_distance    = &min_distance,
+                                          .visited_node    = &visited};
+    __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params_s);
+    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
+    if (replacement_color != 0) { entry.second = replacement_color; }
+  }
+}
 
 void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
   // Convertir myMap a vector de pares y ordenar
@@ -1032,8 +1028,6 @@ void ImageSOA::cp_export_BIG(ofstream & output_file,
   }
 }
 
-
-
 int ImageSOA::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -1043,10 +1037,10 @@ int ImageSOA::compress_min() {
   list<unsigned int> indexes;
   soa_rgb_small unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char const red         = read_binary_8(input_file);
-    unsigned char const grn         = read_binary_8(input_file);
-    unsigned char const blu         = read_binary_8(input_file);
-    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    unsigned char const red = read_binary_8(input_file);
+    unsigned char const grn = read_binary_8(input_file);
+    unsigned char const blu = read_binary_8(input_file);
+    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
     unsigned int const concatenated = packRGB(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
@@ -1081,11 +1075,11 @@ int ImageSOA::compress_max() {
   list<unsigned int> indexes;
   soa_rgb_big unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short const red        = read_binary_16(input_file);
-    unsigned short const grn        = read_binary_16(input_file);
-    unsigned short const blu        = read_binary_16(input_file);
-    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        unsigned long int const concatenated = packRGBIG(red, grn, blu);
+    unsigned short const red = read_binary_16(input_file);
+    unsigned short const grn = read_binary_16(input_file);
+    unsigned short const blu = read_binary_16(input_file);
+    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    unsigned long int const concatenated = packRGBIG(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;

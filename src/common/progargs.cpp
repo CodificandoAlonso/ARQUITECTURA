@@ -710,43 +710,6 @@ unordered_map<__uint64_t, __uint64_t>
   return Deleteitems;
 }
 
-/*
-__uint32_t Image::cf_find_closest_in_neighbors(cf_find_neigh_small const * params) {
-  __uint32_t closest_color = 0;
-  for (__uint32_t const neighbor : *params->neighbors) {
-    if (params->visited_node->contains(neighbor)) { continue; }
-    auto iter = params->graph->find(neighbor);
-    if (iter == params->graph->end()) { continue; }
-    for (__uint32_t const candidate : iter->second.second) {
-      double const distance = get_distance(params->color_to_delete, candidate);
-      if (distance < *params->min_distance) {
-        // Si encontramos un candidato más cercano, actualizamos min_distance y retornamos.
-        *params->min_distance = distance;
-        closest_color = candidate;
-        return closest_color;
-      }
-    }
-    // Marcar este vecino como visitado
-    (*params->visited_node)[neighbor] = 0;
-  }
-  if (*params->min_distance == MAX_DIST) {
-    for (__uint32_t const neighbor : *params->neighbors) {
-      const auto iter = params->graph->find(neighbor);
-      unordered_map<__uint32_t, __uint8_t> local_visited = *params->visited_node;
-      cf_find_neigh_small const next_params = {.color_to_delete = params->color_to_delete,
-                                               .graph           = params->graph,
-                                               .neighbors       = &iter->second.first,
-                                               .min_distance    = params->min_distance,
-                                               .visited_node    = &local_visited};
-      // Llamada recursiva: intentamos encontrar el color más cercano en la nueva rama
-      closest_color = cf_find_closest_in_neighbors(&next_params);
-      if (closest_color != 0) { return closest_color; }  // Devuelve al encontrar un color válido
-    }
-  }
-
-  return closest_color;  // Retornar 0 si no se encontró ningún color
-}
-*/
 __uint32_t Image::cf_find_closest_in_neighbors(cf_find_neigh_small const * params) {
   __uint32_t closest_color = 0;
   bool found_closest       = false;
@@ -797,9 +760,9 @@ __uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * par
       // Marcar vecino como visitado
       visited_local[neighbor] = 0;
       // Obtener nodo del grafo
-      auto iter = params->graph->find(neighbor);
+      auto const iter = params->graph->find(neighbor);
       for (__uint64_t const candidate : iter->second.second) {
-        if (double const distance = get_distance(params->color_to_delete, candidate);
+        if (double const distance = get_distance_BIG(params->color_to_delete, candidate);
             distance < min_distance) {
           min_distance  = distance;
           closest_color = candidate;
@@ -823,8 +786,7 @@ void Image::cf_finish_graph(params_finish_graph const * params) {
     double distance = MAX_DIST;
 
     for (auto const & key1 : *params->graph | views::keys) {
-      double const new_distance = get_distance(key, key1);
-      if (new_distance <= distance) {
+      if (double const new_distance = get_distance(key, key1); new_distance <= distance) {
         distance = new_distance;
         if (!params->Deleteitems->contains(key)) {
           (*params->toSave)[key] = key1;
