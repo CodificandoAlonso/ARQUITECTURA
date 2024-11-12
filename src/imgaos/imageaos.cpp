@@ -990,20 +990,16 @@ void ImageAOS::cf_search_in_graph_BIG(
 }
 
 void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
-  // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
-  int num_left = 0;  // despues de la funcion. Numero de colores que quedan por llevar a eliminacion
+  int num_left                          = 0;
   auto left_elems                       = cf_check_first_part_small(myMap, Deleteitems, num_left);
   params_same_vector_small const params = {
     .father_vector = left_elems, .value = 1, .counter = left_elems.size()};
   auto bluevalues = cf_same_bgr_vector(params);
-  // Para saber que elemento de bluevalues utilizar
-  Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
+  Deleteitems     = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
   unordered_map<__uint32_t, __uint32_t> toSave;
-  // Me recorro las keys de myMap
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
       cf_generate_graph();
-  cf_generate_graph();
   cf_generate_graph_2(graph);
   cf_generate_graph_3(graph);
   cf_generate_graph_4(graph);
