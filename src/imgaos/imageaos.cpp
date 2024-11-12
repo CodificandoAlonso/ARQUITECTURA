@@ -818,6 +818,7 @@ deque<pair<__uint32_t, __uint16_t>>
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
+  VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
@@ -858,6 +859,7 @@ deque<pair<__uint64_t, __uint16_t>>
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
+  VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
