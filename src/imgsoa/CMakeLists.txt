@@ -4,5 +4,5 @@ add_library(imgsoa
 )
 #USE this
 target_link_libraries (imgsoa
-PUBLIC
+PRIVATE
 common Microsoft.GSL::GSL)

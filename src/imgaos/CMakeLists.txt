@@ -3,5 +3,5 @@ add_library(imgaos
         imageaos.cpp
 )
 target_link_libraries (imgaos
-        PUBLIC
+        PRIVATE
         common Microsoft.GSL::GSL)
