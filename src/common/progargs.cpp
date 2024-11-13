@@ -120,7 +120,10 @@ int Image::check_args() {
   int const argc      = this->argc;
   vector<string> argv = this->argv;
 
-  if (argc <= 3) { cerr << "Error: Invalid number of arguments: " + to_string(argc) << "\n"; }
+  if (argc <= 3) {
+    cerr << "Error: Invalid number of arguments: " + to_string(argc) << "\n";
+    return -1;
+  }
   this->input_file  = argv[1];
   this->output_file = argv[2];
 
