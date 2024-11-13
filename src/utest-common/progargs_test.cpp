@@ -533,7 +533,7 @@ TEST_F(ImageTest, CfDeleteAndRest_UltimoIndice) {
   EXPECT_EQ(num_left, 2);
 }
 
-TEST_F(ImageTest, CfCheckJustBlue_TresAzulesIguales) {
+TEST_F(ImageTest, CfCheckJustBlue_TresAzulesDistintos) {
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
   int num_left = 3;
   deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
@@ -545,18 +545,420 @@ TEST_F(ImageTest, CfCheckJustBlue_TresAzulesIguales) {
   EXPECT_EQ(bluevalues.size(), 3);
   EXPECT_EQ(num_left, 3);
 }
-/*
-TEST_F(ImageTest, CfCheckJustBlue_TresAzulesDistintos) {
+
+TEST_F(ImageTest, CfCheckJustBlue_TresAzulesIguales) {
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
   int num_left = 3;
   deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_5, 0}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_6, 0}};
 
   int const result = Image::cf_check_just_blue(Deleteitems, bluevalues, num_left);
 
-  EXPECT_EQ(result, 0);
-  EXPECT_EQ(Deleteitems.size(), 1);
-  EXPECT_EQ(Deleteitems[NUMERO_BIN_6], 0);
+  EXPECT_EQ(result, 4);
+  EXPECT_EQ(Deleteitems.size(), 0);
+  EXPECT_EQ(bluevalues.size(), 3);
+  EXPECT_EQ(num_left, 3);
+}
+
+TEST_F(ImageTest, CfDeleteFirstBlueValueCorrecto) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+
+  Image::cf_delete_first_blue_value(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_1], 0);
   EXPECT_EQ(bluevalues.size(), 2);
   EXPECT_EQ(num_left, 2);
 }
-*/
+
+TEST_F(ImageTest, CfDeleteFirstBlueValue1Elemento) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 1;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}};
+
+  Image::cf_delete_first_blue_value(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_1], 0);
+  EXPECT_EQ(bluevalues.size(), 0);
+  EXPECT_EQ(num_left, 0);
+}
+
+TEST_F(ImageTest, CfDeleteFirstBlueValueBIGCorrecto) {
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
+
+  Image::cf_delete_first_blue_value_BIG(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_1_BIG], 0);
+  EXPECT_EQ(bluevalues.size(), 2);
+  EXPECT_EQ(num_left, 2);
+}
+
+TEST_F(ImageTest, CfDeleteFirstBlueValueBIG1Elemento) {
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  int num_left = 1;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 0}};
+
+  Image::cf_delete_first_blue_value_BIG(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_1_BIG], 0);
+  EXPECT_EQ(bluevalues.size(), 0);
+  EXPECT_EQ(num_left, 0);
+}
+
+TEST_F(ImageTest, CfEqualBlueCaseCorrecto) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_6, 0}};
+  int my_meanwhile = 2;
+  constexpr size_t my_index = 0;
+
+  params_equal_blu params = {
+    .Deleteitems = &Deleteitems,
+    .num_left = &num_left,
+    .bluevalues = &bluevalues,
+    .my_index = my_index,
+    .my_meanwhile = &my_meanwhile
+  };
+
+  Image::cf_equal_blue_case(&params);
+
+  EXPECT_EQ(bluevalues.size(), 0);
+  EXPECT_EQ(num_left, 0);
+}
+
+TEST_F(ImageTest, CfEqualBlueCaseBIGCorrecto) {
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_6_BIG, 0}};
+  int my_meanwhile = 2;
+  constexpr size_t my_index = 0;
+
+  params_equal_blu_BIG params = {
+    .Deleteitems = &Deleteitems,
+    .num_left = &num_left,
+    .bluevalues = &bluevalues,
+    .my_index = my_index,
+    .my_meanwhile = &my_meanwhile
+  };
+
+  Image::cf_equal_blue_case_BIG(&params);
+
+  EXPECT_EQ(bluevalues.size(), 2);
+  EXPECT_EQ(num_left, 2);
+}
+
+TEST_F(ImageTest, CfCheckColorsToDeleteCorrecto) {
+  unordered_map<__uint32_t, __uint32_t> const Deleteitems;
+  int const num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> const bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+
+  auto result = Image::cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(result.size(), 3);
+  EXPECT_EQ(result[NUMERO_BIN_1], 0);
+  EXPECT_EQ(result[NUMERO_BIN_2], 0);
+  EXPECT_EQ(result[NUMERO_BIN_3], 0);
+  EXPECT_EQ(bluevalues.size(), 3);
+  EXPECT_EQ(num_left, 3);
+}
+
+TEST_F(ImageTest, CfCheckColorsToDelete1Elemento) {
+  unordered_map<__uint32_t, __uint32_t> const Deleteitems;
+  constexpr int num_left = 1;
+  deque<pair<__uint32_t, __uint16_t>> const bluevalues = {{NUMERO_BIN_1, 0}};
+
+  auto result = Image::cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(result.size(), 1);
+  EXPECT_EQ(result[NUMERO_BIN_1], 0);
+  EXPECT_EQ(bluevalues.size(), 1);
+  EXPECT_EQ(num_left, 1);
+}
+
+TEST_F(ImageTest, CfCheckColorsToDeleteBIGCorrecto) {
+  unordered_map<__uint64_t, __uint64_t> const Deleteitems;
+  int const num_left = 3;
+  deque<pair<__uint64_t, __uint16_t>> const bluevalues = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
+
+  auto result = Image::cf_check_colors_to_delete_BIG(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(result.size(), 3);
+  EXPECT_EQ(result[NUMERO_BIN_1_BIG], 0);
+  EXPECT_EQ(result[NUMERO_BIN_2_BIG], 0);
+  EXPECT_EQ(result[NUMERO_BIN_3_BIG], 0);
+  EXPECT_EQ(bluevalues.size(), 3);
+  EXPECT_EQ(num_left, 3);
+}
+
+TEST_F(ImageTest, CfCheckColorsToDeleteBIG1Elemento) {
+  unordered_map<__uint64_t, __uint64_t> const Deleteitems;
+  constexpr int num_left = 1;
+  deque<pair<__uint64_t, __uint16_t>> const bluevalues = {{NUMERO_BIN_1_BIG, 0}};
+
+  auto result = Image::cf_check_colors_to_delete_BIG(Deleteitems, num_left, bluevalues);
+
+  EXPECT_EQ(result.size(), 1);
+  EXPECT_EQ(result[NUMERO_BIN_1_BIG], 0);
+  EXPECT_EQ(bluevalues.size(), 1);
+  EXPECT_EQ(num_left, 1);
+}
+
+TEST_F(ImageTest, CfFindClosestInNeighborsCorrecto) {
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> const graph = {
+    {1, {{2, 3}, {4, 5}}},
+    {2, {{1, 3}, {6, 7}}},
+    {3, {{1, 2}, {8, 9}}},
+    {4, {{1}, {10}}},
+    {5, {{1}, {11}}},
+    {6, {{2}, {12}}},
+    {7, {{2}, {13}}},
+    {8, {{3}, {14}}},
+    {9, {{3}, {15}}}
+  };
+  unordered_map<__uint32_t, __uint8_t> visited_node;
+  vector<__uint32_t> const neighbors = {1};
+  double min_distance = numeric_limits<double>::max();
+  constexpr __uint32_t color_to_delete = 5;
+
+  cf_find_neigh_small const params = {
+    .color_to_delete = color_to_delete,
+    .graph = &graph,
+    .neighbors = &neighbors,
+    .min_distance = &min_distance,
+    .visited_node = &visited_node
+  };
+
+  __uint32_t const result = Image::cf_find_closest_in_neighbors(&params);
+
+  EXPECT_EQ(result, 5);
+  EXPECT_LT(min_distance, numeric_limits<double>::max());
+}
+
+TEST_F(ImageTest, CfFindClosestInNeighborsVariosCandidatos) {
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> const graph = {
+    {1, {{2, 3}, {4, 5}}},
+    {2, {{1, 3}, {6, 7}}},
+    {3, {{1, 2}, {8, 9}}},
+    {4, {{1}, {10}}},
+    {5, {{1}, {11}}},
+    {6, {{2}, {12}}},
+    {7, {{2}, {13}}},
+    {8, {{3}, {14}}},
+    {9, {{3}, {15}}},
+    {10, {{4}, {16}}},
+    {11, {{5}, {17}}}
+  };
+  unordered_map<__uint32_t, __uint8_t> visited_node;
+  vector<__uint32_t> const neighbors = {1};
+  double min_distance = numeric_limits<double>::max();
+  constexpr __uint32_t color_to_delete = 5;
+
+  cf_find_neigh_small const params = {
+    .color_to_delete = color_to_delete,
+    .graph = &graph,
+    .neighbors = &neighbors,
+    .min_distance = &min_distance,
+    .visited_node = &visited_node
+  };
+
+  __uint32_t const result = Image::cf_find_closest_in_neighbors(&params);
+
+  EXPECT_EQ(result, 5);
+  EXPECT_LT(min_distance, numeric_limits<double>::max());
+}
+
+TEST_F(ImageTest, CfFindClosestInNeighborsBIGCorrecto) {
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const graph = {
+    {1, {{2, 3}, {4, 5}}},
+    {2, {{1, 3}, {6, 7}}},
+    {3, {{1, 2}, {8, 9}}},
+    {4, {{1}, {10}}},
+    {5, {{1}, {11}}},
+    {6, {{2}, {12}}},
+    {7, {{2}, {13}}},
+    {8, {{3}, {14}}},
+    {9, {{3}, {15}}}
+  };
+  unordered_map<__uint64_t, __uint8_t> visited_node;
+  vector<__uint64_t> const neighbors = {1};
+  double min_distance = numeric_limits<double>::max();
+  constexpr __uint64_t color_to_delete = 5;
+
+  cf_find_neigh_BIG const params = {
+    .color_to_delete = color_to_delete,
+    .graph = &graph,
+    .neighbors = &neighbors,
+    .min_distance = &min_distance,
+    .visited_node = &visited_node
+  };
+
+  __uint64_t const result = Image::cf_find_closest_in_neighbors_BIG(&params);
+
+  EXPECT_EQ(result, 5);
+  EXPECT_LT(min_distance, numeric_limits<double>::max());
+}
+
+TEST_F(ImageTest, CfFindClosestInNeighborsBIGVariosCandidatos) {
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const graph = {
+    {1, {{2, 3}, {4, 5}}},
+    {2, {{1, 3}, {6, 7}}},
+    {3, {{1, 2}, {8, 9}}},
+    {4, {{1}, {10}}},
+    {5, {{1}, {11}}},
+    {6, {{2}, {12}}},
+    {7, {{2}, {13}}},
+    {8, {{3}, {14}}},
+    {9, {{3}, {15}}},
+    {10, {{4}, {16}}},
+    {11, {{5}, {17}}}
+  };
+  unordered_map<__uint64_t, __uint8_t> visited_node;
+  vector<__uint64_t> const neighbors = {1};
+  double min_distance = numeric_limits<double>::max();
+  constexpr __uint64_t color_to_delete = 5;
+
+  cf_find_neigh_BIG const params = {
+    .color_to_delete = color_to_delete,
+    .graph = &graph,
+    .neighbors = &neighbors,
+    .min_distance = &min_distance,
+    .visited_node = &visited_node
+  };
+
+  __uint64_t const result = Image::cf_find_closest_in_neighbors_BIG(&params);
+
+  EXPECT_EQ(result, 5);
+  EXPECT_LT(min_distance, numeric_limits<double>::max());
+}
+
+TEST_F(ImageTest, CfFinishGraphCorrecto) {
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = {
+    {1, {{2, 3}, {}}},
+    {2, {{1, 3}, {}}},
+    {3, {{1, 2}, {}}}
+  };
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  unordered_map<__uint32_t, __uint32_t> toSave;
+  unordered_map<__uint32_t, __uint16_t> const myMap = {
+    {4, 0},
+    {5, 0}
+  };
+
+  params_finish_graph const params = {
+    .myMap = &myMap,
+    .Deleteitems = &Deleteitems,
+    .toSave = &toSave,
+    .graph = &graph
+  };
+
+  Image::cf_finish_graph(&params);
+
+  EXPECT_EQ(graph[1].second.size(), 0);
+  EXPECT_EQ(graph[2].second.size(), 0);
+  EXPECT_EQ(graph[3].second.size(), 2);
+  EXPECT_EQ(Deleteitems.size(), 0);
+  EXPECT_EQ(toSave.size(), 2);
+  EXPECT_EQ(toSave[4], 3);
+  EXPECT_EQ(toSave[5], 3);
+}
+
+TEST_F(ImageTest, CfFinishGraphConElementosParaEliminar) {
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph = {
+    {1, {{2, 3}, {}}},
+    {2, {{1, 3}, {}}},
+    {3, {{1, 2}, {}}}
+  };
+  unordered_map<__uint32_t, __uint32_t> Deleteitems = {
+    {4, 0}
+  };
+  unordered_map<__uint32_t, __uint32_t> toSave;
+  unordered_map<__uint32_t, __uint16_t> const myMap = {
+    {4, 0},
+    {5, 0}
+  };
+
+  params_finish_graph const params = {
+    .myMap = &myMap,
+    .Deleteitems = &Deleteitems,
+    .toSave = &toSave,
+    .graph = &graph
+  };
+
+  Image::cf_finish_graph(&params);
+
+  EXPECT_EQ(graph[1].second.size(), 0);
+  EXPECT_EQ(graph[2].second.size(), 0);
+  EXPECT_EQ(graph[3].second.size(), 1);
+  EXPECT_EQ(graph[3].second[0], 5);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems[4], 3);
+  EXPECT_EQ(toSave.size(), 1);
+  EXPECT_EQ(toSave[5], 3);
+}
+
+TEST_F(ImageTest, CfFinishGraphBIGCorrecto) {
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph = {
+    {1, {{2, 3}, {}}},
+    {2, {{1, 3}, {}}},
+    {3, {{1, 2}, {}}}
+  };
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  unordered_map<__uint64_t, __uint64_t> toSave;
+  unordered_map<__uint64_t, __uint16_t> const myMap = {
+    {4, 0},
+    {5, 0}
+  };
+
+  params_finish_graph_BIG const params = {
+    .myMap = &myMap,
+    .Deleteitems = &Deleteitems,
+    .toSave = &toSave,
+    .graph = &graph
+  };
+
+  Image::cf_finish_graph_BIG(&params);
+
+  EXPECT_EQ(graph[1].second.size(), 0);
+  EXPECT_EQ(graph[2].second.size(), 0);
+  EXPECT_EQ(graph[3].second.size(), 2);
+  EXPECT_EQ(Deleteitems.size(), 0);
+  EXPECT_EQ(toSave.size(), 2);
+  EXPECT_EQ(toSave[4], 3);
+  EXPECT_EQ(toSave[5], 3);
+}
+
+TEST_F(ImageTest, CfFinishGraphBIGConElementosParaEliminar) {
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph = {
+    {1, {{2, 3}, {}}},
+    {2, {{1, 3}, {}}},
+    {3, {{1, 2}, {}}}
+  };
+  unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+    {4, 0}
+  };
+  unordered_map<__uint64_t, __uint64_t> toSave;
+  unordered_map<__uint64_t, __uint16_t> const myMap = {
+    {4, 0},
+    {5, 0}
+  };
+
+  params_finish_graph_BIG const params = {
+    .myMap = &myMap,
+    .Deleteitems = &Deleteitems,
+    .toSave = &toSave,
+    .graph = &graph
+  };
+
+  Image::cf_finish_graph_BIG(&params);
+
+  EXPECT_EQ(graph[1].second.size(), 0);
+  EXPECT_EQ(graph[2].second.size(), 0);
+  EXPECT_EQ(graph[3].second.size(), 1);
+  EXPECT_EQ(graph[3].second[0], 5);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems[4], 3);
+  EXPECT_EQ(toSave.size(), 1);
+  EXPECT_EQ(toSave[5], 3);
+}
