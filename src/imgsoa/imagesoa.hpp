@@ -139,6 +139,23 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfLoadAndMap8BIG_NegativeHeight_Test;
     friend class ImageSOATest_CfAddNodesBIG_Success_Test;
     friend class ImageSOATest_CfAddNodesBIG_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraph_Success_Test;
+    friend class ImageSOATest_CfGenerateGraph_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraph2_Success_Test;
+    friend class ImageSOATest_CfGenerateGraph2_Failure_Test;
+    friend class ImageSOATest;
+    friend class ImageSOATest_CfGenerateGraph3_Success_Test;
+    friend class ImageSOATest_CfGenerateGraph3_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraph4_Success_Test;
+    friend class ImageSOATest_CfGenerateGraph4_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG_Success_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG2_Success_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG2_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG3_Success_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG3_Failure_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG4_Success_Test;
+    friend class ImageSOATest_CfGenerateGraphBIG4_Failure_Test;
 
 };
 
