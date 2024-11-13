@@ -44,8 +44,8 @@ class ImageSOA : public Image {
                           unordered_map<unsigned int, unsigned int> const & color_map,
                           list<unsigned int> const & indexes);
     static void cp_export_BIG(ofstream & output_file,
-                       unordered_map<unsigned long int, unsigned int> const & color_map,
-                       list<unsigned int> const & indexes);
+                              unordered_map<unsigned long int, unsigned int> const & color_map,
+                              list<unsigned int> const & indexes);
     static void cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
                                      size_t index);
 
@@ -131,8 +131,6 @@ class ImageSOA : public Image {
     friend class ImageSOATest_SameBGRVector_Success_Test;
     friend class ImageSOATest_SameBGRVector_EmptyInput_Test;
     friend class ImageSOATest_SameBGRVector_InsufficientElements_Test;
-
-
 };
 
 #endif  // IMAGESOA_HPP
