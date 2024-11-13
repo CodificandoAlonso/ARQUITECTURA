@@ -126,20 +126,6 @@ class ImageAOS : public Image {
     friend class ImageAOSTest_SameBGRVector_Success_Test;
     friend class ImageAOSTest_SameBGRVector_EmptyInput_Test;
     friend class ImageAOSTest_SameBGRVector_InsufficientElements_Test;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 };
 
 #endif  // IMAGEAOS_HPP

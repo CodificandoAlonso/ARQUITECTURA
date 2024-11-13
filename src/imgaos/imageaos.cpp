@@ -53,23 +53,24 @@ static constexpr size_t VEINTICINCO  = 25;
 static constexpr size_t VEINTISEIS   = 26;
 using namespace std;
 
-ImageAOS::ImageAOS(int argc, vector<string> const & argv) : Image(argc, argv) {
-  // Constructor de la clase
-}
+/**
+ * Constructor de la clase ImageAOS
+ */
+ImageAOS::ImageAOS(int argc, vector<string> const & argv) : Image(argc, argv) { }
 
+/**
+ * Función que determina la operación determinada a ejeecutar en la imagen. Previamente debe haber
+ * llamado a la función de la superclase Image::check_args() para verificar los argumentos de
+ * entrada y su correcta inicialización en los atributos de la clase.
+ */
 int ImageAOS::process_operation() {
-  // Primera operación: leer los metadatos de la imagen de entrada. Como
-  // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
     if (info() < 0) { return -1; }
   } else if (this->get_optype() == "maxlevel") {
-    // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
     if (maxlevel() < 0) { return -1; }
   } else if (this->get_optype() == "resize") {
-    // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
   } else if (this->get_optype() == "compress") {
-    // Implementación de la operación de compresión usando AOS (Array of Structures)
     if (compress() < 0) { return -1; }
   } else if (this->get_optype() == "cutfreq") {
     if (cutfreq() < 0) { return -1; }
@@ -80,6 +81,11 @@ int ImageAOS::process_operation() {
   return 0;
 }
 
+/*
+ * Función auxiliar de la función resize. Obtiene los píxeles cercanos a la posición deseada en la
+ * imagen original. Se obtienen los píxeles de la esquina superior izquierda, superior derecha,
+ * inferior izquierda e inferior derecha. Versión de la función para imágenes de 8 bits.
+ */
 array<rgb_small, 4> ImageAOS::rsz_obtain_square_min(vector<rgb_small> const & image,
                                                     array<unsigned int, FIVE> args) {
   auto xlength = static_cast<unsigned long>(args[0]);
@@ -102,6 +108,11 @@ array<rgb_small, 4> ImageAOS::rsz_obtain_square_min(vector<rgb_small> const & im
   return square;
 }
 
+/**
+ * Función auxiliar de la función resize. Obtiene los píxeles cercanos a la posición deseada en la
+ * imagen original. Se obtienen los píxeles de la esquina superior izquierda, superior derecha,
+ * inferior izquierda e inferior derecha. Versión de la función para imágenes de 16 bits.
+ */
 array<rgb_big, 4> ImageAOS::rsz_obtain_square_max(vector<rgb_big> const & image,
                                                   array<unsigned int, FIVE> args) {
   auto xlength = static_cast<unsigned long>(args[0]);
@@ -124,6 +135,10 @@ array<rgb_big, 4> ImageAOS::rsz_obtain_square_max(vector<rgb_big> const & image,
   return square;
 }
 
+/**
+ * Función auxiliar de la función resize. Interpola los valores de los píxeles cercanos a la
+ * posición deseada en la imagen original. Versión de la función para imágenes de 8 bits.
+ */
 rgb_small ImageAOS::rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
                                         double t_param) {
   rgb_small const c_1 = {
@@ -144,6 +159,10 @@ rgb_small ImageAOS::rsz_interpolate_min(double u_param, array<rgb_small, 4> squa
   return c_param;
 }
 
+/**
+ * Función auxiliar de la función resize. Interpola los valores de los píxeles cercanos a la
+ * posición deseada en la imagen original. Versión de la función para imágenes de 16 bits.
+ */
 rgb_big ImageAOS::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param) {
   rgb_big const c_1 = {
     .r = static_cast<unsigned short>(((1 - t_param) * square[0].r) + (t_param * square[1].r)),
@@ -163,6 +182,9 @@ rgb_big ImageAOS::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, 
   return c_param;
 }
 
+/**
+ * Función que almacena la imagen haciendo uso de la estrategia AOS para su versión de 8 bits.
+ */
 vector<rgb_small> ImageAOS::read_image_rgb_small(ifstream & input_file) const {
   vector<rgb_small> image;
   for (int i = 0; i < this->get_width() * this->get_height(); i++) {
@@ -175,6 +197,9 @@ vector<rgb_small> ImageAOS::read_image_rgb_small(ifstream & input_file) const {
   return image;
 }
 
+/**
+ * Función que almacena la imagen haciendo uso de la estrategia AOS para su versión de 16 bits.
+ */
 vector<rgb_big> ImageAOS::read_image_rgb_big(ifstream & input_file) const {
   vector<rgb_big> image;
   for (int i = 0; i < this->get_width() * this->get_height(); i++) {
@@ -187,6 +212,9 @@ vector<rgb_big> ImageAOS::read_image_rgb_big(ifstream & input_file) const {
   return image;
 }
 
+/**
+ * Función de redimensionamiento para imágenes de 8 bits.
+ */
 int ImageAOS::resize_min(ofstream & output_file) {
   ifstream input_file  = this->get_if_input_file();
   int const width      = this->get_width();
@@ -219,6 +247,9 @@ int ImageAOS::resize_min(ofstream & output_file) {
   return 0;
 }
 
+/**
+ * Función de redimensionamiento para imágenes de 16 bits.
+ */
 int ImageAOS::resize_max(ofstream & output_file) {
   ifstream input_file  = this->get_if_input_file();
   int const width      = this->get_width();
@@ -251,6 +282,9 @@ int ImageAOS::resize_max(ofstream & output_file) {
   return 0;
 }
 
+/**
+ * Función de redimensionamiento.
+ */
 int ImageAOS::resize() {
   get_imgdata();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -281,6 +315,11 @@ int ImageAOS::resize() {
   return 0;
 }
 
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 8 bits.
+ */
 void ImageAOS::cp_export(ofstream & output_file,
                          unordered_map<unsigned int, unsigned int> const & color_map,
                          list<unsigned int> const & indexes) {
@@ -299,6 +338,11 @@ void ImageAOS::cp_export(ofstream & output_file,
   }
 }
 
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 16 bits.
+ */
 void ImageAOS::cp_export_BIG(ofstream & output_file,
                              unordered_map<unsigned long int, unsigned int> const & color_map,
                              list<unsigned int> const & indexes) {
@@ -317,6 +361,10 @@ void ImageAOS::cp_export_BIG(ofstream & output_file,
   }
 }
 
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 8 bits.
+ */
 int ImageAOS::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -326,10 +374,9 @@ int ImageAOS::compress_min() {
   list<unsigned int> indexes;
   vector<rgb_small> unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char const red = read_binary_8(input_file);
-    unsigned char const grn = read_binary_8(input_file);
-    unsigned char const blu = read_binary_8(input_file);
-    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    unsigned char const red         = read_binary_8(input_file);
+    unsigned char const grn         = read_binary_8(input_file);
+    unsigned char const blu         = read_binary_8(input_file);
     unsigned int const concatenated = packRGB(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.size());
@@ -352,6 +399,10 @@ int ImageAOS::compress_min() {
   return 0;
 }
 
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 16 bits.
+ */
 int ImageAOS::compress_max() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -361,12 +412,10 @@ int ImageAOS::compress_max() {
   list<unsigned int> indexes;
   vector<rgb_big> unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short const red = read_binary_16(input_file);
-    unsigned short const grn = read_binary_16(input_file);
-    unsigned short const blu = read_binary_16(input_file);
-    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    unsigned long int const concatenated =
-        packRGBIG(red, grn, blu);  /// MIRATE ESTO BETO Y COMPLETA
+    unsigned short const red             = read_binary_16(input_file);
+    unsigned short const grn             = read_binary_16(input_file);
+    unsigned short const blu             = read_binary_16(input_file);
+    unsigned long int const concatenated = packRGBIG(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.size());
       color_map[concatenated] = index;
@@ -388,6 +437,9 @@ int ImageAOS::compress_max() {
   return 0;
 }
 
+/**
+ * Función de compresión de la imagen.
+ */
 int ImageAOS::compress() {
   get_imgdata();
 
@@ -579,8 +631,8 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MMP
   graph[this->nod[TRECE]] = {
-    {this->nod[4], this->nod[DIEZ], this->nod[DOCE],this->nod[QUINCE], this->nod[CATORCE], this->nod[DIECISEIS],
-     this->nod[VEINTIDOS]},
+    {this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[QUINCE], this->nod[CATORCE],
+     this->nod[DIECISEIS], this->nod[VEINTIDOS]},
     {}
   };  // MMM
   return graph;
@@ -973,8 +1025,6 @@ void ImageAOS::cf_search_in_graph_BIG(
     auto node_it = graph.find(entry.second);
     if (node_it == graph.end()) { continue; }
     visited[entry.second] = 0;
-    // Primero, verificar la distancia en el nodo principal
-    // bool found_in_main_node = false;
     for (__uint64_t const candidate : node_it->second.second) {
       double const distance = get_distance_BIG(color_to_delete, candidate);
       if (distance < min_distance) {
