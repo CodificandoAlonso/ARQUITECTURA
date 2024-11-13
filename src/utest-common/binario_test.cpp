@@ -275,3 +275,59 @@ TEST_F(BinaryTest, ExtractBlueIncorrecto) {
   uint8_t const blue = extractblue(color);
   EXPECT_NE(blue, 0x34);
 }
+
+TEST_F(BinaryTest, GetDistanceCorrecto) {
+  constexpr __uint32_t item_1 = 0x123456;
+  constexpr __uint32_t item_2 = 0x654321;
+  double const distance = get_distance(item_1, item_2);
+  EXPECT_NEAR(distance, 99.614, 0.001);
+}
+
+TEST_F(BinaryTest, GetDistanceIncorrecto) {
+  constexpr __uint32_t item_1 = 0x123456;
+  constexpr __uint32_t item_2 = 0x654321;
+  double const distance = get_distance(item_1, item_2);
+  EXPECT_NE(distance, 0.0);
+}
+
+TEST_F(BinaryTest, GetDistanceZeroCorrecto) {
+  constexpr __uint32_t item_1 = 0x000000;
+  constexpr __uint32_t item_2 = 0x000000;
+  double const distance = get_distance(item_1, item_2);
+  EXPECT_EQ(distance, 0.0);
+}
+
+TEST_F(BinaryTest, GetDistanceMaxCorrecto) {
+  constexpr __uint32_t item_1 = 0xFFFFFF;
+  constexpr __uint32_t item_2 = 0x000000;
+  double const distance = get_distance(item_1, item_2);
+  EXPECT_NEAR(distance, 441.673, 0.001);
+}
+
+TEST_F(BinaryTest, GetDistanceBIGCorrecto) {
+  constexpr __uint64_t item_1 = 0x123456789ABC;
+  constexpr __uint64_t item_2 = 0x654321FEDCBA;
+  double const distance = get_distance_BIG(item_1, item_2);
+  EXPECT_NEAR(distance, 30298.428, 0.001);
+}
+
+TEST_F(BinaryTest, GetDistanceBIGIncorrecto) {
+  constexpr __uint64_t item_1 = 0x123456789ABC;
+  constexpr __uint64_t item_2 = 0x654321FEDCBA;
+  double const distance = get_distance_BIG(item_1, item_2);
+  EXPECT_NE(distance, 0.0);
+}
+
+TEST_F(BinaryTest, GetDistanceBIGZeroCorrecto) {
+  constexpr __uint64_t item_1 = 0x000000000000;
+  constexpr __uint64_t item_2 = 0x000000000000;
+  double const distance = get_distance_BIG(item_1, item_2);
+  EXPECT_EQ(distance, 0.0);
+}
+
+TEST_F(BinaryTest, GetDistanceBIGMaxCorrecto) {
+  constexpr __uint64_t item_1 = 0xFFFFFFFFFFFF;
+  constexpr __uint64_t item_2 = 0x000000000000;
+  double const distance = get_distance_BIG(item_1, item_2);
+  EXPECT_NEAR(distance, 113509.949, 0.001);
+}
