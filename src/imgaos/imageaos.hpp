@@ -98,6 +98,48 @@ class ImageAOS : public Image {
     vector<__uint64_t> nodBIG;
     vector<rgb_small> array_small;
     vector<rgb_big> array_big;
+
+    friend class ImageAOSTest_RszObtainSquareMax_Test;
+    friend class ImageAOSTest_RszObtainSquareMaxFailure_Test;
+    friend class ImageAOSTest_RszObtainSquareMin_Test;
+    friend class ImageAOSTest_RszObtainSquareMinFailure_Test;
+    friend class ImageAOSTest_RszInterpolateMinSuccess_Test;
+    friend class ImageAOSTest_RszInterpolateMinFailure_Test;
+    friend class ImageAOSTest_RszInterpolateMaxSuccess_Test;
+    friend class ImageAOSTest_RszInterpolateMaxOutOfBounds_Test;
+    friend class ImageAOSTest_RszInterpolateMaxInvalidUParam_Test;
+    friend class ImageAOSTest_RszInterpolateMaxInvalidTParam_Test;
+    friend class ImageAOSTest_ReadImageRGBSmallSuccess_Test;
+    friend class ImageAOSTest_ReadImageRGBSmallFileNotFound_Test;
+    friend class ImageAOSTest_ReadImageRGBSmallIncompleteData_Test;
+    friend class ImageAOSTest_ReadImageRGBSmallCorruptData_Test;
+    friend class ImageAOSTest_ReadImageRGBSmallMemoryError_Test;
+    friend class ImageAOSTest_ReadImageRGBBig_Success_Test;
+    friend class ImageAOSTest_ReadImageRGBBig_FileNotOpen_Test;
+    friend class ImageAOSTest_ReadImageRGBBig_FileReadError_Test;
+    friend class ImageAOSTest_SortAndMapKeys_Success_Test;
+    friend class ImageAOSTest_SortAndMapKeys_EmptyMap_Test;
+    friend class ImageAOSTest_SortAndMapKeys_SingleElement_Test;
+    friend class ImageAOSTest_SortAndMapKeys_SameDistanceToBlack_Test;
+    friend class ImageAOSTest_SortAndMapKeys_LargeMap_Test;
+    friend class ImageAOSTest_LoadAndMap8_Success_Test;
+    friend class ImageAOSTest_SameBGRVector_Success_Test;
+    friend class ImageAOSTest_SameBGRVector_EmptyInput_Test;
+    friend class ImageAOSTest_SameBGRVector_InsufficientElements_Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 };
 
 #endif  // IMAGEAOS_HPP

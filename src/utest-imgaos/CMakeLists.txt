@@ -1,9 +1,8 @@
 # Executable for all unit tests with list of sources
 # For example, you may have one ∗_test.cpp for each ∗.cpp in img−aos
 add_executable(utest-imgaos
-        one_test.cpp
-        test_aos_1.cpp
-        test_aos_2.cpp)
+        imageaos_test.cpp
+)
 # Library dependencies
 target_link_libraries (utest-imgaos
         PRIVATE
