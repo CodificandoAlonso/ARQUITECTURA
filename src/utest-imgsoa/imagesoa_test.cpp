@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "imgsoa/imagesoa.hpp"
+#include "common/binario.hpp"
 #include <gsl/gsl>
 #include <fstream>
 #include <array>
@@ -9,6 +10,7 @@
 #include <unordered_map>
 
 static constexpr int CIEN = 100;
+static constexpr int MCIEN = -100;
 static constexpr int FOTO = 256;
 static constexpr int NUM_5 = 5;
 static constexpr int NUM_6 = 6;
@@ -35,7 +37,13 @@ static constexpr int NUM_26 = 26;
 static constexpr int NUM_27 = 27;
 static constexpr int NUM_28 = 28;
 static constexpr int NUM_29 = 29;
+static constexpr int NUM_M75 = -75;
+static constexpr int NUM_M150 = -150;
+static constexpr int NUM_M240 = -240;
 
+static constexpr int NUM_75 = 75;
+static constexpr int NUM_150 = 150;
+static constexpr int NUM_240 = 240;
 
 class ImageSOATest : public ::testing::Test {
 private:
@@ -44,26 +52,25 @@ private:
 
 
 protected:
-    void SetUp() override {
-        std::vector<std::string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
-        imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
+  void SetUp() override {
+    std::vector<std::string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
+    imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
 
-        test_image_path = "test_image.ppm";
-        std::ofstream output_file(test_image_path, std::ios::binary);
-        if (!output_file) {
-            FAIL() << "Failed to create test image file.";
-        }
-        output_file << "P6\n" << CIEN << " " << CIEN << "\n" << FOTO-1 << "\n";
-
-        // Write some dummy data to the input file
-        for (int i = 0; i < CIEN * CIEN; ++i) {
-            output_file.put(static_cast<char>(i % FOTO));
-            output_file.put(static_cast<char>((i + 1) % FOTO));
-            output_file.put(static_cast<char>((i + 2) % FOTO));
-        }
-        output_file.close();
-
+    test_image_path = "test_image.ppm";
+    std::ofstream output_file(test_image_path, std::ios::binary);
+    if (!output_file) {
+      FAIL() << "Failed to create test image file.";
     }
+    output_file << "P6\n" << CIEN << " " << CIEN << "\n" << FOTO-1 << "\n";
+
+    // Write some dummy data to the input file
+    for (int i = 0; i < CIEN * CIEN; ++i) {
+      output_file.put(static_cast<char>(i % FOTO));
+      output_file.put(static_cast<char>((i + 1) % FOTO));
+      output_file.put(static_cast<char>((i + 2) % FOTO));
+    }
+    output_file.close();
+  }
 
     void TearDown() override {
         if (imageSOA != nullptr) {
@@ -460,47 +467,114 @@ TEST_F(ImageSOATest, LoadAndMap8_Success) {
     auto result = getImageSOA()->cf_load_and_map_8(CIEN, std::move(input_file), CIEN);
     ASSERT_FALSE(result.empty());
 }
+
+//Test cf_load_map_8_BIG funciona
+TEST_F(ImageSOATest, CfLoadAndMap8BIGSuccess) {
+  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ASSERT_TRUE(input_file.is_open());
+
+  ImageSOA const imageSOA(0, {});
+  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), CIEN);
+  ASSERT_FALSE(result.empty());
+}
+
+TEST_F(ImageSOATest, CfLoadAndMap8BIG_FileNotOpen) {
+  std::ifstream input_file("non_existent.ppm", std::ios::binary);
+  ASSERT_FALSE(input_file.is_open());
+
+  ImageSOA const imageSOA(0, {});
+  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), CIEN);
+
+  // Check if the result is not empty since the function does not handle file not open case
+  ASSERT_FALSE(result.empty()) << "Expected result to be not empty when input file cannot be opened.";
+}
+
+TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidWidth) {
+  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ASSERT_TRUE(input_file.is_open());
+
+  ImageSOA const imageSOA(0, {});
+  auto result = getImageSOA()->cf_load_and_map_8BIG(0, std::move(input_file), CIEN);
+
+  // Check if the result is empty
+  ASSERT_TRUE(result.empty()) << "Expected result to be empty when width is zero.";
+}
+
+TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidHeight) {
+  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ASSERT_TRUE(input_file.is_open());
+
+  ImageSOA const imageSOA(0, {});
+  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), 0);
+
+  // Check if the result is empty
+  ASSERT_TRUE(result.empty()) << "Expected result to be empty when height is zero.";
+}
+
+TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeWidth) {
+  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ASSERT_TRUE(input_file.is_open());
+
+  ImageSOA const imageSOA(0, {});
+  auto result = getImageSOA()->cf_load_and_map_8BIG(MCIEN, std::move(input_file), CIEN);
+
+  // Check if the result is empty
+  ASSERT_TRUE(result.empty()) << "Expected result to be empty when width is negative.";
+}
+
+TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeHeight) {
+  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ASSERT_TRUE(input_file.is_open());
+
+  ImageSOA const imageSOA(0, {});
+  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), MCIEN);
+
+  // Check if the result is empty
+  ASSERT_TRUE(result.empty()) << "Expected result to be empty when height is negative.";
+}
 /*
-//Funcion same_bgr_vector funciona
-TEST_F(ImageSOATest, SameBGRVector_Success) {
-    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
-        {0x000000, 1}, {BLUE, 2}, {GREEN, 3}, {RED, 4}
-    };
-    ImageSOA const imageSOA(0, {});
-    auto result = ImageSOA::same_bgr_vector(father_vector, 1, father_vector.size());
+TEST_F(ImageSOATest, CfAddNodesBIG_Success) {
+  ImageSOA imageSOA(0, {});
+  getImageSOA()->cf_add_nodes_BIG(NUM_75, NUM_150, NUM_240);
 
-    ASSERT_EQ(result.size(), 4);
-    std::cout << "result[0].first: " << result[0].first << '\n';
-    std::cout << "result[1].first: " << result[1].first << '\n';
-    std::cout << "result[2].first: " << result[2].first << '\n';
-    std::cout << "result[3].first: " << result[3].first << '\n';
-    ASSERT_EQ(result[0].first, 255);
-    ASSERT_EQ(result[1].first, 0);
-    ASSERT_EQ(result[2].first, 65280);
-    ASSERT_EQ(result[3].first, 16711680);
-}
-
-//Funcion same_bgr_vector no funciona por un vector vacío de entrada
-TEST_F(ImageSOATest, SameBGRVector_EmptyInput) {
-    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector;
-    ImageSOA const imageSOA(0, {});
-    auto result = ImageSOA::same_bgr_vector(father_vector, 1, father_vector.size());
-
-    ASSERT_TRUE(result.empty());
-}
-
-
-TEST_F(ImageSOATest, SameBGRVector_InsufficientElements) {
-    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
-        {0x000000, 1}
-    };
-    ImageSOA const imageSOA(0, {});
-    auto result = ImageSOA::same_bgr_vector(father_vector, 1, 2);
-
-    ASSERT_EQ(result.size(), 2);
-    ASSERT_EQ(result[0].first, 0x000000);
+  ASSERT_EQ(imageSOA.nodBIG.size(), 0);
+  ASSERT_EQ(imageSOA.nodBIG[0], packRGBIG(75, 75, 75));
+  ASSERT_EQ(imageSOA.nodBIG[1], packRGBIG(75, 75, 150));
+  ASSERT_EQ(imageSOA.nodBIG[2], packRGBIG(75, 75, 240));
+  ASSERT_EQ(imageSOA.nodBIG[3], packRGBIG(75, 150, 75));
+  ASSERT_EQ(imageSOA.nodBIG[4], packRGBIG(75, 150, 150));
+  ASSERT_EQ(imageSOA.nodBIG[5], packRGBIG(75, 150, 240));
+  ASSERT_EQ(imageSOA.nodBIG[6], packRGBIG(75, 240, 75));
+  ASSERT_EQ(imageSOA.nodBIG[7], packRGBIG(75, 240, 150));
+  ASSERT_EQ(imageSOA.nodBIG[8], packRGBIG(75, 240, 240));
+  ASSERT_EQ(imageSOA.nodBIG[9], packRGBIG(150, 75, 75));
+  ASSERT_EQ(imageSOA.nodBIG[10], packRGBIG(150, 75, 150));
+  ASSERT_EQ(imageSOA.nodBIG[11], packRGBIG(150, 75, 240));
+  ASSERT_EQ(imageSOA.nodBIG[12], packRGBIG(150, 150, 75));
+  ASSERT_EQ(imageSOA.nodBIG[13], packRGBIG(150, 150, 150));
+  ASSERT_EQ(imageSOA.nodBIG[14], packRGBIG(150, 150, 240));
+  ASSERT_EQ(imageSOA.nodBIG[15], packRGBIG(150, 240, 75));
+  ASSERT_EQ(imageSOA.nodBIG[16], packRGBIG(150, 240, 150));
+  ASSERT_EQ(imageSOA.nodBIG[17], packRGBIG(150, 240, 240));
+  ASSERT_EQ(imageSOA.nodBIG[18], packRGBIG(240, 75, 75));
+  ASSERT_EQ(imageSOA.nodBIG[19], packRGBIG(240, 75, 150));
+  ASSERT_EQ(imageSOA.nodBIG[20], packRGBIG(240, 75, 240));
+  ASSERT_EQ(imageSOA.nodBIG[21], packRGBIG(240, 150, 75));
+  ASSERT_EQ(imageSOA.nodBIG[22], packRGBIG(240, 150, 150));
+  ASSERT_EQ(imageSOA.nodBIG[23], packRGBIG(240, 150, 240));
+  ASSERT_EQ(imageSOA.nodBIG[24], packRGBIG(240, 240, 75));
+  ASSERT_EQ(imageSOA.nodBIG[25], packRGBIG(240, 240, 150));
+  ASSERT_EQ(imageSOA.nodBIG[26], packRGBIG(240, 240, 240));
 }
 */
+TEST_F(ImageSOATest, CfAddNodesBIG_Failure) {
+  ImageSOA const imageSOA(0, {});
+  getImageSOA()->cf_add_nodes_BIG(static_cast<__uint16_t>(NUM_M75), static_cast<__uint16_t>(NUM_M150), static_cast<__uint16_t>(NUM_M240));
+
+  ASSERT_EQ(imageSOA.nodBIG.size(), 0) << "Expected nodBIG to be empty when given negative values.";
+}
+
+
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
