@@ -4,5 +4,3 @@ add_library(common
         binario.cpp
         struct-rgb.cpp
 )
-# Use this line only if you have dependencies from this library to GSL
-target_link_libraries (common PRIVATE Microsoft.GSL::GSL)

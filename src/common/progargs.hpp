@@ -8,7 +8,6 @@
 #include <deque>
 #include <fstream>
 #include <memory>
-
 #include <unordered_map>
 #include <vector>
 using namespace std;
@@ -45,14 +44,14 @@ struct cf_find_neigh_BIG {
 
 struct params_same_vector_small {
     deque<pair<__uint32_t, __uint16_t>> father_vector;
-    int value;
-    size_t counter;
+    int value      = 0;
+    size_t counter = 0;
 };
 
 struct params_same_vector_BIG {
     deque<pair<__uint64_t, __uint16_t>> father_vector;
-    int value;
-    size_t counter;
+    int value      = 0;
+    size_t counter = 0;
 };
 
 struct params_equal_blu {
@@ -70,8 +69,6 @@ struct params_equal_blu_BIG {
     size_t my_index;
     int * my_meanwhile;
 };
-
-
 
 class Image {
   public:
@@ -140,9 +137,10 @@ class Image {
                                            int & num_left,
                                            deque<pair<__uint32_t, __uint16_t>> & bluevalues);
     static void cf_delete_first_blue_value_BIG(unordered_map<__uint64_t, __uint64_t> & Deleteitems,
-                                        int & num_left,
-                                        deque<pair<__uint64_t, __uint16_t>> & bluevalues);
+                                               int & num_left,
+                                               deque<pair<__uint64_t, __uint16_t>> & bluevalues);
     static void cf_equal_blue_case(params_equal_blu * params);
+
     static void cf_equal_blue_case_BIG(params_equal_blu_BIG * params);
 
     static unordered_map<__uint32_t, __uint32_t>
@@ -160,8 +158,7 @@ class Image {
     static void cf_finish_graph(params_finish_graph const * params);
 
     static void cf_finish_graph_BIG(params_finish_graph_BIG const * params);
-      const std::vector<std::string>& getArgv() const;
-
+    std::vector<std::string> const & getArgv() const;
 
   private:
     void min_min();
@@ -181,9 +178,9 @@ class Image {
     int height = 0;
     int maxval = 0;
     std::unique_ptr<Image> image;
-  
-  friend class ImageTest_InfoFunction_Test;
-  friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
+
+    friend class ImageTest_InfoFunction_Test;
+    friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
 };
 
 #endif  // PROGARGS_HPP

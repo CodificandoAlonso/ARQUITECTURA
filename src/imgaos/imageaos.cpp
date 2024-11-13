@@ -51,26 +51,26 @@ static constexpr size_t VEINTITRES   = 23;
 static constexpr size_t VEINTICUATRO = 24;
 static constexpr size_t VEINTICINCO  = 25;
 static constexpr size_t VEINTISEIS   = 26;
-
 using namespace std;
 
-ImageAOS::ImageAOS(int argc, vector<string> const & argv) : Image(argc, argv) {
-  // Constructor de la clase
-}
+/**
+ * Constructor de la clase ImageAOS
+ */
+ImageAOS::ImageAOS(int argc, vector<string> const & argv) : Image(argc, argv) { }
 
+/**
+ * Función que determina la operación determinada a ejeecutar en la imagen. Previamente debe haber
+ * llamado a la función de la superclase Image::check_args() para verificar los argumentos de
+ * entrada y su correcta inicialización en los atributos de la clase.
+ */
 int ImageAOS::process_operation() {
-  // Primera operación: leer los metadatos de la imagen de entrada. Como
-  // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
     if (info() < 0) { return -1; }
   } else if (this->get_optype() == "maxlevel") {
-    // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
     if (maxlevel() < 0) { return -1; }
   } else if (this->get_optype() == "resize") {
-    // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
   } else if (this->get_optype() == "compress") {
-    // Implementación de la operación de compresión usando AOS (Array of Structures)
     if (compress() < 0) { return -1; }
   } else if (this->get_optype() == "cutfreq") {
     if (cutfreq() < 0) { return -1; }
@@ -81,6 +81,11 @@ int ImageAOS::process_operation() {
   return 0;
 }
 
+/*
+ * Función auxiliar de la función resize. Obtiene los píxeles cercanos a la posición deseada en la
+ * imagen original. Se obtienen los píxeles de la esquina superior izquierda, superior derecha,
+ * inferior izquierda e inferior derecha. Versión de la función para imágenes de 8 bits.
+ */
 array<rgb_small, 4> ImageAOS::rsz_obtain_square_min(vector<rgb_small> const & image,
                                                     array<unsigned int, FIVE> args) {
   auto xlength = static_cast<unsigned long>(args[0]);
@@ -103,6 +108,11 @@ array<rgb_small, 4> ImageAOS::rsz_obtain_square_min(vector<rgb_small> const & im
   return square;
 }
 
+/**
+ * Función auxiliar de la función resize. Obtiene los píxeles cercanos a la posición deseada en la
+ * imagen original. Se obtienen los píxeles de la esquina superior izquierda, superior derecha,
+ * inferior izquierda e inferior derecha. Versión de la función para imágenes de 16 bits.
+ */
 array<rgb_big, 4> ImageAOS::rsz_obtain_square_max(vector<rgb_big> const & image,
                                                   array<unsigned int, FIVE> args) {
   auto xlength = static_cast<unsigned long>(args[0]);
@@ -125,6 +135,10 @@ array<rgb_big, 4> ImageAOS::rsz_obtain_square_max(vector<rgb_big> const & image,
   return square;
 }
 
+/**
+ * Función auxiliar de la función resize. Interpola los valores de los píxeles cercanos a la
+ * posición deseada en la imagen original. Versión de la función para imágenes de 8 bits.
+ */
 rgb_small ImageAOS::rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
                                         double t_param) {
   rgb_small const c_1 = {
@@ -145,6 +159,10 @@ rgb_small ImageAOS::rsz_interpolate_min(double u_param, array<rgb_small, 4> squa
   return c_param;
 }
 
+/**
+ * Función auxiliar de la función resize. Interpola los valores de los píxeles cercanos a la
+ * posición deseada en la imagen original. Versión de la función para imágenes de 16 bits.
+ */
 rgb_big ImageAOS::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param) {
   rgb_big const c_1 = {
     .r = static_cast<unsigned short>(((1 - t_param) * square[0].r) + (t_param * square[1].r)),
@@ -164,6 +182,9 @@ rgb_big ImageAOS::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, 
   return c_param;
 }
 
+/**
+ * Función que almacena la imagen haciendo uso de la estrategia AOS para su versión de 8 bits.
+ */
 vector<rgb_small> ImageAOS::read_image_rgb_small(ifstream & input_file) const {
   vector<rgb_small> image;
   for (int i = 0; i < this->get_width() * this->get_height(); i++) {
@@ -176,6 +197,9 @@ vector<rgb_small> ImageAOS::read_image_rgb_small(ifstream & input_file) const {
   return image;
 }
 
+/**
+ * Función que almacena la imagen haciendo uso de la estrategia AOS para su versión de 16 bits.
+ */
 vector<rgb_big> ImageAOS::read_image_rgb_big(ifstream & input_file) const {
   vector<rgb_big> image;
   for (int i = 0; i < this->get_width() * this->get_height(); i++) {
@@ -188,6 +212,9 @@ vector<rgb_big> ImageAOS::read_image_rgb_big(ifstream & input_file) const {
   return image;
 }
 
+/**
+ * Función de redimensionamiento para imágenes de 8 bits.
+ */
 int ImageAOS::resize_min(ofstream & output_file) {
   ifstream input_file  = this->get_if_input_file();
   int const width      = this->get_width();
@@ -220,6 +247,9 @@ int ImageAOS::resize_min(ofstream & output_file) {
   return 0;
 }
 
+/**
+ * Función de redimensionamiento para imágenes de 16 bits.
+ */
 int ImageAOS::resize_max(ofstream & output_file) {
   ifstream input_file  = this->get_if_input_file();
   int const width      = this->get_width();
@@ -252,6 +282,9 @@ int ImageAOS::resize_max(ofstream & output_file) {
   return 0;
 }
 
+/**
+ * Función de redimensionamiento.
+ */
 int ImageAOS::resize() {
   get_imgdata();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -282,6 +315,11 @@ int ImageAOS::resize() {
   return 0;
 }
 
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 8 bits.
+ */
 void ImageAOS::cp_export(ofstream & output_file,
                          unordered_map<unsigned int, unsigned int> const & color_map,
                          list<unsigned int> const & indexes) {
@@ -300,6 +338,11 @@ void ImageAOS::cp_export(ofstream & output_file,
   }
 }
 
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 16 bits.
+ */
 void ImageAOS::cp_export_BIG(ofstream & output_file,
                              unordered_map<unsigned long int, unsigned int> const & color_map,
                              list<unsigned int> const & indexes) {
@@ -318,6 +361,10 @@ void ImageAOS::cp_export_BIG(ofstream & output_file,
   }
 }
 
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 8 bits.
+ */
 int ImageAOS::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -327,10 +374,9 @@ int ImageAOS::compress_min() {
   list<unsigned int> indexes;
   vector<rgb_small> unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char const red = read_binary_8(input_file);
-    unsigned char const grn = read_binary_8(input_file);
-    unsigned char const blu = read_binary_8(input_file);
-    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
+    unsigned char const red         = read_binary_8(input_file);
+    unsigned char const grn         = read_binary_8(input_file);
+    unsigned char const blu         = read_binary_8(input_file);
     unsigned int const concatenated = packRGB(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.size());
@@ -353,6 +399,10 @@ int ImageAOS::compress_min() {
   return 0;
 }
 
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 16 bits.
+ */
 int ImageAOS::compress_max() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -362,12 +412,10 @@ int ImageAOS::compress_max() {
   list<unsigned int> indexes;
   vector<rgb_big> unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short const red = read_binary_16(input_file);
-    unsigned short const grn = read_binary_16(input_file);
-    unsigned short const blu = read_binary_16(input_file);
-    // unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-    unsigned long int const concatenated =
-        packRGBIG(red, grn, blu);  /// MIRATE ESTO BETO Y COMPLETA
+    unsigned short const red             = read_binary_16(input_file);
+    unsigned short const grn             = read_binary_16(input_file);
+    unsigned short const blu             = read_binary_16(input_file);
+    unsigned long int const concatenated = packRGBIG(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.size());
       color_map[concatenated] = index;
@@ -389,6 +437,9 @@ int ImageAOS::compress_max() {
   return 0;
 }
 
+/**
+ * Función de compresión de la imagen.
+ */
 int ImageAOS::compress() {
   get_imgdata();
 
@@ -575,12 +626,13 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MPA
   graph[this->nod[DOCE]] = {
-    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO]},
+    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO],
+     this->nod[DIECIOCHO], this->nod[DIECINUEVE]},
     {}
   };  // MMP
   graph[this->nod[TRECE]] = {
-    {this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[CATORCE], this->nod[DIECISEIS],
-     this->nod[VEINTIDOS]},
+    {this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[QUINCE], this->nod[CATORCE],
+     this->nod[DIECISEIS], this->nod[VEINTIDOS]},
     {}
   };  // MMM
   return graph;
@@ -595,7 +647,7 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MMA
   graph[this->nod[QUINCE]] = {
-    {this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[DIECIOCHO],
+    {this->nod[SEIS], this->nod[DOCE], this->nod[TRECE], this->nod[DIECISEIS], this->nod[DIECIOCHO],
      this->nod[VEINTICUATRO]},
     {}
   };  // MAP
@@ -610,11 +662,12 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
   };  // MAA
 
   graph[this->nod[DIECIOCHO]] = {
-    {this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE]},
+    {this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE], this->nod[DOCE]},
     {}
   };  // APP
   graph[this->nod[DIECINUEVE]] = {
-    {this->nod[DIEZ], this->nod[DIECIOCHO], this->nod[VEINTE], this->nod[VEINTIDOS]},
+    {this->nod[DIEZ], this->nod[DIECIOCHO], this->nod[VEINTE], this->nod[VEINTIDOS],
+     this->nod[DOCE]},
     {}
   };  // APM
   graph[this->nod[VEINTE]] = {
@@ -722,12 +775,12 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   };  // MPA
   graph[this->nodBIG[DOCE]] = {
     {this->nodBIG[3], this->nodBIG[NUEVE], this->nodBIG[TRECE], this->nodBIG[QUINCE],
-     this->nodBIG[VEINTIUNO]},
+     this->nodBIG[VEINTIUNO], this->nodBIG[DIECIOCHO]},
     {}
   };  // MMP
   graph[this->nodBIG[TRECE]] = {
     {this->nodBIG[4], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[CATORCE],
-     this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS]},
+     this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS], this->nodBIG[DIECIOCHO]},
     {}
   };  // MMM
   return graph;
@@ -758,7 +811,8 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   };  // MAA
 
   graph[this->nodBIG[DIECIOCHO]] = {
-    {this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE]},
+    {this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE], this->nod[DOCE],
+     this->nod[TRECE], this->nodBIG[VEINTIUNO]},
     {}
   };  // APP
   graph[this->nodBIG[DIECINUEVE]] = {
@@ -770,7 +824,7 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
     {}
   };  // APA
   graph[this->nodBIG[VEINTIUNO]] = {
-    {this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO]},
+    {this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO], this->nod[DIECIOCHO]},
     {}
   };  // AMP
   return graph;
@@ -818,6 +872,7 @@ deque<pair<__uint32_t, __uint16_t>>
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
+  VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
@@ -858,6 +913,7 @@ deque<pair<__uint64_t, __uint16_t>>
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
+  VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
@@ -969,8 +1025,6 @@ void ImageAOS::cf_search_in_graph_BIG(
     auto node_it = graph.find(entry.second);
     if (node_it == graph.end()) { continue; }
     visited[entry.second] = 0;
-    // Primero, verificar la distancia en el nodo principal
-    // bool found_in_main_node = false;
     for (__uint64_t const candidate : node_it->second.second) {
       double const distance = get_distance_BIG(color_to_delete, candidate);
       if (distance < min_distance) {
@@ -990,20 +1044,16 @@ void ImageAOS::cf_search_in_graph_BIG(
 }
 
 void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
-  // Convierto myMap a vector de pares y ordeno
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
-  int num_left = 0;  // despues de la funcion. Numero de colores que quedan por llevar a eliminacion
+  int num_left                          = 0;
   auto left_elems                       = cf_check_first_part_small(myMap, Deleteitems, num_left);
   params_same_vector_small const params = {
     .father_vector = left_elems, .value = 1, .counter = left_elems.size()};
   auto bluevalues = cf_same_bgr_vector(params);
-  // Para saber que elemento de bluevalues utilizar
-  Deleteitems = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
+  Deleteitems     = cf_check_colors_to_delete(Deleteitems, num_left, bluevalues);
   unordered_map<__uint32_t, __uint32_t> toSave;
-  // Me recorro las keys de myMap
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
       cf_generate_graph();
-  cf_generate_graph();
   cf_generate_graph_2(graph);
   cf_generate_graph_3(graph);
   cf_generate_graph_4(graph);
@@ -1017,7 +1067,7 @@ void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) 
 void ImageAOS::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBIG) {
   unordered_map<__uint64_t, __uint64_t> Deleteitems;
   int num_left                          = 0;
-  auto left_elems                       = cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
+  auto const left_elems                 = cf_check_first_part_BIG(myMapBIG, Deleteitems, num_left);
   params_same_vector_BIG const params_b = {
     .father_vector = left_elems, .value = 1, .counter = left_elems.size()};
   auto bluevalues = cf_same_bgr_vector_BIG(params_b);

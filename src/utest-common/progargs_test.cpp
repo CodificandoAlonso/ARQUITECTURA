@@ -5,16 +5,19 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+static constexpr __uint32_t NUMERO_BIN_1 = 0x123456;
+static constexpr __uint32_t NUMERO_BIN_2 = 0x654321;
+static constexpr __uint32_t NUMERO_BIN_3 = 0xabcdef;
+static constexpr __uint32_t NUMERO_BIN_4 = 0xffaa56;
+static constexpr __uint32_t NUMERO_BIN_5 = 0xff3456;
+static constexpr __uint32_t NUMERO_BIN_6 = 0xaa3456;
+static constexpr __uint64_t NUMERO_BIN_1_BIG = 0xabcdddef3369;
+static constexpr __uint64_t NUMERO_BIN_2_BIG = 0x876543213542;
+static constexpr __uint64_t NUMERO_BIN_3_BIG = 0xabcdef01ab34;
+static constexpr __uint64_t NUMERO_BIN_4_BIG = 0xaaaaaaaa3369;
+static constexpr __uint64_t NUMERO_BIN_5_BIG = 0xaaaa12343369;
+static constexpr __uint64_t NUMERO_BIN_6_BIG = 0xaaaa12343369;
 // Constantes
-static constexpr int MAX_LEVEL    = 65535;
-static constexpr int MIN_LEVEL    = 255;
-static constexpr int MAX_ARGS     = 6;
-static constexpr int DECIMAL_BASE = 10;
-static constexpr int CIEN = 100;
-static constexpr int CERO = 0;
-static constexpr int CIENTOCINCUENTA = 150;
-static constexpr int DOSCIENTOS = 200;
-static constexpr int CIENTOVEINTIOCHO = 128;
 using namespace std;
 
 #include <iostream>
@@ -201,44 +204,272 @@ TEST_F(ImageTest, CheckArgsCompressCorrecto) {
 TEST_F(ImageTest, CheckArgsNumeroArgumentosIncorrecto) {
   setArgv({"imtool-soa", "input.ppm", "output.ppm"});
   SetUp();
-  EXPECT_THROW(getImage()->check_args(), runtime_error);
+  EXPECT_THROW({
+    const bool result = getImage()->check_args(); //Guardamos el resultado para que no nos de error de Clang-tidy
+    (void)result;
+  }, runtime_error);
 }
 
 TEST_F(ImageTest, CheckArgsOpcionInvalida) {
   setArgv({"imtool-soa", "input.ppm", "output.ppm", "incorrect"});
   SetUp();
-  EXPECT_THROW(getImage()->check_args(), runtime_error);
+  EXPECT_THROW({
+    const bool result = getImage()->check_args(); //Guardamos el resultado para que no nos de error de Clang-tidy
+    (void)result;
+  }, runtime_error);
 }
 
-
-
-#include <sys/stat.h>
-
-bool fileExists(const std::string& filename) {
-  struct stat buffer;
-  return (stat(filename.c_str(), &buffer) == 0);
-}
-
-TEST_F(ImageTest, InfoFunction) {
-  // Set up the input and output files
-  std::string inputFilePath = "data/lake-small.ppm";
-  std::ifstream inputFile(inputFilePath, std::ios::binary);
-  if (!inputFile.is_open()) {
-    if (!fileExists(inputFilePath)) {
-      FAIL() << "Input file does not exist: " << inputFilePath;
-    }{
-      FAIL() << "Error opening input file: " << inputFilePath;
-    }
-  }
-
-  std::string outputFilePath = "data/pipo.ppm";
-  std::ofstream outputFile(outputFilePath, std::ios::binary);
-  if (!outputFile.is_open()) {
-    FAIL() << "Error opening output file: " << outputFilePath;
-  }
-
-  setArgv({"imtool-aos", "data/lake-small.ppm", "data/pipo.ppm", "maxlevel", "250"});
-  getImage()->get_imgdata();
-  getImage()->min_min();
+TEST_F(ImageTest, CheckArgsCorrectoInfo) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "info"});
   SetUp();
+  EXPECT_EQ(getImage()->check_args(), 0);
 }
+
+TEST_F(ImageTest, CheckArgsCorrectoMaxlevel) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "maxlevel", "573"});
+  SetUp();
+  EXPECT_EQ(getImage()->check_args(), 0);
+}
+
+TEST_F(ImageTest, CheckArgsCorrectoResize) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "200", "200"});
+  SetUp();
+  EXPECT_EQ(getImage()->check_args(), 0);
+}
+
+TEST_F(ImageTest, CheckArgsCorrectoCutfreq) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "cutfreq", "100"});
+  SetUp();
+  EXPECT_EQ(getImage()->check_args(), 0);
+}
+
+TEST_F(ImageTest, CheckArgsCorrectoCompress) {
+  setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "compress"});
+  SetUp();
+  EXPECT_EQ(getImage()->check_args(), 0);
+}
+
+TEST_F(ImageTest, CfSameBgrVectorCorrectoAzul) {
+  params_same_vector_small params;
+  params.counter = 3;
+  params.value = 1; // Azul
+  params.father_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+
+  auto result = Image::cf_same_bgr_vector(params);
+
+  ASSERT_EQ(result.size(), 3);
+  EXPECT_EQ(result[0].second, 239);
+  EXPECT_EQ(result[1].second, 86);
+  EXPECT_EQ(result[2].second, 33);
+  //El vector está ordenado en función del valor de blue que tienen
+}
+
+TEST_F(ImageTest, CfSameBgrVectorCorrectoVerde) {
+  params_same_vector_small params;
+  params.counter = 3;
+  params.value = 2; // Verde
+  params.father_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+
+  auto result = Image::cf_same_bgr_vector(params);
+
+  ASSERT_EQ(result.size(), 3);
+  EXPECT_EQ(result[0].second, 205);
+  EXPECT_EQ(result[1].second, 67);
+  EXPECT_EQ(result[2].second, 52);
+  //El vector está ordenado en función del valor de green que tienen
+}
+
+TEST_F(ImageTest, CfSameBgrVectorCorrectoRojo) {
+  params_same_vector_small params;
+  params.counter = 3;
+  params.value = 3; // Rojo
+  params.father_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+
+  auto result = Image::cf_same_bgr_vector(params);
+
+  ASSERT_EQ(result.size(), 3);
+  EXPECT_EQ(result[0].second, 171);
+  EXPECT_EQ(result[1].second, 101);
+  EXPECT_EQ(result[2].second, 18);
+  //El vector está ordenado en función del valor de red que tienen
+}
+
+TEST_F(ImageTest, CfSameBgrVectorBigCorrectoAzul) {
+  params_same_vector_BIG params;
+  params.counter = 3;
+  params.value = 1; // Azul
+  params.father_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
+
+  auto result = Image::cf_same_bgr_vector_BIG(params);
+
+  ASSERT_EQ(result.size(), 3);
+  EXPECT_EQ(result[0].second, 43828);
+  EXPECT_EQ(result[1].second, 13634);
+  EXPECT_EQ(result[2].second, 13161);
+  //El vector está ordenado en función del valor de blue que tienen
+}
+
+TEST_F(ImageTest, CfSameBgrVectorBigCorrectoVerde) {
+  params_same_vector_BIG params;
+  params.counter = 3;
+  params.value = 2; // Verde
+  params.father_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
+
+  auto result = Image::cf_same_bgr_vector_BIG(params);
+
+  ASSERT_EQ(result.size(), 3);
+  EXPECT_EQ(result[0].second, 61185);
+  EXPECT_EQ(result[1].second, 56815);
+  EXPECT_EQ(result[2].second, 17185);
+  //El vector está ordenado en función del valor de green que tienen
+}
+
+TEST_F(ImageTest, CfSameBgrVectorBigCorrectoRojo) {
+  params_same_vector_BIG params;
+  params.counter = 3;
+  params.value = 3; // Rojo
+  params.father_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
+
+  auto result = Image::cf_same_bgr_vector_BIG(params);
+
+  ASSERT_EQ(result.size(), 3);
+  EXPECT_EQ(result[0].second, 43981);
+  EXPECT_EQ(result[1].second, 43981);
+  EXPECT_EQ(result[2].second, 34661);
+  //El vector está ordenado en función del valor de red que tienen
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteAzul) {
+  deque<pair<__uint32_t, __uint16_t>> color_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_4,0}};
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_4,0}};
+
+  int const result = Image::cf_check_and_delete(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems.count(NUMERO_BIN_4), 1);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteVerde) {
+  deque<pair<__uint32_t, __uint16_t>> color_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_5,0}};
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_5,0}};
+
+  int const result = Image::cf_check_and_delete(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems.count(NUMERO_BIN_5), 1);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteTresAzul) {
+  deque<pair<__uint32_t, __uint16_t>> color_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_5, 0}};
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 1}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_5, 0}};
+
+  int const result = Image::cf_check_and_delete(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 3);
+  EXPECT_EQ(Deleteitems.size(), 0);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteTresVerde) {
+  deque<pair<__uint32_t, __uint16_t>> color_vector = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_6, 0}};
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 1}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_6, 0}};
+
+  int const result = Image::cf_check_and_delete(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 3);
+  EXPECT_EQ(Deleteitems.size(), 0);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteBIGAzul) {
+  deque<pair<__uint64_t, __uint16_t>> color_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG,0}};
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG,0}};
+
+  int const result = Image::cf_check_and_delete_BIG(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems.count(NUMERO_BIN_1_BIG), 1);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteBIGVerde) {
+  deque<pair<__uint64_t, __uint16_t>> color_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_5_BIG,0}};
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_5_BIG,0}};
+
+  int const result = Image::cf_check_and_delete_BIG(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems.count(NUMERO_BIN_1_BIG), 1);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteBIGTresAzul) {
+  deque<pair<__uint64_t, __uint16_t>> color_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_5_BIG, 0}};
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 1}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_5_BIG, 0}};
+
+  int const result = Image::cf_check_and_delete_BIG(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 3);
+  EXPECT_EQ(Deleteitems.size(), 0);
+}
+
+TEST_F(ImageTest, CfCheckAndDeleteBIGTresVerde) {
+  deque<pair<__uint64_t, __uint16_t>> color_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_6_BIG, 0}};
+  unordered_map<__uint64_t, __uint64_t> Deleteitems;
+  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 1}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_6_BIG, 0}};
+
+  int const result = Image::cf_check_and_delete_BIG(color_vector, 1, Deleteitems, bluevalues);
+
+  EXPECT_EQ(result, 3);
+  EXPECT_EQ(Deleteitems.size(), 0);
+}
+/*
+TEST_F(ImageTest, CfDeleteFromDequeBIG_ValidIndex) {
+  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  constexpr size_t index = 1;
+
+  Image::cf_delete_from_deque_BIG(deque_general, index);
+
+  ASSERT_EQ(deque_general.size(), 2);
+  EXPECT_EQ(deque_general[0].first, 148868987696450);
+  EXPECT_EQ(deque_general[1].first, 0);
+}
+
+TEST_F(ImageTest, CfDeleteFromDequeBIG_FirstIndex) {
+  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  size_t index = 0;
+
+  getImage()->cf_delete_from_deque_BIG(deque_general, index);
+
+  ASSERT_EQ(deque_general.size(), 2);
+  EXPECT_EQ(deque_general[0].first, NUMERO_BIN_2_BIG);
+  EXPECT_EQ(deque_general[1].first, NUMERO_BIN_3_BIG);
+}
+
+TEST_F(ImageTest, CfDeleteFromDequeBIG_LastIndex) {
+  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  size_t index = 2;
+
+  getImage()->cf_delete_from_deque_BIG(deque_general, index);
+
+  ASSERT_EQ(deque_general.size(), 2);
+  EXPECT_EQ(deque_general[0].first, NUMERO_BIN_3_BIG);
+  EXPECT_EQ(deque_general[1].first, NUMERO_BIN_2_BIG);
+}
+
+TEST_F(ImageTest, CfDeleteFromDequeBIG_InvalidIndex) {
+  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  size_t index = 3;
+
+  EXPECT_THROW({
+    getImage()->cf_delete_from_deque_BIG(deque_general, index);
+  }, std::out_of_range);
+}
+*/

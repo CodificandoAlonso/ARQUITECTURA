@@ -57,21 +57,21 @@ using namespace std;
 
 ImageSOA::ImageSOA(int const argc, vector<string> const & argv) : Image(argc, argv) { }
 
+/**
+ * Función que determina la operación determinada a ejeecutar en la imagen. Previamente debe haber
+ * llamado a la función de la superclase Image::check_args() para verificar los argumentos de
+ * entrada y su correcta inicialización en los atributos de la clase.
+ */
 int ImageSOA::process_operation() {
-  // Primera operación: leer los metadatos de la imagen de entrada. Como
-  // esta función es común a AOS y SOA, será implementada en la biblioteque "common"
   if (this->get_optype() == "info") {
     if (info() < 0) { return -1; }
   } else if (this->get_optype() == "maxlevel") {
-    // Implementación de la operación de nivel máximo usando AOS (Array of Structures)
     if (maxlevel() < 0) { return -1; }
   } else if (this->get_optype() == "resize") {
-    // Implementación de la operación de redimensionamiento usando AOS (Array of Structures)
     if (resize() < 0) { return -1; }
   } else if (this->get_optype() == "cutfreq") {
     if (cutfreq() < 0) { return -1; }
   } else if (this->get_optype() == "compress") {
-    // Implementación de la operación de compresión usando AOS (Array of Structures)
     if (compress() < 0) { return -1; }
   } else {
     cerr << "Operación no soportada de momento: " << this->get_optype() << "\n";
@@ -80,8 +80,10 @@ int ImageSOA::process_operation() {
   return 0;
 }
 
-/**
- * Función para hallar los píxeles más cercanos
+/*
+ * Función auxiliar de la función resize. Obtiene los píxeles cercanos a la posición deseada en la
+ * imagen original. Se obtienen los píxeles de la esquina superior izquierda, superior derecha,
+ * inferior izquierda e inferior derecha. Versión de la función para imágenes de 8 bits.
  */
 array<rgb_small, 4> ImageSOA::rsz_obtain_square_min(soa_rgb_small const & image,
                                                     array<unsigned int, FIVE> args) {
@@ -96,7 +98,6 @@ array<rgb_small, 4> ImageSOA::rsz_obtain_square_min(soa_rgb_small const & image,
   ylength = min(ylength, (image.r.size() / width) - 1);
   yheigth = min(yheigth, (image.r.size() / width) - 1);
 
-  // Obtenemos los 4 pixeles más cercanos
   rgb_small const p_1 = {.r = image.r[(ylength * width) + xlength],
                          .g = image.g[(ylength * width) + xlength],
                          .b = image.b[(ylength * width) + xlength]};
@@ -117,6 +118,11 @@ array<rgb_small, 4> ImageSOA::rsz_obtain_square_min(soa_rgb_small const & image,
   return square;
 }
 
+/**
+ * Función auxiliar de la función resize. Obtiene los píxeles cercanos a la posición deseada en la
+ * imagen original. Se obtienen los píxeles de la esquina superior izquierda, superior derecha,
+ * inferior izquierda e inferior derecha. Versión de la función para imágenes de 16 bits.
+ */
 array<rgb_big, 4> ImageSOA::rsz_obtain_square_max(soa_rgb_big const & image,
                                                   array<unsigned int, FIVE> args) {
   auto xlength = static_cast<unsigned long>(args[0]);
@@ -150,6 +156,10 @@ array<rgb_big, 4> ImageSOA::rsz_obtain_square_max(soa_rgb_big const & image,
   return square;
 }
 
+/**
+ * Función auxiliar de la función resize. Interpola los valores de los píxeles cercanos a la
+ * posición deseada en la imagen original. Versión de la función para imágenes de 8 bits.
+ */
 rgb_small ImageSOA::rsz_interpolate_min(double u_param, array<rgb_small, 4> square,
                                         double t_param) {
   rgb_small const c_1 = {
@@ -170,6 +180,10 @@ rgb_small ImageSOA::rsz_interpolate_min(double u_param, array<rgb_small, 4> squa
   return c_param;
 }
 
+/**
+ * Función auxiliar de la función resize. Interpola los valores de los píxeles cercanos a la
+ * posición deseada en la imagen original. Versión de la función para imágenes de 16 bits.
+ */
 rgb_big ImageSOA::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, double t_param) {
   rgb_big const c_1 = {
     .r = static_cast<unsigned short>(((1 - t_param) * square[0].r) + (t_param * square[1].r)),
@@ -189,6 +203,9 @@ rgb_big ImageSOA::rsz_interpolate_max(double u_param, array<rgb_big, 4> square, 
   return c_param;
 }
 
+/**
+ * Función que almacena la imagen haciendo uso de la estrategia SOA para su versión de 8 bits.
+ */
 soa_rgb_small ImageSOA::read_image_rgb_small(ifstream & input_file) const {
   soa_rgb_small image;
   for (int i = 0; i < this->get_width() * this->get_height(); i++) {
@@ -205,6 +222,9 @@ soa_rgb_small ImageSOA::read_image_rgb_small(ifstream & input_file) const {
   return image;
 }
 
+/**
+ * Función que almacena la imagen haciendo uso de la estrategia SOA para su versión de 16 bits.
+ */
 soa_rgb_big ImageSOA::read_image_rgb_big(ifstream & input_file) const {
   soa_rgb_big image;
   for (int i = 0; i < this->get_width() * this->get_height(); i++) {
@@ -221,6 +241,9 @@ soa_rgb_big ImageSOA::read_image_rgb_big(ifstream & input_file) const {
   return image;
 }
 
+/**
+ * Función de redimensionamiento para imágenes de 8 bits.
+ */
 int ImageSOA::resize_min(ofstream & output_file) {
   ifstream input_file  = this->get_if_input_file();
   int const width      = this->get_width();
@@ -253,6 +276,9 @@ int ImageSOA::resize_min(ofstream & output_file) {
   return 0;
 }
 
+/**
+ * Función de redimensionamiento para imágenes de 16 bits.
+ */
 int ImageSOA::resize_max(ofstream & output_file) {
   ifstream input_file  = this->get_if_input_file();
   int const width      = this->get_width();
@@ -285,6 +311,9 @@ int ImageSOA::resize_max(ofstream & output_file) {
   return 0;
 }
 
+/**
+ * Función de redimensionamiento.
+ */
 int ImageSOA::resize() {
   get_imgdata();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -487,12 +516,13 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MPA
   graph[this->nod[DOCE]] = {
-    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO]},
+    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO],
+     this->nod[DIECIOCHO]},
     {}
   };  // MMP
   graph[this->nod[TRECE]] = {
     {this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[CATORCE], this->nod[DIECISEIS],
-     this->nod[VEINTIDOS]},
+     this->nod[VEINTIDOS], this->nod[DIECIOCHO]},
     {}
   };  // MMM
   return graph;
@@ -507,8 +537,7 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MMA
   graph[this->nod[QUINCE]] = {
-    {this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[DIECIOCHO],
-     this->nod[VEINTICUATRO]},
+    {this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[VEINTICUATRO]},
     {}
   };  // MAP
   graph[this->nod[DIECISEIS]] = {
@@ -522,7 +551,8 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
   };  // MAA
 
   graph[this->nod[DIECIOCHO]] = {
-    {this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE]},
+    {this->nod[NUEVE], this->nod[DIECINUEVE], this->nod[TRECE], this->nod[VEINTIUNO],
+     this->nod[DOCE], this->nod[DIEZ]},
     {}
   };  // APP
   graph[this->nod[DIECINUEVE]] = {
@@ -534,7 +564,7 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // APA
   graph[this->nod[VEINTIUNO]] = {
-    {this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO]},
+    {this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO], this->nod[DIECIOCHO]},
     {}
   };  // AMP
   return graph;
@@ -729,6 +759,7 @@ deque<pair<__uint32_t, __uint16_t>>
   vector<pair<__uint32_t, __uint16_t>> VectorDelete;
   auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
+  VectorDelete.reserve(elems_to_delete);
   // Añado al vector delete el numero de elementos que pide
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
@@ -770,6 +801,7 @@ deque<pair<__uint64_t, __uint16_t>>
   auto const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
   // Añado al vector delete el numero de elementos que pide
+  VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
@@ -901,10 +933,6 @@ void ImageSOA::cf_search_in_graph_BIG(
   }
 }
 
-
-
-
-
 void ImageSOA::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
   // Convertir myMap a vector de pares y ordenar
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
@@ -996,6 +1024,11 @@ int ImageSOA::cutfreq() {
   return 0;
 }
 
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 8 bits.
+ */
 void ImageSOA::cp_export(ofstream & output_file,
                          unordered_map<unsigned int, unsigned int> const & color_map,
                          list<unsigned int> const & indexes) {
@@ -1014,6 +1047,11 @@ void ImageSOA::cp_export(ofstream & output_file,
   }
 }
 
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 16 bits.
+ */
 void ImageSOA::cp_export_BIG(ofstream & output_file,
                              unordered_map<unsigned long int, unsigned int> const & color_map,
                              list<unsigned int> const & indexes) {
@@ -1032,8 +1070,10 @@ void ImageSOA::cp_export_BIG(ofstream & output_file,
   }
 }
 
-
-
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 8 bits.
+ */
 int ImageSOA::compress_min() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -1046,7 +1086,6 @@ int ImageSOA::compress_min() {
     unsigned char const red         = read_binary_8(input_file);
     unsigned char const grn         = read_binary_8(input_file);
     unsigned char const blu         = read_binary_8(input_file);
-    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
     unsigned int const concatenated = packRGB(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
@@ -1072,6 +1111,10 @@ int ImageSOA::compress_min() {
   return 0;
 }
 
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 16 bits.
+ */
 int ImageSOA::compress_max() {
   ifstream input_file = this->get_if_input_file();
   ofstream output_file(this->get_output_file(), ios::binary);
@@ -1081,11 +1124,10 @@ int ImageSOA::compress_max() {
   list<unsigned int> indexes;
   soa_rgb_big unique_colors;
   for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short const red        = read_binary_16(input_file);
-    unsigned short const grn        = read_binary_16(input_file);
-    unsigned short const blu        = read_binary_16(input_file);
-    //unsigned int const concatenated = red << 2 * BYTE | grn << BYTE | blu;
-        unsigned long int const concatenated = packRGBIG(red, grn, blu);
+    unsigned short const red             = read_binary_16(input_file);
+    unsigned short const grn             = read_binary_16(input_file);
+    unsigned short const blu             = read_binary_16(input_file);
+    unsigned long int const concatenated = packRGBIG(red, grn, blu);
     if (!color_map.contains(concatenated)) {
       auto index              = static_cast<unsigned int>(unique_colors.r.size());
       color_map[concatenated] = index;
@@ -1109,6 +1151,9 @@ int ImageSOA::compress_max() {
   return 0;
 }
 
+/**
+ * Función de compresión
+ */
 int ImageSOA::compress() {
   get_imgdata();
 

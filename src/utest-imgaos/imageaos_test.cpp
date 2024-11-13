@@ -1,5 +1,8 @@
+//
+// Created by hector on 2/11/24.
+//
 #include <gtest/gtest.h>
-#include "imgsoa/imagesoa.hpp"  // Ensure the correct path to the header file
+#include "imgaos/imageaos.hpp"  // Ensure the correct path to the header file
 #include <gsl/gsl>
 #include <fstream>
 #include <array>
@@ -35,23 +38,16 @@ static constexpr int NUM_26 = 26;
 static constexpr int NUM_27 = 27;
 static constexpr int NUM_28 = 28;
 static constexpr int NUM_29 = 29;
-static constexpr int NUM_1000 = 1000;
-static constexpr __uint32_t BLACK = 0x000000;
-static constexpr __uint32_t WHITE = 0xFFFFFF;
-static constexpr __uint32_t RED = 0xFF0000;
-static constexpr __uint32_t GREEN = 0x00FF00;
-static constexpr __uint32_t BLUE = 0x0000FF;
-
-class ImageSOATest : public ::testing::Test {
+class ImageAOSTest : public ::testing::Test {
 private:
-    gsl::owner<ImageSOA*> imageSOA = nullptr;
+    gsl::owner<ImageAOS*> imageAOS = nullptr;
     std::string test_image_path;
 
 
 protected:
     void SetUp() override {
         std::vector<std::string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
-        imageSOA = new ImageSOA(static_cast<int>(args.size()), args);
+        imageAOS = new ImageAOS(static_cast<int>(args.size()), args);
 
         test_image_path = "test_image.ppm";
         std::ofstream output_file(test_image_path, std::ios::binary);
@@ -71,9 +67,9 @@ protected:
     }
 
     void TearDown() override {
-        if (imageSOA != nullptr) {
-            delete imageSOA;
-            imageSOA = nullptr;
+        if (imageAOS != nullptr) {
+            delete imageAOS;
+            imageAOS = nullptr;
         }
         if (std::ifstream(test_image_path.c_str()).good()) {
             if (std::remove(test_image_path.c_str()) != 0) {
@@ -90,40 +86,40 @@ protected:
 
 public:
     // Default constructor
-    ImageSOATest() = default;
+    ImageAOSTest() = default;
 
     // Destructor
-    ~ImageSOATest() override {
-        delete imageSOA;
+    ~ImageAOSTest() override {
+        delete imageAOS;
     }
 
     // Copy constructor
-    ImageSOATest(const ImageSOATest& other)
-        : imageSOA(new ImageSOA(std::move(*other.imageSOA))), test_image_path(other.test_image_path) {}
+    ImageAOSTest(const ImageAOSTest& other)
+        : imageAOS(new ImageAOS(std::move(*other.imageAOS))), test_image_path(other.test_image_path) {}
 
     // Copy assignment operator
-    ImageSOATest& operator=(const ImageSOATest& other) {
+    ImageAOSTest& operator=(const ImageAOSTest& other) {
         if (this != &other) {
-            delete imageSOA;
-            imageSOA = new ImageSOA(std::move(*other.imageSOA));
+            delete imageAOS;
+            imageAOS = new ImageAOS(std::move(*other.imageAOS));
             test_image_path = other.test_image_path;
         }
         return *this;
     }
 
     // Move constructor
-    ImageSOATest(ImageSOATest&& other) noexcept
-        : imageSOA(other.imageSOA), test_image_path(std::move(other.test_image_path)) {
-        other.imageSOA = nullptr;
+    ImageAOSTest(ImageAOSTest&& other) noexcept
+        : imageAOS(other.imageAOS), test_image_path(std::move(other.test_image_path)) {
+        other.imageAOS = nullptr;
     }
 
     // Move assignment operator
-    ImageSOATest& operator=(ImageSOATest&& other) noexcept {
+    ImageAOSTest& operator=(ImageAOSTest&& other) noexcept {
         if (this != &other) {
-            delete imageSOA;
-            imageSOA = other.imageSOA;
+            delete imageAOS;
+            imageAOS = other.imageAOS;
             test_image_path = std::move(other.test_image_path);
-            other.imageSOA = nullptr;
+            other.imageAOS = nullptr;
         }
         return *this;
     }
@@ -132,13 +128,13 @@ public:
         return test_image_path;
     }
 
-    [[nodiscard]] gsl::owner<ImageSOA*> getImageSOA() const {
-        return imageSOA;
+    [[nodiscard]] gsl::owner<ImageAOS*> getImageAOS() const {
+        return imageAOS;
     }
 };
 
 // Test con el metodo rsz_obtain_square_min que funciona correctamente
-TEST_F(ImageSOATest, RszObtainSquareMin) {
+TEST_F(ImageAOSTest, RszObtainSquareMin) {
     soa_rgb_small image;
     image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
     image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
@@ -146,7 +142,7 @@ TEST_F(ImageSOATest, RszObtainSquareMin) {
 
     std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-    std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
+    std::array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
 
     EXPECT_EQ(result[0].r, 14);
     EXPECT_EQ(result[0].g, 1);
@@ -166,7 +162,7 @@ TEST_F(ImageSOATest, RszObtainSquareMin) {
 }
 
 // Test con el metodo rsz_obtain_square_min que no funciona
-TEST_F(ImageSOATest, RszObtainSquareMinFailure) {
+TEST_F(ImageAOSTest, RszObtainSquareMinFailure) {
     soa_rgb_small image;
     image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
     image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
@@ -174,7 +170,7 @@ TEST_F(ImageSOATest, RszObtainSquareMinFailure) {
 
     std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-    std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
+    std::array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
 
     // Intentionally incorrect expected values to cause the test to fail
     EXPECT_NE(result[0].r, 1);
@@ -195,15 +191,15 @@ TEST_F(ImageSOATest, RszObtainSquareMinFailure) {
 }
 
 // Test con el metodo rsz_obtain_square_max que funciona correctamente
-TEST_F(ImageSOATest, RszObtainSquareMax) {
-    soa_rgb_big image;
+TEST_F(ImageAOSTest, RszObtainSquareMax) {
+  vector<rgb_big> const image;
     image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
     image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
     image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
     std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-    std::array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
+    std::array<rgb_big, 4> result = ImageAOS::rsz_obtain_square_max(image, args);
 
     EXPECT_EQ(result[0].r, 14);
     EXPECT_EQ(result[0].g, 0);
@@ -223,15 +219,15 @@ TEST_F(ImageSOATest, RszObtainSquareMax) {
 }
 
 // Test con el metodo rsz_obtain_square_max que no funciona
-TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
-    soa_rgb_big image;
+TEST_F(ImageAOSTest, RszObtainSquareMaxFailure) {
+  vector<rgb_big> const image;
     image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13, NUM_14};
     image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
     image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
     std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-    std::array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
+    std::array<rgb_big, 4> result = ImageAOS::rsz_obtain_square_max(image, args);
 
     EXPECT_NE(result[0].r, 1);
     EXPECT_NE(result[0].g, 11);
@@ -251,7 +247,7 @@ TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
 }
 
 // Test con el metodo rsz_interpolate_min que funciona correctamente
-TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
+TEST_F(ImageAOSTest, RszInterpolateMinSuccess) {
     std::array<rgb_small, 4> const square = {
         rgb_small{.r=10, .g=20, .b=30},
         rgb_small{.r=40, .g=50, .b=60},
@@ -262,7 +258,7 @@ TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
     double const u_param = 0.5;
     double const t_param = 0.5;
 
-    rgb_small const result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
+    rgb_small const result = ImageAOS::rsz_interpolate_min(u_param, square, t_param);
 
     EXPECT_EQ(result.r, 55);
     EXPECT_EQ(result.g, 65);
@@ -270,7 +266,7 @@ TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
 }
 
 // Test con el metodo rsz_interpolate_min que no funciona
-TEST_F(ImageSOATest, RszInterpolateMinFailure) {
+TEST_F(ImageAOSTest, RszInterpolateMinFailure) {
     std::array<rgb_small, 4> const square = {
         rgb_small{.r=10, .g=20, .b=30},
         rgb_small{.r=40, .g=50, .b=60},
@@ -281,7 +277,7 @@ TEST_F(ImageSOATest, RszInterpolateMinFailure) {
     double const u_param = 0.5;
     double const t_param = 0.5;
 
-    rgb_small const result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
+    rgb_small const result = ImageAOS::rsz_interpolate_min(u_param, square, t_param);
 
     // Intentionally incorrect expected values to cause the test to fail
     EXPECT_NE(result.r, 10);
@@ -290,7 +286,7 @@ TEST_F(ImageSOATest, RszInterpolateMinFailure) {
 }
 
 // Test con el metodo rsz_interpolate_max que funciona correctamente
-TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
+TEST_F(ImageAOSTest, RszInterpolateMaxSuccess) {
     std::array<rgb_big, 4> const square = {
         rgb_big{.r=10, .g=20, .b=30},
         rgb_big{.r=40, .g=50, .b=60},
@@ -301,7 +297,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
     double const u_param = 0.5;
     double const t_param = 0.5;
 
-    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
     EXPECT_EQ(result.r, 55);
     EXPECT_EQ(result.g, 65);
@@ -309,7 +305,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
 }
 
 // Test con el metodo rsz_interpolate_max que no funciona por un error de acceso a memoria
-TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
+TEST_F(ImageAOSTest, RszInterpolateMaxOutOfBounds) {
     std::array<rgb_big, 4> const square = {
         rgb_big{.r=10, .g=20, .b=30},
         rgb_big{.r=40, .g=50, .b=60},
@@ -321,7 +317,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
     double const t_param = 0.5;
 
     // This should not cause an out-of-bounds access now
-    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
     // Check for incorrect results due to invalid array size
     EXPECT_NE(result.r, 55);
@@ -330,7 +326,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
 }
 
 // Test con el metodo rsz_interpolate_max que no funciona por un valor de u_param invalido
-TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
+TEST_F(ImageAOSTest, RszInterpolateMaxInvalidUParam) {
     std::array<rgb_big, 4> const square = {
         rgb_big{.r=10, .g=20, .b=30},
         rgb_big{.r=40, .g=50, .b=60},
@@ -341,7 +337,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
     constexpr double u_param = 1.5;  // Invalid value
     constexpr double t_param = 0.5;
 
-    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
     // Check for incorrect results due to invalid u_param
     EXPECT_NE(result.r, 55);
@@ -350,7 +346,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
 }
 
 // Test con el methods rsz_interpolate_max que no function por un valor de t_param invalid
-TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
+TEST_F(ImageAOSTest, RszInterpolateMaxInvalidTParam) {
     constexpr std::array<rgb_big, 4> square = {
         rgb_big{.r=10, .g=20, .b=30},
         rgb_big{.r=40, .g=50, .b=60},
@@ -361,7 +357,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
     constexpr double u_param = 0.5;
     constexpr double t_param = 1.5;  // Invalid value
 
-    rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
+    rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
     // Check for incorrect results due to invalid t_param
     EXPECT_NE(result.r, 55);
@@ -369,30 +365,30 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
     EXPECT_NE(result.b, 75);
 }
 
-TEST_F(ImageSOATest, ReadImageRGBSmallSuccess) {
+TEST_F(ImageAOSTest, ReadImageRGBSmallSuccess) {
     std::ifstream input_file(getTestImagePath(), std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    soa_rgb_small const result = getImageSOA()->read_image_rgb_small(input_file);
+    vector<rgb_small> result = getImageAOS()->read_image_rgb_small(input_file);
 
     // Add assertions to check the correctness of the result
-    EXPECT_EQ(result.r.size(), getImageSOA()->get_width() * getImageSOA()->get_height());
-    EXPECT_EQ(result.g.size(), getImageSOA()->get_width() * getImageSOA()->get_height());
-    EXPECT_EQ(result.b.size(), getImageSOA()->get_width() * getImageSOA()->get_height());
+    EXPECT_EQ(result.r.size(), getImageAOS()->get_width() * getImageAOS()->get_height());
+    EXPECT_EQ(result.g.size(), getImageAOS()->get_width() * getImageAOS()->get_height());
+    EXPECT_EQ(result.b.size(), getImageAOS()->get_width() * getImageAOS()->get_height());
 }
 
-TEST_F(ImageSOATest, ReadImageRGBSmallFileNotFound) {
+TEST_F(ImageAOSTest, ReadImageRGBSmallFileNotFound) {
     std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
     ASSERT_FALSE(input_file.is_open());
 }
 
 
 
-TEST_F(ImageSOATest, ReadImageRGBSmallCorruptData) {
+TEST_F(ImageAOSTest, ReadImageRGBSmallCorruptData) {
     std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    soa_rgb_small result = getImageSOA()->read_image_rgb_small(input_file);
+    vector<rgb_small> result = getImageAOS()->read_image_rgb_small(input_file);
 
     // Add assertions to check for corrupt data
     for (size_t i = 0; i < result.r.size(); ++i) {
@@ -406,27 +402,27 @@ TEST_F(ImageSOATest, ReadImageRGBSmallCorruptData) {
 }
 
 // Test con el metodo read_image_rgb_big que funciona correctamente
-TEST_F(ImageSOATest, ReadImageRGBBig_Success) {
+TEST_F(ImageAOSTest, ReadImageRGBBig_Success) {
     std::ifstream input_file("test_image.ppm", std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    ImageSOA const imageSOA(0, {});
-    soa_rgb_big const image = imageSOA.read_image_rgb_big(input_file);
+    ImageAOS const ImageAOS(0, {});
+    vector<rgb_big> image = ImageAOS.read_image_rgb_big(input_file);
 
-    ASSERT_EQ(image.r.size(), imageSOA.get_width() * imageSOA.get_height());
-    ASSERT_EQ(image.g.size(), imageSOA.get_width() * imageSOA.get_height());
-    ASSERT_EQ(image.b.size(), imageSOA.get_width() * imageSOA.get_height());
+    ASSERT_EQ(image.r.size(), ImageAOS.get_width() * ImageAOS.get_height());
+    ASSERT_EQ(image.g.size(), ImageAOS.get_width() * ImageAOS.get_height());
+    ASSERT_EQ(image.b.size(), ImageAOS.get_width() * ImageAOS.get_height());
 
     input_file.close();
 }
 
 // Test con el metodo read_image_rgb_big que no funciona porque no se puede abrir un archivo
-TEST_F(ImageSOATest, ReadImageRGBBig_FileNotOpen) {
+TEST_F(ImageAOSTest, ReadImageRGBBig_FileNotOpen) {
     std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
     ASSERT_FALSE(input_file.is_open());
 
-    ImageSOA const imageSOA(0, {});
-    soa_rgb_big const image = imageSOA.read_image_rgb_big(input_file);
+    ImageAOS const ImageAOS(0, {});
+    vector<rgb_big> image = ImageAOS.read_image_rgb_big(input_file);
 
     ASSERT_TRUE(image.r.empty());
     ASSERT_TRUE(image.g.empty());
@@ -434,7 +430,7 @@ TEST_F(ImageSOATest, ReadImageRGBBig_FileNotOpen) {
 }
 
 // Test con el metodo read_image_rgb_big que no funciona porque hay errores al leer el archivo
-TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
+TEST_F(ImageAOSTest, ReadImageRGBBig_FileReadError) {
     std::ofstream output_file("corrupt_image.rgb", std::ios::binary);
     for (int i = 0; i < NUM_10; ++i) {
         auto value = static_cast<unsigned short>(i);
@@ -446,8 +442,8 @@ TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
     std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    ImageSOA const imageSOA(0, {});
-    soa_rgb_big const image = imageSOA.read_image_rgb_big(input_file);
+    ImageAOS const ImageAOS(0, {});
+    soa_rgb_big const image = ImageAOS.read_image_rgb_big(input_file);
 
     ASSERT_TRUE(image.r.empty());
     ASSERT_TRUE(image.g.empty());
@@ -458,92 +454,21 @@ TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
 
 
 
-// Test que funciona SortAndMapKeys
-TEST_F(ImageSOATest, SortAndMapKeys_Success) {
-    std::vector<std::string> const args = {"resize", "input_image.jpg", "output_image.jpg"};
-    ImageSOA const imageSOA(static_cast<int>(args.size()), args);
-    std::unordered_map<__uint32_t, __uint16_t> const myMap = {
-        {BLACK, 1}, {WHITE, 2}, {RED, 3}, {GREEN, 4}, {BLUE, 5}
-    };
-    std::unordered_map<__uint32_t, size_t> color_to_index;
-    std::vector<__uint32_t> sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
-
-    // Check if the sorted colors are correct
-    ASSERT_EQ(sorted_colors.size(), 5);
-    ASSERT_EQ(sorted_colors[0], BLACK);
-    ASSERT_EQ(sorted_colors[1], BLUE);
-    ASSERT_EQ(sorted_colors[2], GREEN);
-    ASSERT_EQ(sorted_colors[3], RED);
-    ASSERT_EQ(sorted_colors[4], WHITE);
-
-    // Check if the color to index mapping is correct
-    ASSERT_EQ(color_to_index[BLACK], 0);
-    ASSERT_EQ(color_to_index[BLUE], 1);
-    ASSERT_EQ(color_to_index[GREEN], 2);
-    ASSERT_EQ(color_to_index[RED], 3);
-    ASSERT_EQ(color_to_index[WHITE], 4);
-}
-
-//Test en el que hay un mapa vacio
-TEST_F(ImageSOATest, SortAndMapKeys_EmptyMap) {
-    std::unordered_map<__uint32_t, __uint16_t> const myMap;
-    std::unordered_map<__uint32_t, size_t> color_to_index;
-    std::vector<__uint32_t> const sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
-
-    ASSERT_TRUE(sorted_colors.empty());
-    ASSERT_TRUE(color_to_index.empty());
-}
-
-// Test en el que hay un solo elemento en el mapa
-TEST_F(ImageSOATest, SortAndMapKeys_SingleElement) {
-    std::unordered_map<__uint32_t, __uint16_t> const myMap = {{0x000000, 1}};
-    std::unordered_map<__uint32_t, size_t> color_to_index;
-    std::vector<__uint32_t> sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
-
-    ASSERT_EQ(sorted_colors.size(), 1);
-    ASSERT_EQ(sorted_colors[0], 0x000000);
-    ASSERT_EQ(color_to_index[0x000000], 0);
-}
-
-TEST_F(ImageSOATest, SortAndMapKeys_SameDistanceToBlack) {
-    std::unordered_map<__uint32_t, __uint16_t> const myMap = {{0x010101, 1}, {0x020202, 1}};
-    std::unordered_map<__uint32_t, size_t> color_to_index;
-    std::vector<__uint32_t> const sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
-
-    ASSERT_EQ(sorted_colors.size(), 2);
-    ASSERT_EQ(color_to_index[0x010101], 0);
-    ASSERT_EQ(color_to_index[0x020202], 1);
-}
-
-TEST_F(ImageSOATest, SortAndMapKeys_LargeMap) {
-    std::unordered_map<__uint32_t, __uint16_t> myMap;
-    for (unsigned int i = 0; i < NUM_1000; ++i) {
-        myMap[i] = 1;
-    }
-    std::unordered_map<__uint32_t, size_t> color_to_index;
-    std::vector<__uint32_t> sorted_colors = ImageSOA::sort_and_map_keys(myMap, color_to_index);
-
-    ASSERT_EQ(sorted_colors.size(), 1000);
-    for (size_t i = 0; i < sorted_colors.size(); ++i) {
-        ASSERT_EQ(color_to_index[sorted_colors[i]], i);
-    }
-}
-
-TEST_F(ImageSOATest, LoadAndMap8_Success) {
+TEST_F(ImageAOSTest, LoadAndMap8_Success) {
     std::ifstream input_file(getTestImagePath(), std::ios::binary);
     ASSERT_TRUE(input_file.is_open());
 
-    auto result = getImageSOA()->load_and_map_8(CIEN, std::move(input_file), CIEN);
+    auto result = getImageAOS()->cf_load_and_map_8(CIEN, std::move(input_file), CIEN);
     ASSERT_FALSE(result.empty());
 }
-
+/*
 //Funcion same_bgr_vector funciona
-TEST_F(ImageSOATest, SameBGRVector_Success) {
+TEST_F(ImageAOSTest, SameBGRVector_Success) {
     std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
         {0x000000, 1}, {BLUE, 2}, {GREEN, 3}, {RED, 4}
     };
-    ImageSOA const imageSOA(0, {});
-    auto result = ImageSOA::same_bgr_vector(father_vector, 1, father_vector.size());
+    ImageAOS const ImageAOS(0, {});
+    auto result = ImageAOS::same_bgr_vector(father_vector, 1, father_vector.size());
 
     ASSERT_EQ(result.size(), 4);
     std::cout << "result[0].first: " << result[0].first << '\n';
@@ -557,26 +482,26 @@ TEST_F(ImageSOATest, SameBGRVector_Success) {
 }
 
 //Funcion same_bgr_vector no funciona por un vector vacío de entrada
-TEST_F(ImageSOATest, SameBGRVector_EmptyInput) {
+TEST_F(ImageAOSTest, SameBGRVector_EmptyInput) {
     std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector;
-    ImageSOA const imageSOA(0, {});
-    auto result = ImageSOA::same_bgr_vector(father_vector, 1, father_vector.size());
+    ImageAOS const ImageAOS(0, {});
+    auto result = ImageAOS::same_bgr_vector(father_vector, 1, father_vector.size());
 
     ASSERT_TRUE(result.empty());
 }
 
 
-TEST_F(ImageSOATest, SameBGRVector_InsufficientElements) {
+TEST_F(ImageAOSTest, SameBGRVector_InsufficientElements) {
     std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
         {0x000000, 1}
     };
-    ImageSOA const imageSOA(0, {});
-    auto result = ImageSOA::same_bgr_vector(father_vector, 1, 2);
+    ImageAOS const ImageAOS(0, {});
+    auto result = ImageAOS::same_bgr_vector(father_vector, 1, 2);
 
     ASSERT_EQ(result.size(), 2);
     ASSERT_EQ(result[0].first, 0x000000);
 }
-
+*/
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
