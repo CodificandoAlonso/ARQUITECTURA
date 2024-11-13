@@ -68,8 +68,8 @@ bool Image::maxval_constraints(int const argc, vector<string> const & argv) {
 
 bool Image::resize_constraints(int const argc, vector<string> const & argv) {
   if (argc != MAX_ARGS) {
-    throw std::runtime_error("Error: Invalid number of arguments for option resize: " +
-                             std::to_string(argc));
+    cerr << "Error: Invalid number of arguments for option resize: " + std::to_string(argc) << '\n';
+    return true;
   }
   // Comprobamos que el cuarto y quinto argumento sean números enteros positivos
   char * end           = nullptr;
@@ -92,13 +92,16 @@ bool Image::cutfreq_constraints(int const argc, vector<string> const & argv) {
   // Si la opción es cutfreq, el número de argumentos debe ser exactamente cuatro. El cuarto
   // argumento debe ser un número entero positivo.
   if (argc != MAX_ARGS - 1) {
-    throw std::runtime_error("Error: Invalid number of arguments for cutfreq: " +
-                             std::to_string(argc));
+    cerr << "Error: Invalid number of arguments for cutfreq: " + std::to_string(argc);
+    return true;
   }
   // Comprobamos que el cuarto argumento sea un número entero positivo
   char * end    = nullptr;
   long argument = strtol(argv[4].c_str(), &end, DECIMAL_BASE);
-  if (argument <= 0) { throw std::runtime_error("Error: Invalid cutfreq: " + argv[4]); }
+  if (argument <= 0) {
+    cerr << "Error: Invalid cutfreq: " + argv[4] << '\n';
+    return true;
+  }
   this->args.push_back(static_cast<int>(argument));
   return false;
 }
@@ -106,7 +109,8 @@ bool Image::cutfreq_constraints(int const argc, vector<string> const & argv) {
 bool Image::compress_constraints(int const argc) {
   // Si la opción es compress, el número de argumentos debe ser exactamente 4.
   if (argc != 4) {
-    throw runtime_error("Error: Invalid number of arguments for compress: " + to_string(argc));
+    cerr << "Error: Invalid number of arguments for compress: " + to_string(argc) << "\n";
+    return true;
   }
   return false;
 }
@@ -119,7 +123,7 @@ int Image::check_args() {
   int const argc      = this->argc;
   vector<string> argv = this->argv;
 
-  if (argc <= 3) { throw runtime_error("Error: Invalid number of arguments: " + to_string(argc)); }
+  if (argc <= 3) { cerr << "Error: Invalid number of arguments: " + to_string(argc) << "\n"; }
   this->input_file  = argv[1];
   this->output_file = argv[2];
 
@@ -127,7 +131,7 @@ int Image::check_args() {
   string const & option = argv[3];
   if (option != "info" && option != "maxlevel" && option != "resize" && option != "cutfreq" &&
       option != "compress") {
-    throw runtime_error("Error: Invalid option: " + option);
+    cerr << "Error: Invalid option: " + option << "\n";
     return -1;
   }
   this->optype = option;
