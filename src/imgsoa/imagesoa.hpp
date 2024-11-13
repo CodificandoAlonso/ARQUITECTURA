@@ -131,6 +131,15 @@ class ImageSOA : public Image {
     friend class ImageSOATest_SameBGRVector_Success_Test;
     friend class ImageSOATest_SameBGRVector_EmptyInput_Test;
     friend class ImageSOATest_SameBGRVector_InsufficientElements_Test;
+    friend class ImageSOATest_CfLoadAndMap8BIGSuccess_Test;
+    friend class ImageSOATest_CfLoadAndMap8BIG_FileNotOpen_Test;
+    friend class ImageSOATest_CfLoadAndMap8BIG_InvalidWidth_Test;
+    friend class ImageSOATest_CfLoadAndMap8BIG_InvalidHeight_Test;
+    friend class ImageSOATest_CfLoadAndMap8BIG_NegativeWidth_Test;
+    friend class ImageSOATest_CfLoadAndMap8BIG_NegativeHeight_Test;
+    friend class ImageSOATest_CfAddNodesBIG_Success_Test;
+    friend class ImageSOATest_CfAddNodesBIG_Failure_Test;
+
 };
 
 #endif  // IMAGESOA_HPP
