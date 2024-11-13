@@ -4,3 +4,6 @@ add_library(common
         binario.cpp
         struct-rgb.cpp
 )
+target_link_libraries (common
+        PUBLIC
+        common Microsoft.GSL::GSL)

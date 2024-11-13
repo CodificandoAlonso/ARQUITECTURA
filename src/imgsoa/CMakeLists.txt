@@ -2,3 +2,7 @@
 add_library(imgsoa
         imagesoa.cpp
 )
+#USE this
+target_link_libraries (imgsoa
+PUBLIC
+common Microsoft.GSL::GSL)
