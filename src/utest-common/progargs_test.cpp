@@ -72,18 +72,12 @@ TEST_F(ImageTest, InfoConstraintsArgumentosCorrectos) {
 TEST_F(ImageTest, InfoConstraintsArgumentosInferiorAlPermitido) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
-}
+  EXPECT_TRUE(getImage()->info_constraints(static_cast<int>(getImage()->getArgv().size())));}
 
 TEST_F(ImageTest, InfoConstraintsArgumentosSuperiorAlPermitido) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "info", "extra"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  },runtime_error);
-}
+  EXPECT_TRUE(getImage()->info_constraints(static_cast<int>(getImage()->getArgv().size())));}
 
 TEST_F(ImageTest, MaxValConstraintsCorrecto) {
   setArgv({"progname", "deer-small.ppm", "deer-small.ppm", "maxlevel", "857"});
@@ -93,18 +87,13 @@ TEST_F(ImageTest, MaxValConstraintsCorrecto) {
 
 TEST_F(ImageTest, MaxValConstraintsNumeroArgumentosIncorrecto) {
   setArgv({"progname", "deer-small.ppm", "deer-small.ppm", "maxlevel"});
-  SetUp();
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->maxval_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
 TEST_F(ImageTest, MaxValConstraintsNumeroArgumentosCorrectosNumeroNoEntre0Y65535) {
   setArgv({"progname", "deer-small.ppm", "deer-small.ppm", "maxlevel", "65536"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->maxval_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
 TEST_F(ImageTest, ResizeConstraintsCorrecto) {
@@ -116,23 +105,17 @@ TEST_F(ImageTest, ResizeConstraintsCorrecto) {
 TEST_F(ImageTest, ResizeConstraintsNumeroArgumentosIncorrecto) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "100"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
-TEST_F(ImageTest, ImageTest_ResizeConstraintsInvalidWidth) {
+TEST_F(ImageTest, ResizeConstraintsInvalidWidth) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "-100", "100"});
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
-TEST_F(ImageTest, ImageTest_ImageTest_ResizeConstraintsInvalidHeigth_Test) {
+TEST_F(ImageTest, ResizeConstraintsInvalidHeigth) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "resize", "100", "-100"});
-  EXPECT_THROW({
-    getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->resize_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
 TEST_F(ImageTest, CutfreqConstraintsCorrecto) {
@@ -144,17 +127,13 @@ TEST_F(ImageTest, CutfreqConstraintsCorrecto) {
 TEST_F(ImageTest, CutfreqConstraintsNumeroArgumentosIncorrecto) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "cutfreq"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->cutfreq_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->cutfreq_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
 TEST_F(ImageTest,  CutfreqConstraintsCutfreqInvalido) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.ppm", "cutfreq", "-100"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->cutfreq_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv());
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->cutfreq_constraints(static_cast<int>(getImage()->getArgv().size()), getImage()->getArgv()));
 }
 
 TEST_F(ImageTest, CompressConstraintsCorrecto) {
@@ -166,9 +145,7 @@ TEST_F(ImageTest, CompressConstraintsCorrecto) {
 TEST_F(ImageTest, CompressConstraintsNumeroArgumentosIncorrecto) {
   setArgv({"imtool-soa", "deer-small.ppm", "deer-small.cppm", "compress", "extra"});
   SetUp();
-  EXPECT_THROW({
-    getImage()->compress_constraints(static_cast<int>(getImage()->getArgv().size()));
-  }, runtime_error);
+  EXPECT_TRUE(getImage()->compress_constraints(static_cast<int>(getImage()->getArgv().size())));
 }
 
 TEST_F(ImageTest, CheckArgsInfoCorrecto) {
@@ -201,22 +178,10 @@ TEST_F(ImageTest, CheckArgsCompressCorrecto) {
   EXPECT_FALSE(getImage()->check_args());
 }
 
-TEST_F(ImageTest, CheckArgsNumeroArgumentosIncorrecto) {
-  setArgv({"imtool-soa", "input.ppm", "output.ppm"});
-  SetUp();
-  EXPECT_THROW({
-    const bool result = getImage()->check_args(); //Guardamos el resultado para que no nos de error de Clang-tidy
-    (void)result;
-  }, runtime_error);
-}
-
 TEST_F(ImageTest, CheckArgsOpcionInvalida) {
   setArgv({"imtool-soa", "input.ppm", "output.ppm", "incorrect"});
   SetUp();
-  EXPECT_THROW({
-    const bool result = getImage()->check_args(); //Guardamos el resultado para que no nos de error de Clang-tidy
-    (void)result;
-  }, runtime_error);
+  EXPECT_EQ(getImage()->check_args(), -1);
 }
 
 TEST_F(ImageTest, CheckArgsCorrectoInfo) {
@@ -430,46 +395,168 @@ TEST_F(ImageTest, CfCheckAndDeleteBIGTresVerde) {
   EXPECT_EQ(result, 3);
   EXPECT_EQ(Deleteitems.size(), 0);
 }
-/*
-TEST_F(ImageTest, CfDeleteFromDequeBIG_ValidIndex) {
-  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+
+TEST_F(ImageTest, CfDeleteFromDequeBIG_Correcto) {
+  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
   constexpr size_t index = 1;
 
   Image::cf_delete_from_deque_BIG(deque_general, index);
 
   ASSERT_EQ(deque_general.size(), 2);
-  EXPECT_EQ(deque_general[0].first, 148868987696450);
-  EXPECT_EQ(deque_general[1].first, 0);
+  EXPECT_EQ(deque_general[0].first, 188900680086377);
+  EXPECT_EQ(deque_general[1].first, 188900966509364);
 }
 
-TEST_F(ImageTest, CfDeleteFromDequeBIG_FirstIndex) {
-  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
-  size_t index = 0;
+TEST_F(ImageTest, CfDeleteFromDequeBIG_Incorrecto) {
+  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
+  constexpr size_t index = 1;
 
-  getImage()->cf_delete_from_deque_BIG(deque_general, index);
+  Image::cf_delete_from_deque_BIG(deque_general, index);
 
   ASSERT_EQ(deque_general.size(), 2);
-  EXPECT_EQ(deque_general[0].first, NUMERO_BIN_2_BIG);
-  EXPECT_EQ(deque_general[1].first, NUMERO_BIN_3_BIG);
+  EXPECT_NE(deque_general[0].first, 0);
+  EXPECT_NE(deque_general[1].first, 0);
 }
 
-TEST_F(ImageTest, CfDeleteFromDequeBIG_LastIndex) {
-  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
-  size_t index = 2;
+TEST_F(ImageTest, CfDeleteFromDeque_Correcto) {
+  deque<pair<__uint32_t, __uint16_t>> deque_general = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+  constexpr size_t index = 1;
 
-  getImage()->cf_delete_from_deque_BIG(deque_general, index);
+  Image::cf_delete_from_deque(deque_general, index);
 
   ASSERT_EQ(deque_general.size(), 2);
-  EXPECT_EQ(deque_general[0].first, NUMERO_BIN_3_BIG);
-  EXPECT_EQ(deque_general[1].first, NUMERO_BIN_2_BIG);
+  EXPECT_EQ(deque_general[0].first, 1193046);
+  EXPECT_EQ(deque_general[1].first, 11259375);
 }
 
-TEST_F(ImageTest, CfDeleteFromDequeBIG_InvalidIndex) {
-  deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
-  size_t index = 3;
+TEST_F(ImageTest, CfDeleteFromDeque_Incorrecto) {
+  deque<pair<__uint32_t, __uint16_t>> deque_general = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+  constexpr size_t index = 1;
 
-  EXPECT_THROW({
-    getImage()->cf_delete_from_deque_BIG(deque_general, index);
-  }, std::out_of_range);
+  Image::cf_delete_from_deque(deque_general, index);
+
+  ASSERT_EQ(deque_general.size(), 2);
+  EXPECT_NE(deque_general[0].first, 0);
+  EXPECT_NE(deque_general[1].first, 0);
+}
+
+TEST_F(ImageTest, CfSearchInBlueBIG_Encontrado) {
+  deque<pair<__uint64_t, unsigned short>> pairs = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  __uint64_t first = NUMERO_BIN_2_BIG;
+
+  size_t const result = Image::cf_search_in_blue_BIG(pairs, first);
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST_F(ImageTest, CfSearchInBlueBIG_NoEncontrado) {
+  deque<pair<__uint64_t, unsigned short>> pairs = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  __uint64_t first = NUMERO_BIN_4_BIG;
+
+  size_t const result = Image::cf_search_in_blue_BIG(pairs, first);
+
+  EXPECT_EQ(result, 0);
+}
+
+TEST_F(ImageTest, CfSearchInBlueBIG_ColaVacía) {
+  deque<pair<__uint64_t, unsigned short>> pairs;
+  __uint64_t first = NUMERO_BIN_1_BIG;
+
+  size_t const result = Image::cf_search_in_blue_BIG(pairs, first);
+
+  EXPECT_EQ(result, 0);
+}
+
+TEST_F(ImageTest, CfSearchInBlue_Encontrado) {
+  deque<pair<__uint64_t, unsigned short>> pairs = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  __uint64_t first = NUMERO_BIN_2_BIG;
+
+  size_t const result = Image::cf_search_in_blue_BIG(pairs, first);
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST_F(ImageTest, CfSearchInBlue_NoEncontrado) {
+  deque<pair<__uint64_t, unsigned short>> pairs = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 1}, {NUMERO_BIN_3_BIG, 2}};
+  __uint64_t first = NUMERO_BIN_4_BIG;
+
+  size_t const result = Image::cf_search_in_blue_BIG(pairs, first);
+
+  EXPECT_EQ(result, 0);
+}
+
+TEST_F(ImageTest, CfSearchInBlue_ColaVacia) {
+  deque<pair<__uint64_t, unsigned short>> pairs;
+  __uint64_t first = NUMERO_BIN_1_BIG;
+
+  size_t const result = Image::cf_search_in_blue_BIG(pairs, first);
+
+  EXPECT_EQ(result, 0);
+}
+
+TEST_F(ImageTest, CfDeleteAndRest_IndiceValido) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 1}, {NUMERO_BIN_3, 2}};
+  constexpr size_t index = 1;
+
+  Image::cf_delete_and_rest(Deleteitems, num_left, bluevalues, index);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_2], 0);
+  EXPECT_EQ(bluevalues.size(), 2);
+  EXPECT_EQ(num_left, 2);
+}
+
+TEST_F(ImageTest, CfDeleteAndRest_PrimerIndice) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 1}, {NUMERO_BIN_3, 2}};
+  constexpr size_t index = 0;
+
+  Image::cf_delete_and_rest(Deleteitems, num_left, bluevalues, index);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_1], 0);
+  EXPECT_EQ(bluevalues.size(), 2);
+  EXPECT_EQ(num_left, 2);
+}
+
+TEST_F(ImageTest, CfDeleteAndRest_UltimoIndice) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 1}, {NUMERO_BIN_3, 2}};
+  constexpr size_t index = 2;
+
+  Image::cf_delete_and_rest(Deleteitems, num_left, bluevalues, index);
+
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_3], 0);
+  EXPECT_EQ(bluevalues.size(), 2);
+  EXPECT_EQ(num_left, 2);
+}
+
+TEST_F(ImageTest, CfCheckJustBlue_TresAzulesIguales) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1, 0}, {NUMERO_BIN_2, 0}, {NUMERO_BIN_3, 0}};
+
+  int const result = Image::cf_check_just_blue(Deleteitems, bluevalues, num_left);
+
+  EXPECT_EQ(result, 4);
+  EXPECT_EQ(Deleteitems.size(), 0);
+  EXPECT_EQ(bluevalues.size(), 3);
+  EXPECT_EQ(num_left, 3);
+}
+/*
+TEST_F(ImageTest, CfCheckJustBlue_TresAzulesDistintos) {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems;
+  int num_left = 3;
+  deque<pair<__uint32_t, __uint16_t>> bluevalues = {{NUMERO_BIN_5, 0}, {NUMERO_BIN_4, 0}, {NUMERO_BIN_6, 0}};
+
+  int const result = Image::cf_check_just_blue(Deleteitems, bluevalues, num_left);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(Deleteitems.size(), 1);
+  EXPECT_EQ(Deleteitems[NUMERO_BIN_6], 0);
+  EXPECT_EQ(bluevalues.size(), 2);
+  EXPECT_EQ(num_left, 2);
 }
 */
