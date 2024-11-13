@@ -3,6 +3,3 @@
 //
 
 #include "struct-rgb.hpp"
-
-#include <iostream>
-

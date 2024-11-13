@@ -7,14 +7,12 @@
 #include "binario.hpp"
 
 #include <algorithm>
-#include <bits/fs_fwd.h>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <deque>
 #include <fstream>
 #include <iostream>
-#include <limits>
 #include <ranges>
 #include <stack>
 #include <string>
@@ -34,6 +32,10 @@ using namespace std;
  */
 Image::Image(int const argc, vector<string> const & argv) : argc(argc), argv(argv) { }
 
+std::vector<std::string> const & Image::getArgv() const {
+  return argv;
+}
+
 bool Image::info_constraints(int const argc) {
   // Si la opción es info, deben ser exactamente tres argumentos
   if (argc != 4) {
@@ -41,10 +43,6 @@ bool Image::info_constraints(int const argc) {
     return true;
   }
   return false;
-}
-
-std::vector<std::string> const & Image::getArgv() const {
-  return argv;
 }
 
 bool Image::maxval_constraints(int const argc, vector<string> const & argv) {
@@ -116,10 +114,9 @@ bool Image::compress_constraints(int const argc) {
 }
 
 /**
- * Función que verifica los parámetros de entrada.
+ * Función que verifica los parámetros de entrada del programa.
  */
 int Image::check_args() {
-  // Para mayor facilidad de uso
   int const argc      = this->argc;
   vector<string> argv = this->argv;
 
@@ -155,9 +152,6 @@ int Image::check_args() {
  * Función que esscribe por la salida estándar los metadatos de la imagen.
  */
 int Image::info() const {
-  /*
-   * Función común a ImageAOS e ImageSOA para leer los metadatos de la imagen de entrada ppm
-   */
   cout << "Reading metadata from file " << input_file << '\n';
 
   ifstream file(input_file, ios::in | ios::binary);
@@ -189,6 +183,7 @@ int Image::info() const {
 
 /**
  * Función para leer el archivo de entrada y escribir los atributos de la superclase.
+ * Almacena en el atributo if_input_file el archivo de entrada.
  */
 void Image::get_imgdata() {
   ifstream input_file(this->input_file, ios::binary);
@@ -237,11 +232,6 @@ void Image::write_out(int const level) {
  * imagen de salida con maxlevel = 255
  */
 void Image::min_min() {
-  /*
-   * Si se desea escalar una imagen cuyo máximo nivel de intensidad es 255 a
-   * otra con un nivel de intensidad menor a 256, leemos la imagen de entrada
-   * de 8 bits en 8 bits y escribimos en la imagen de salida de 8 bits en 8 bits.
-   */
   unsigned char red = 0;
   unsigned char grn = 0;
   unsigned char blu = 0;
@@ -327,11 +317,6 @@ void Image::min_max() {
  * imagen de salida con maxlevel = 65535
  */
 void Image::max_max() {
-  /*
-   * Si se desea escalar una imagen cuyo máximo nivel de intensidad es mayor a 255 a
-   * otra con un nivel de intensidad entre 0 y 65535, leemos la imagen de entrada
-   * de 8 bits en 8 bits y escribimos en la imagen de salida de 16 bits en 16 bits.
-   */
   unsigned short red = 0;
   unsigned short grn = 0;
   unsigned short blu = 0;
@@ -358,6 +343,10 @@ void Image::max_max() {
   }
 }
 
+/**
+ * Implementación de la función maxlevel. Esta función modifica el valor máximo de intensidad,
+ * alterando la exposición de la imagen original.
+ */
 int Image::maxlevel() {
   get_imgdata();
   if (this->args[0] <= MIN_LEVEL) {  // Imagen de salida 255
@@ -385,14 +374,15 @@ int Image::maxlevel() {
   return 0;
 }
 
+/**
+ *
+ */
 deque<pair<__uint32_t, __uint16_t>> Image::cf_same_bgr_vector(params_same_vector_small params) {
   // Value será 1 para blue, 2 para green y 3 para red
   deque<pair<__uint32_t, __uint16_t>> color_vector;
   __uint8_t color = 0;
 
-  // Usamos `params.counter` y `params.value` para acceder a los valores originales
   for (size_t i = 0; i < params.counter; i++) {
-    // Accedemos a `father_vector` como copia local en `params`
     if (params.value == 1) {
       color = extractblue(params.father_vector[i].first);
     } else if (params.value == 2) {
@@ -402,13 +392,15 @@ deque<pair<__uint32_t, __uint16_t>> Image::cf_same_bgr_vector(params_same_vector
     }
     color_vector.emplace_back(params.father_vector[i].first, color);
   }
-  // Ordenamos el color_vector por el segundo elemento del par en orden descendente
   ranges::sort(color_vector, [](auto const & op1, auto const & op2) {
     return op1.second > op2.second;
   });
   return color_vector;
 }
 
+/**
+ *
+ */
 deque<pair<__uint64_t, __uint16_t>> Image::cf_same_bgr_vector_BIG(params_same_vector_BIG params) {
   // Value será 1 para blue, 2 para green y 3 para red
   deque<pair<__uint64_t, __uint16_t>> color_vector;
@@ -432,6 +424,9 @@ deque<pair<__uint64_t, __uint16_t>> Image::cf_same_bgr_vector_BIG(params_same_ve
   return color_vector;
 }
 
+/**
+ *
+ */
 int Image::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                deque<pair<__uint32_t, __uint16_t>> & bluevalues) {
@@ -464,6 +459,9 @@ int Image::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vecto
   return static_cast<int>(meanwhile + 1);
 }
 
+/**
+ *
+ */
 int Image::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector,
                                    int const color,
                                    unordered_map<__uint64_t, __uint64_t> & Deleteitems,
@@ -497,18 +495,27 @@ int Image::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_v
   return static_cast<int>(meanwhile + 1);
 }
 
+/**
+ *
+ */
 void Image::cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
                                      size_t index) {
   swap(deque_general[0], deque_general[index]);
   deque_general.pop_front();
 }
 
+/**
+ *
+ */
 void Image::cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
                                  size_t index) {
   swap(deque_general[0], deque_general[index]);
   deque_general.pop_front();
 }
 
+/**
+ *
+ */
 size_t Image::cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
                                     __uint64_t & first) {
   for (size_t i = 0; i < pairs.size(); i++) {
@@ -517,6 +524,9 @@ size_t Image::cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pa
   return 0;
 }
 
+/**
+ *
+ */
 size_t Image::cf_search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
                                 __uint32_t & first) {
   for (size_t i = 0; i < pairs.size(); i++) {
@@ -525,6 +535,9 @@ size_t Image::cf_search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
   return 0;
 }
 
+/**
+ *
+ */
 void Image::cf_delete_and_rest(unordered_map<__uint32_t, __uint32_t> & Deleteitems, int & num_left,
                                deque<pair<__uint32_t, __uint16_t>> & bluevalues,
                                size_t const index) {
@@ -533,6 +546,9 @@ void Image::cf_delete_and_rest(unordered_map<__uint32_t, __uint32_t> & Deleteite
   num_left--;
 }
 
+/**
+ *
+ */
 int Image::cf_check_just_blue(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                               deque<pair<__uint32_t, __uint16_t>> & bluevalues, int & num_left) {
   if (int const my_meanwhile = cf_check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
@@ -548,6 +564,9 @@ int Image::cf_check_just_blue(unordered_map<__uint32_t, __uint32_t> & Deleteitem
   return 0;
 }
 
+/**
+ *
+ */
 void Image::cf_delete_first_blue_value(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                        int & num_left,
                                        deque<pair<__uint32_t, __uint16_t>> & bluevalues) {
@@ -556,6 +575,9 @@ void Image::cf_delete_first_blue_value(unordered_map<__uint32_t, __uint32_t> & D
   num_left--;
 }
 
+/**
+ *
+ */
 void Image::cf_delete_first_blue_value_BIG(unordered_map<__uint64_t, __uint64_t> & Deleteitems,
                                            int & num_left,
                                            deque<pair<__uint64_t, __uint16_t>> & bluevalues) {
@@ -564,14 +586,15 @@ void Image::cf_delete_first_blue_value_BIG(unordered_map<__uint64_t, __uint64_t>
   num_left--;
 }
 
+/**
+ *
+ */
 void Image::cf_equal_blue_case(params_equal_blu * params) {
-  // Inicializamos la estructura `params_same_vector_small` para `cf_same_bgr_vector`
   while (*params->num_left > 0) {
-    params_same_vector_small const params_green = {
-      .father_vector =
-          *params->bluevalues,  // Usamos `*params->bluevalues` para acceder al deque original
-      .value   = 2,
-      .counter = static_cast<size_t>(*params->my_meanwhile)};
+    params_same_vector_small const params_green = {.father_vector = *params->bluevalues,
+                                                   .value         = 2,
+                                                   .counter =
+                                                       static_cast<size_t>(*params->my_meanwhile)};
 
     auto greenvalues = cf_same_bgr_vector(params_green);
     if (greenvalues[0].second == greenvalues[1].second) {
@@ -602,14 +625,14 @@ void Image::cf_equal_blue_case(params_equal_blu * params) {
   }
 }
 
+/**
+ *
+ */
 void Image::cf_equal_blue_case_BIG(params_equal_blu_BIG * params) {
-  // Inicializamos la estructura `params_same_vector_small` para `cf_same_bgr_vector`
-
-  params_same_vector_BIG const params_green = {
-    .father_vector =
-        *params->bluevalues,  // Usamos `*params->bluevalues` para acceder al deque original
-    .value   = 2,
-    .counter = static_cast<size_t>(*params->my_meanwhile)};
+  params_same_vector_BIG const params_green = {.father_vector = *params->bluevalues,
+                                               .value         = 2,
+                                               .counter =
+                                                   static_cast<size_t>(*params->my_meanwhile)};
 
   auto greenvalues = cf_same_bgr_vector_BIG(params_green);
   if (greenvalues[0].second == greenvalues[1].second) {
@@ -639,6 +662,9 @@ void Image::cf_equal_blue_case_BIG(params_equal_blu_BIG * params) {
   }
 }
 
+/**
+ *
+ */
 unordered_map<__uint32_t, __uint32_t>
     Image::cf_check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems,
                                      int num_left, deque<pair<__uint32_t, __uint16_t>> bluevalues) {
@@ -676,6 +702,9 @@ unordered_map<__uint32_t, __uint32_t>
   return Deleteitems;
 }
 
+/**
+ *
+ */
 unordered_map<__uint64_t, __uint64_t>
     Image::cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
                                          int num_left,
@@ -714,24 +743,26 @@ unordered_map<__uint64_t, __uint64_t>
   return Deleteitems;
 }
 
+/**
+ *
+ */
 __uint32_t Image::cf_find_closest_in_neighbors(cf_find_neigh_small const * params) {
-  __uint32_t closest_color = 0;
-  bool found_closest       = false;
-  unordered_map<__uint32_t, __uint8_t> visited_local =
-      *params->visited_node;                                  // Inicializar mapa de visitados
-  vector<__uint32_t> current_neighbors = *params->neighbors;  // Vecinos iniciales
-  double min_distance                  = *params->min_distance;
+  __uint32_t closest_color                           = 0;
+  bool found_closest                                 = false;
+  unordered_map<__uint32_t, __uint8_t> visited_local = *params->visited_node;
+  vector<__uint32_t> current_neighbors               = *params->neighbors;
+  double min_distance                                = *params->min_distance;
   while (!found_closest && !current_neighbors.empty()) {
-    vector<__uint32_t> next_neighbors;  // Vecinos del siguiente nivel
+    vector<__uint32_t> next_neighbors;
     for (__uint32_t const neighbor : current_neighbors) {
-      // Saltar si el vecino ya fue visitado
       if (visited_local.contains(neighbor)) { continue; }
-      // Marcar vecino como visitado
+
       visited_local[neighbor] = 0;
-      // Obtener nodo del grafo
-      auto iter = params->graph->find(neighbor);
+      auto iter               = params->graph->find(neighbor);
+
       for (__uint32_t const candidate : iter->second.second) {
         double const distance = get_distance(params->color_to_delete, candidate);
+
         if (distance < min_distance) {
           min_distance  = distance;
           closest_color = candidate;
@@ -749,22 +780,23 @@ __uint32_t Image::cf_find_closest_in_neighbors(cf_find_neigh_small const * param
   return closest_color;
 }
 
+/**
+ *
+ */
 __uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * params) {
-  __uint64_t closest_color = 0;
-  bool found_closest       = false;
-  unordered_map<__uint64_t, __uint8_t> visited_local =
-      *params->visited_node;                                  // Inicializar mapa de visitados
-  vector<__uint64_t> current_neighbors = *params->neighbors;  // Vecinos iniciales
-  double min_distance                  = *params->min_distance;
+  __uint64_t closest_color                           = 0;
+  bool found_closest                                 = false;
+  unordered_map<__uint64_t, __uint8_t> visited_local = *params->visited_node;
+  vector<__uint64_t> current_neighbors               = *params->neighbors;
+  double min_distance                                = *params->min_distance;
   while (!found_closest && !current_neighbors.empty()) {
-    vector<__uint64_t> next_neighbors;  // Vecinos del siguiente nivel
+    vector<__uint64_t> next_neighbors;
     for (__uint64_t const neighbor : current_neighbors) {
-      // Saltar si el vecino ya fue visitado
       if (visited_local.contains(neighbor)) { continue; }
-      // Marcar vecino como visitado
+
       visited_local[neighbor] = 0;
-      // Obtener nodo del grafo
-      auto const iter = params->graph->find(neighbor);
+      auto const iter         = params->graph->find(neighbor);
+
       for (__uint64_t const candidate : iter->second.second) {
         if (double const distance = get_distance_BIG(params->color_to_delete, candidate);
             distance < min_distance) {
@@ -784,9 +816,11 @@ __uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * par
   return closest_color;
 }
 
+/**
+ *
+ */
 void Image::cf_finish_graph(params_finish_graph const * params) {
   for (auto const & key : *params->myMap | views::keys) {
-    // Recorremos las claves de graph
     double distance = MAX_DIST;
     for (auto const & key1 : *params->graph | views::keys) {
       if (double const new_distance = get_distance(key, key1); new_distance <= distance) {
@@ -798,16 +832,17 @@ void Image::cf_finish_graph(params_finish_graph const * params) {
         }
       }
     }
-
     if (!params->Deleteitems->contains(key)) {
       (*params->graph)[(*params->toSave)[key]].second.push_back(key);
     }
   }
 }
 
+/**
+ *
+ */
 void Image::cf_finish_graph_BIG(params_finish_graph_BIG const * params) {
   for (auto const & key : *params->myMap | views::keys) {
-    // Recorremos las claves de graph
     double distance = MAX_DIST;
 
     for (auto const & key1 : *params->graph | views::keys) {
@@ -821,7 +856,6 @@ void Image::cf_finish_graph_BIG(params_finish_graph_BIG const * params) {
         }
       }
     }
-
     if (!params->Deleteitems->contains(key)) {
       (*params->graph)[(*params->toSave)[key]].second.push_back(key);
     }
