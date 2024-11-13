@@ -788,7 +788,6 @@ void Image::cf_finish_graph(params_finish_graph const * params) {
   for (auto const & key : *params->myMap | views::keys) {
     // Recorremos las claves de graph
     double distance = MAX_DIST;
-
     for (auto const & key1 : *params->graph | views::keys) {
       if (double const new_distance = get_distance(key, key1); new_distance <= distance) {
         distance = new_distance;

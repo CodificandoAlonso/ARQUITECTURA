@@ -487,12 +487,12 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MPA
   graph[this->nod[DOCE]] = {
-    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO]},
+    {this->nod[3], this->nod[NUEVE], this->nod[TRECE], this->nod[QUINCE], this->nod[VEINTIUNO], this->nod[DIECIOCHO]},
     {}
   };  // MMP
   graph[this->nod[TRECE]] = {
     {this->nod[4], this->nod[DIEZ], this->nod[DOCE], this->nod[CATORCE], this->nod[DIECISEIS],
-     this->nod[VEINTIDOS]},
+     this->nod[VEINTIDOS], this->nod[DIECIOCHO]},
     {}
   };  // MMM
   return graph;
@@ -507,7 +507,7 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MMA
   graph[this->nod[QUINCE]] = {
-    {this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS], this->nod[DIECIOCHO],
+    {this->nod[SEIS], this->nod[DOCE], this->nod[DIECISEIS],
      this->nod[VEINTICUATRO]},
     {}
   };  // MAP
@@ -521,8 +521,8 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // MAA
 
-  graph[this->nod[DIECIOCHO]] = {
-    {this->nod[NUEVE], this->nod[QUINCE], this->nod[DIECINUEVE]},
+    graph[this->nod[DIECIOCHO]] = {
+        {this->nod[NUEVE], this->nod[DIECINUEVE],this->nod[TRECE], this->nod[VEINTIUNO], this->nod[DOCE], this->nod[DIEZ]},
     {}
   };  // APP
   graph[this->nod[DIECINUEVE]] = {
@@ -534,7 +534,7 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     {}
   };  // APA
   graph[this->nod[VEINTIUNO]] = {
-    {this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO]},
+    {this->nod[DOCE], this->nod[VEINTIDOS], this->nod[VEINTICUATRO], this->nod[DIECIOCHO]},
     {}
   };  // AMP
   return graph;
