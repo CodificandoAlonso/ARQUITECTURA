@@ -461,47 +461,15 @@ TEST_F(ImageAOSTest, LoadAndMap8_Success) {
     auto result = getImageAOS()->cf_load_and_map_8(CIEN, std::move(input_file), CIEN);
     ASSERT_FALSE(result.empty());
 }
-/*
-//Funcion same_bgr_vector funciona
-TEST_F(ImageAOSTest, SameBGRVector_Success) {
-    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
-        {0x000000, 1}, {BLUE, 2}, {GREEN, 3}, {RED, 4}
-    };
-    ImageAOS const ImageAOS(0, {});
-    auto result = ImageAOS::same_bgr_vector(father_vector, 1, father_vector.size());
 
-    ASSERT_EQ(result.size(), 4);
-    std::cout << "result[0].first: " << result[0].first << '\n';
-    std::cout << "result[1].first: " << result[1].first << '\n';
-    std::cout << "result[2].first: " << result[2].first << '\n';
-    std::cout << "result[3].first: " << result[3].first << '\n';
-    ASSERT_EQ(result[0].first, 255);
-    ASSERT_EQ(result[1].first, 0);
-    ASSERT_EQ(result[2].first, 65280);
-    ASSERT_EQ(result[3].first, 16711680);
-}
 
-//Funcion same_bgr_vector no funciona por un vector vacío de entrada
-TEST_F(ImageAOSTest, SameBGRVector_EmptyInput) {
-    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector;
-    ImageAOS const ImageAOS(0, {});
-    auto result = ImageAOS::same_bgr_vector(father_vector, 1, father_vector.size());
+TEST_F(ImageAOSTest, LoadAndMap8_FileNotFound) {
+    std::ifstream input_file("non_existent_file.ppm", std::ios::binary);
+    ASSERT_FALSE(input_file.is_open());
 
+    auto result = getImageAOS()->cf_load_and_map_8(CIEN, std::move(input_file), CIEN);
     ASSERT_TRUE(result.empty());
 }
-
-
-TEST_F(ImageAOSTest, SameBGRVector_InsufficientElements) {
-    std::deque<std::pair<__uint32_t, __uint16_t>> const father_vector = {
-        {0x000000, 1}
-    };
-    ImageAOS const ImageAOS(0, {});
-    auto result = ImageAOS::same_bgr_vector(father_vector, 1, 2);
-
-    ASSERT_EQ(result.size(), 2);
-    ASSERT_EQ(result[0].first, 0x000000);
-}
-*/
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
