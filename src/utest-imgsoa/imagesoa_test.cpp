@@ -853,7 +853,8 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
   EXPECT_NE(graph[getImageSOA()->nodBIG[26]].first.size(), 2);
 }
 
-int main(int argc, char **argv){
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

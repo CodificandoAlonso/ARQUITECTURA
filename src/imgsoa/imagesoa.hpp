@@ -156,6 +156,7 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfGenerateGraphBIG3_Failure_Test;
     friend class ImageSOATest_CfGenerateGraphBIG4_Success_Test;
     friend class ImageSOATest_CfGenerateGraphBIG4_Failure_Test;
+    friend class ImageSOATest_CfCheckFirstPartSmallTest_Test;
 
 };
 
