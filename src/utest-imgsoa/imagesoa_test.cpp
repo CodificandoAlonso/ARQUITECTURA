@@ -52,6 +52,15 @@ static constexpr int NUM_M240 = -240;
 static constexpr int NUM_75 = 75;
 static constexpr int NUM_150 = 150;
 static constexpr int NUM_240 = 240;
+static constexpr int NUM_1000 = 1000;
+static constexpr int NUM_2000 = 2000;
+static constexpr int NUM_3000 = 3000;
+static constexpr int NUM_4000 = 4000;
+static constexpr int NUM_5000 = 5000;
+static constexpr int NUM_6000 = 6000;
+static constexpr int NUM_7000 = 7000;
+static constexpr int NUM_8000 = 8000;
+static constexpr int NUM_9000 = 9000;
 
 class ImageSOATest : public ::testing::Test {
 private:
@@ -907,6 +916,53 @@ TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
 
   // Add assertions to verify the output file content
 }
+
+
+TEST_F(ImageSOATest, CfWriteInExitBIG_EmptyDeleteitems) {
+  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems;
+  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
+  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
+  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
+
+  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
+  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
+  output_file.close();
+
+  // Add assertions to verify the output file content
+}
+
+TEST_F(ImageSOATest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
+  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
+    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)}
+  };
+  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
+  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
+  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
+
+  std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
+  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
+  output_file.close();
+
+  // Add assertions to verify the output file content
+}
+
+TEST_F(ImageSOATest, CfWriteInExitBIG_AllColorsInDeleteitems) {
+  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
+    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)},
+    {packRGBIG(2000, 5000, 8000), packRGBIG(13000, 14000, 15000)},
+    {packRGBIG(3000, 6000, 9000), packRGBIG(16000, 17000, 18000)}
+  };
+  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
+  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
+  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
+
+  std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
+  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
+  output_file.close();
+
+  // Add assertions to verify the output file content
+}
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

@@ -158,6 +158,9 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfWriteInExit_EmptyDeleteitems_Test;
     friend class ImageSOATest_CfWriteInExit_SomeColorsInDeleteitems_Test;
     friend class ImageSOATest_CfWriteInExit_AllColorsInDeleteitems_Test;
+    friend class ImageSOATest_CfWriteInExitBIG_EmptyDeleteitems_Test;
+    friend class ImageSOATest_CfWriteInExitBIG_SomeColorsInDeleteitems_Test;
+    friend class ImageSOATest_CfWriteInExitBIG_AllColorsInDeleteitems_Test;
 
 };
 
