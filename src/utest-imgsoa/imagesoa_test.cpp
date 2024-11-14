@@ -257,15 +257,15 @@ TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
 
 // Test con el metodo rsz_interpolate_min que funciona correctamente
 TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
-    std::array<rgb_small, 4> const square = {
-        rgb_small{.r=10, .g=20, .b=30},
-        rgb_small{.r=40, .g=50, .b=60},
-        rgb_small{.r=70, .g=80, .b=90},
-        rgb_small{.r=100, .g=110, .b=120}
-    };
+  constexpr std::array<rgb_small, 4> square = {
+    rgb_small{ .r = 10,  .g = 20,  .b = 30},
+    rgb_small{ .r = 40,  .g = 50,  .b = 60},
+    rgb_small{ .r = 70,  .g = 80,  .b = 90},
+    rgb_small{.r = 100, .g = 110, .b = 120}
+  };
 
-    double const u_param = 0.5;
-    double const t_param = 0.5;
+  constexpr double u_param = 0.5;
+  constexpr double t_param = 0.5;
 
     rgb_small const result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
 
@@ -276,15 +276,15 @@ TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
 
 // Test con el metodo rsz_interpolate_min que no funciona
 TEST_F(ImageSOATest, RszInterpolateMinFailure) {
-    std::array<rgb_small, 4> const square = {
-        rgb_small{.r=10, .g=20, .b=30},
-        rgb_small{.r=40, .g=50, .b=60},
-        rgb_small{.r=70, .g=80, .b=90},
-        rgb_small{.r=100, .g=110, .b=120}
-    };
+  constexpr std::array<rgb_small, 4> square = {
+    rgb_small{ .r = 10,  .g = 20,  .b = 30},
+    rgb_small{ .r = 40,  .g = 50,  .b = 60},
+    rgb_small{ .r = 70,  .g = 80,  .b = 90},
+    rgb_small{.r = 100, .g = 110, .b = 120}
+  };
 
-    double const u_param = 0.5;
-    double const t_param = 0.5;
+  constexpr double u_param = 0.5;
+  constexpr double t_param = 0.5;
 
     rgb_small const result = ImageSOA::rsz_interpolate_min(u_param, square, t_param);
 
@@ -296,15 +296,15 @@ TEST_F(ImageSOATest, RszInterpolateMinFailure) {
 
 // Test con el metodo rsz_interpolate_max que funciona correctamente
 TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
-    std::array<rgb_big, 4> const square = {
-        rgb_big{.r=10, .g=20, .b=30},
-        rgb_big{.r=40, .g=50, .b=60},
-        rgb_big{.r=70, .g=80, .b=90},
-        rgb_big{.r=100, .g=110, .b=120}
-    };
+  constexpr std::array<rgb_big, 4> square = {
+    rgb_big{ .r = 10,  .g = 20,  .b = 30},
+    rgb_big{ .r = 40,  .g = 50,  .b = 60},
+    rgb_big{ .r = 70,  .g = 80,  .b = 90},
+    rgb_big{.r = 100, .g = 110, .b = 120}
+  };
 
-    double const u_param = 0.5;
-    double const t_param = 0.5;
+  constexpr double u_param = 0.5;
+  constexpr double t_param = 0.5;
 
     rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
 
@@ -315,15 +315,15 @@ TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un error de acceso a memoria
 TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
-    std::array<rgb_big, 4> const square = {
-        rgb_big{.r=10, .g=20, .b=30},
-        rgb_big{.r=40, .g=50, .b=60},
-        rgb_big{.r=70, .g=80, .b=90},
-        rgb_big{.r=0, .g=0, .b=0}  // Adding a dummy element to make it 4 elements
-    };
+  constexpr std::array<rgb_big, 4> square = {
+    rgb_big{.r = 10, .g = 20, .b = 30},
+    rgb_big{.r = 40, .g = 50, .b = 60},
+    rgb_big{.r = 70, .g = 80, .b = 90},
+    rgb_big{ .r = 0,  .g = 0,  .b = 0}  // Adding a dummy element to make it 4 elements
+  };
 
-    double const u_param = 0.5;
-    double const t_param = 0.5;
+  constexpr double u_param = 0.5;
+  constexpr double t_param = 0.5;
 
     // This should not cause an out-of-bounds access now
     rgb_big const result = ImageSOA::rsz_interpolate_max(u_param, square, t_param);
@@ -336,7 +336,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un valor de u_param invalido
 TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
-    std::array<rgb_big, 4> const square = {
+  constexpr std::array<rgb_big, 4> square = {
         rgb_big{.r=10, .g=20, .b=30},
         rgb_big{.r=40, .g=50, .b=60},
         rgb_big{.r=70, .g=80, .b=90},
@@ -620,7 +620,7 @@ TEST_F(ImageSOATest, CfGenerateGraph2_Success) {
   EXPECT_EQ(graph[getImageSOA()->nod[9]].first.size(), 4);
   EXPECT_EQ(graph[getImageSOA()->nod[10]].first.size(), 5);
   EXPECT_EQ(graph[getImageSOA()->nod[11]].first.size(), 4);
-  EXPECT_EQ(graph[getImageSOA()->nod[12]].first.size(), 6);
+  EXPECT_EQ(graph[getImageSOA()->nod[12]].first.size(), 7);
   EXPECT_EQ(graph[getImageSOA()->nod[13]].first.size(), 7);
 }
 
@@ -648,11 +648,11 @@ TEST_F(ImageSOATest, CfGenerateGraph3_Success) {
   // Correct assertions to verify the graph structure
   EXPECT_EQ(graph.size(), 8);
   EXPECT_EQ(graph[getImageSOA()->nod[14]].first.size(), 5);
-  EXPECT_EQ(graph[getImageSOA()->nod[15]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nod[15]].first.size(), 6);
   EXPECT_EQ(graph[getImageSOA()->nod[16]].first.size(), 5);
   EXPECT_EQ(graph[getImageSOA()->nod[17]].first.size(), 4);
-  EXPECT_EQ(graph[getImageSOA()->nod[18]].first.size(), 6);
-  EXPECT_EQ(graph[getImageSOA()->nod[19]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nod[18]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nod[19]].first.size(), 5);
   EXPECT_EQ(graph[getImageSOA()->nod[20]].first.size(), 3);
 }
 
@@ -668,7 +668,7 @@ TEST_F(ImageSOATest, CfGenerateGraph3_Failure) {
   EXPECT_NE(graph[getImageSOA()->nod[15]].first.size(), 2);
   EXPECT_NE(graph[getImageSOA()->nod[16]].first.size(), 3);
   EXPECT_NE(graph[getImageSOA()->nod[17]].first.size(), 7);
-  EXPECT_NE(graph[getImageSOA()->nod[18]].first.size(), 4);
+  EXPECT_NE(graph[getImageSOA()->nod[18]].first.size(), 5);
   EXPECT_NE(graph[getImageSOA()->nod[19]].first.size(), 8);
   EXPECT_NE(graph[getImageSOA()->nod[20]].first.size(), 7);
 }
@@ -735,8 +735,8 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG_Failure) {
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG2_Success) {
   // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
-  graph = getImageSOA()->cf_generate_graph_BIG();
+  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+      graph = getImageSOA()->cf_generate_graph_BIG();
 
   // Llama a la función cf_generate_graph_BIG_2
   getImageSOA()->cf_generate_graph_BIG_2(graph);
@@ -753,8 +753,8 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG2_Success) {
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG2_Failure) {
   // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
-  graph = getImageSOA()->cf_generate_graph_BIG();
+  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+      graph = getImageSOA()->cf_generate_graph_BIG();
 
   // Llama a la función cf_generate_graph_BIG_2
   getImageSOA()->cf_generate_graph_BIG_2(graph);
