@@ -15,7 +15,6 @@
 #include <fstream>
 #include <iostream>
 #include <list>
-#include <map>
 #include <ranges>
 #include <string>
 #include <sys/stat.h>
@@ -637,7 +636,6 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
   };  // MMM
   return graph;
 }
-
 unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     ImageAOS::cf_generate_graph_3(
         unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> & graph) {
@@ -707,7 +705,6 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
   };  // AAA
   return graph;
 }
-
 unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
     ImageAOS::cf_generate_graph_BIG() {
   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
@@ -747,7 +744,6 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   };  // PAP
   return graph;
 }
-
 unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
     ImageAOS::cf_generate_graph_BIG_2(
         unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> & graph) {
@@ -775,12 +771,12 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   };  // MPA
   graph[this->nodBIG[DOCE]] = {
     {this->nodBIG[3], this->nodBIG[NUEVE], this->nodBIG[TRECE], this->nodBIG[QUINCE],
-     this->nodBIG[VEINTIUNO], this->nodBIG[DIECIOCHO]},
+     this->nodBIG[VEINTIUNO]},
     {}
   };  // MMP
   graph[this->nodBIG[TRECE]] = {
     {this->nodBIG[4], this->nodBIG[DIEZ], this->nodBIG[DOCE], this->nodBIG[CATORCE],
-     this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS], this->nodBIG[DIECIOCHO]},
+     this->nodBIG[DIECISEIS], this->nodBIG[VEINTIDOS]},
     {}
   };  // MMM
   return graph;
@@ -811,8 +807,7 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   };  // MAA
 
   graph[this->nodBIG[DIECIOCHO]] = {
-    {this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE], this->nod[DOCE],
-     this->nod[TRECE], this->nodBIG[VEINTIUNO]},
+    {this->nodBIG[NUEVE], this->nodBIG[QUINCE], this->nodBIG[DIECINUEVE]},
     {}
   };  // APP
   graph[this->nodBIG[DIECINUEVE]] = {
@@ -824,7 +819,7 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
     {}
   };  // APA
   graph[this->nodBIG[VEINTIUNO]] = {
-    {this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO], this->nod[DIECIOCHO]},
+    {this->nodBIG[DOCE], this->nodBIG[VEINTIDOS], this->nodBIG[VEINTICUATRO]},
     {}
   };  // AMP
   return graph;
@@ -858,7 +853,6 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   };  // AAA
   return graph;
 }
-
 deque<pair<__uint32_t, __uint16_t>>
     ImageAOS::cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
                                         unordered_map<__uint32_t, __uint32_t> & Deleteitems,
