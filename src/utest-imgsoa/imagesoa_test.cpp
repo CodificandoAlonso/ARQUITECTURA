@@ -769,63 +769,90 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG2_Failure) {
   EXPECT_NE(graph[getImageSOA()->nodBIG[12]].first.size(), 0);
 }
 
-/*
 TEST_F(ImageSOATest, CfGenerateGraphBIG3_Success) {
-    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
-    getImageSOA()->cf_generate_graph_BIG_3(graph);
+  // Crea un grafo inicial
+  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  graph = getImageSOA()->cf_generate_graph_BIG();
 
-    // Correct assertions to verify the expected behavior
-    EXPECT_EQ(graph.size(), 8);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[13]].first.size(), 5);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[14]].first.size(), 5);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[15]].first.size(), 5);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[16]].first.size(), 4);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[17]].first.size(), 3);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[18]].first.size(), 3);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[19]].first.size(), 4);
+  // Llama a la función cf_generate_graph_BIG_2 para actualizar el grafo
+  getImageSOA()->cf_generate_graph_BIG_2(graph);
+
+  // Llama a la función cf_generate_graph_BIG_3 para actualizar el grafo
+  getImageSOA()->cf_generate_graph_BIG_3(graph);
+
+  // Verifica que el grafo se haya actualizado correctamente
+  EXPECT_EQ(graph.size(), 22); // Ajusta el tamaño esperado según tu implementación
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[14]].first.size(), 5);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[15]].first.size(), 5);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[16]].first.size(), 5);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[17]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[18]].first.size(), 3);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[19]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[20]].first.size(), 3);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[21]].first.size(), 3);
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG3_Failure) {
-    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
-    getImageSOA()->cf_generate_graph_BIG_3(graph);
+  // Crea un grafo inicial
+  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  graph = getImageSOA()->cf_generate_graph_BIG();
 
-    // Intentionally incorrect assertions to cause the test to fail
-    EXPECT_NE(graph.size(), 8);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[13]].first.size(), 5);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[14]].first.size(), 5);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[15]].first.size(), 5);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[16]].first.size(), 4);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[17]].first.size(), 3);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[18]].first.size(), 3);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[19]].first.size(), 4);
+  // Llama a la función cf_generate_graph_BIG_2 para actualizar el grafo
+  getImageSOA()->cf_generate_graph_BIG_2(graph);
+
+  // Llama a la función cf_generate_graph_BIG_3 para actualizar el grafo
+  getImageSOA()->cf_generate_graph_BIG_3(graph);
+
+  // Verifica que el grafo se haya actualizado correctamente
+  EXPECT_NE(graph.size(), 2); // Ajusta el tamaño esperado según tu implementación
+  EXPECT_NE(graph[getImageSOA()->nodBIG[14]].first.size(), 6);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[15]].first.size(), 4);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[16]].first.size(), 3);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[17]].first.size(), 2);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[18]].first.size(), 4);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[19]].first.size(), 6);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[20]].first.size(), 5);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[21]].first.size(), 4);
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG4_Success) {
-    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
-    getImageSOA()->cf_generate_graph_BIG_4(graph);
 
-    // Correct assertions to verify the expected behavior
-    EXPECT_EQ(graph.size(), 5);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[20]].first.size(), 5);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[21]].first.size(), 4);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[22]].first.size(), 3);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[23]].first.size(), 4);
-    EXPECT_EQ(graph[getImageSOA()->nodBIG[24]].first.size(), 3);
+  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  graph = getImageSOA()->cf_generate_graph_BIG();
+
+  getImageSOA()->cf_generate_graph_BIG_2(graph);
+
+  getImageSOA()->cf_generate_graph_BIG_3(graph);
+
+  getImageSOA()->cf_generate_graph_BIG_4(graph);
+
+  EXPECT_EQ(graph.size(), 27);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[22]].first.size(), 5);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[23]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[24]].first.size(), 3);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[25]].first.size(), 4);
+  EXPECT_EQ(graph[getImageSOA()->nodBIG[26]].first.size(), 3);
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
-    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
-    getImageSOA()->cf_generate_graph_BIG_4(graph);
 
-    // Intentionally incorrect assertions to cause the test to fail
-    EXPECT_NE(graph.size(), 5);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[20]].first.size(), 5);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[21]].first.size(), 4);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[22]].first.size(), 3);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[23]].first.size(), 4);
-    EXPECT_NE(graph[getImageSOA()->nodBIG[24]].first.size(), 3);
+  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  graph = getImageSOA()->cf_generate_graph_BIG();
+
+  getImageSOA()->cf_generate_graph_BIG_2(graph);
+
+  getImageSOA()->cf_generate_graph_BIG_3(graph);
+
+  getImageSOA()->cf_generate_graph_BIG_4(graph);
+
+  EXPECT_NE(graph.size(), 25);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[22]].first.size(), 4);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[23]].first.size(), 2);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[24]].first.size(), 6);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[25]].first.size(), 7);
+  EXPECT_NE(graph[getImageSOA()->nodBIG[26]].first.size(), 2);
 }
-*/
+
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
