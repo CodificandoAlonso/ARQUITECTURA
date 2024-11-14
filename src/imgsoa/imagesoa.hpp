@@ -121,15 +121,8 @@ class ImageSOA : public Image {
     friend class ImageSOATest_ReadImageRGBBig_Success_Test;
     friend class ImageSOATest_ReadImageRGBBig_FileNotOpen_Test;
     friend class ImageSOATest_ReadImageRGBBig_FileReadError_Test;
-    friend class ImageSOATest_SortAndMapKeys_Success_Test;
-    friend class ImageSOATest_SortAndMapKeys_EmptyMap_Test;
-    friend class ImageSOATest_SortAndMapKeys_SingleElement_Test;
-    friend class ImageSOATest_SortAndMapKeys_SameDistanceToBlack_Test;
-    friend class ImageSOATest_SortAndMapKeys_LargeMap_Test;
     friend class ImageSOATest_LoadAndMap8_Success_Test;
-    friend class ImageSOATest_SameBGRVector_Success_Test;
-    friend class ImageSOATest_SameBGRVector_EmptyInput_Test;
-    friend class ImageSOATest_SameBGRVector_InsufficientElements_Test;
+
     friend class ImageSOATest_CfLoadAndMap8BIGSuccess_Test;
     friend class ImageSOATest_CfLoadAndMap8BIG_FileNotOpen_Test;
     friend class ImageSOATest_CfLoadAndMap8BIG_InvalidWidth_Test;
