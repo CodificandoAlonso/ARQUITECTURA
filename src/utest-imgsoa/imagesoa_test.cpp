@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "imgsoa/imagesoa.hpp"
+#include "common/binario.hpp"
 #include <gsl/gsl>
 #include <fstream>
 #include <array>
@@ -8,8 +9,8 @@
 #include <cstdio>
 #include <unordered_map>
 
-static constexpr int CIEN = 100;
-static constexpr int MCIEN = -100;
+static constexpr int NUM_100 = 100;
+static constexpr int MNUM_100 = -100;
 static constexpr int FOTO = 256;
 static constexpr int NUM_5 = 5;
 static constexpr int NUM_6 = 6;
@@ -36,6 +37,15 @@ static constexpr int NUM_26 = 26;
 static constexpr int NUM_27 = 27;
 static constexpr int NUM_28 = 28;
 static constexpr int NUM_29 = 29;
+static constexpr int NUM_30 = 30;
+static constexpr int NUM_40 = 40;
+static constexpr int NUM_50 = 50;
+static constexpr int NUM_60 = 60;
+static constexpr int NUM_70 = 70;
+static constexpr int NUM_80 = 80;
+static constexpr int NUM_90 = 90;
+static constexpr int NUM_110 = 110;
+static constexpr int NUM_120 = 120;
 static constexpr int NUM_M75 = -75;
 static constexpr int NUM_M150 = -150;
 static constexpr int NUM_M240 = -240;
@@ -59,10 +69,10 @@ protected:
     if (!output_file) {
       FAIL() << "Failed to create test image file.";
     }
-    output_file << "P6\n" << CIEN << " " << CIEN << "\n" << FOTO-1 << "\n";
+    output_file << "P6\n" << NUM_100 << " " << NUM_100 << "\n" << FOTO-1 << "\n";
 
     // Write some dummy data to the input file
-    for (int i = 0; i < CIEN * CIEN; ++i) {
+    for (int i = 0; i < NUM_100 * NUM_100; ++i) {
       output_file.put(static_cast<char>(i % FOTO));
       output_file.put(static_cast<char>((i + 1) % FOTO));
       output_file.put(static_cast<char>((i + 2) % FOTO));
@@ -467,7 +477,7 @@ TEST_F(ImageSOATest, LoadAndMap8_Success) {
     std::ifstream input_file(getTestImagePath(), std::ios::binary);
     EXPECT_TRUE(input_file.is_open());
 
-    auto result = getImageSOA()->cf_load_and_map_8(CIEN, std::move(input_file), CIEN);
+    auto result = getImageSOA()->cf_load_and_map_8(NUM_100, std::move(input_file), NUM_100);
     EXPECT_FALSE(result.empty());
 }
 
@@ -477,7 +487,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIGSuccess) {
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
-  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), CIEN);
+  auto result = getImageSOA()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), NUM_100);
   EXPECT_FALSE(result.empty());
 }
 
@@ -486,7 +496,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_FileNotOpen) {
   EXPECT_FALSE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
-  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), CIEN);
+  auto result = getImageSOA()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), NUM_100);
 
   // Check if the result is not empty since the function does not handle file not open case
   EXPECT_FALSE(result.empty()) << "Expected result to be not empty when input file cannot be opened.";
@@ -497,7 +507,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidWidth) {
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
-  auto result = getImageSOA()->cf_load_and_map_8BIG(0, std::move(input_file), CIEN);
+  auto result = getImageSOA()->cf_load_and_map_8BIG(0, std::move(input_file), NUM_100);
 
   // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when width is zero.";
@@ -508,7 +518,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidHeight) {
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
-  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), 0);
+  auto result = getImageSOA()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), 0);
 
   // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when height is zero.";
@@ -519,7 +529,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeWidth) {
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
-  auto result = getImageSOA()->cf_load_and_map_8BIG(MCIEN, std::move(input_file), CIEN);
+  auto result = getImageSOA()->cf_load_and_map_8BIG(MNUM_100, std::move(input_file), NUM_100);
 
   // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when width is negative.";
@@ -530,7 +540,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeHeight) {
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
-  auto result = getImageSOA()->cf_load_and_map_8BIG(CIEN, std::move(input_file), MCIEN);
+  auto result = getImageSOA()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), MNUM_100);
 
 
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when height is negative.";
@@ -853,6 +863,50 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
   EXPECT_NE(graph[getImageSOA()->nodBIG[26]].first.size(), 2);
 }
 
+TEST_F(ImageSOATest, CfWriteInExit_EmptyDeleteitems) {
+  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems;
+  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
+  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
+  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
+
+  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
+  getImageSOA()->cf_write_in_exit(Deleteitems);
+  output_file.close();
+
+  // Add assertions to verify the output file content
+}
+
+TEST_F(ImageSOATest, CfWriteInExit_SomeColorsInDeleteitems) {
+  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
+    {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
+  };
+  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
+  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
+  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
+
+  std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
+  getImageSOA()->cf_write_in_exit(Deleteitems);
+  output_file.close();
+
+  // Add assertions to verify the output file content
+}
+
+TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
+  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
+    {packRGB(10, 40, 70), packRGB(100, 110, 120)},
+    {packRGB(20, 50, 80), packRGB(130, 140, 150)},
+    {packRGB(30, 60, 90), packRGB(160, 170, 180)}
+  };
+  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
+  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
+  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
+
+  std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
+  getImageSOA()->cf_write_in_exit(Deleteitems);
+  output_file.close();
+
+  // Add assertions to verify the output file content
+}
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
