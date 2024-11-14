@@ -6,7 +6,6 @@
 #define IMAGESOA_HPP
 
 #include "common/progargs.hpp"
-
 #include <common/struct-rgb.hpp>
 #include <deque>
 #include <list>
