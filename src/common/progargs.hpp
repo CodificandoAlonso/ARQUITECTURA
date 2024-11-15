@@ -128,11 +128,7 @@ class Image {
 
     static size_t cf_search_in_blue(deque<pair<__uint32_t, __uint16_t>> & pairs,
                                     __uint32_t & first);
-    static void cf_delete_and_rest(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-                                   int & num_left, deque<pair<__uint32_t, __uint16_t>> & bluevalues,
-                                   size_t index);
-    static int cf_check_just_blue(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-                                  deque<pair<__uint32_t, __uint16_t>> & bluevalues, int & num_left);
+
     static void cf_delete_first_blue_value(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                            int & num_left,
                                            deque<pair<__uint32_t, __uint16_t>> & bluevalues);

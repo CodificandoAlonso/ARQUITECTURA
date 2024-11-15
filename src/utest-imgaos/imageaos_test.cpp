@@ -15,6 +15,7 @@
 static constexpr int NUM_100  = 100;
 static constexpr int MNUM_100 = -100;
 static constexpr int FOTO     = 256;
+static constexpr int NUM_0    = 0;
 static constexpr int NUM_5    = 5;
 static constexpr int NUM_6    = 6;
 static constexpr int NUM_7    = 7;
@@ -28,6 +29,9 @@ static constexpr int NUM_17   = 17;
 static constexpr int NUM_18   = 18;
 static constexpr int NUM_19   = 19;
 static constexpr int NUM_20   = 20;
+static constexpr int NUM_55 = 55;
+static constexpr int NUM_65 = 65;
+static constexpr int NUM_75 = 75;
 static constexpr int NUM_21   = 21;
 static constexpr int NUM_22   = 22;
 static constexpr int NUM_23   = 23;
@@ -52,19 +56,15 @@ static constexpr int NUM_150 = 150;
 static constexpr int NUM_160 = 160;
 static constexpr int NUM_170 = 170;
 static constexpr int NUM_180 = 180;
+static constexpr int NUM_190 = 190;
+static constexpr int NUM_200 = 200;
+static constexpr int NUM_210 = 210;
+static constexpr int NUM_220 = 220;
+static constexpr int NUM_230 = 230;
 static constexpr int NUM_M75  = -75;
 static constexpr int NUM_M150 = -150;
 static constexpr int NUM_M240 = -240;
-static constexpr int NUM_1000 = 1000;
-static constexpr int NUM_2000 = 2000;
-static constexpr int NUM_3000 = 3000;
-static constexpr int NUM_4000 = 4000;
-static constexpr int NUM_5000 = 5000;
-static constexpr int NUM_6000 = 6000;
-static constexpr int NUM_7000 = 7000;
-static constexpr int NUM_8000 = 8000;
-static constexpr int NUM_9000 = 9000;
-static constexpr int NUM_75 = 75;
+static constexpr int NUM_255 = 255;
 static constexpr int NUM_240 = 240;
 
 class ImageAOSTest : public ::testing::Test {
@@ -82,7 +82,6 @@ class ImageAOSTest : public ::testing::Test {
       if (!output_file) { FAIL() << "Failed to create test image file."; }
       output_file << "P6\n" << NUM_100 << " " << NUM_100 << "\n" << FOTO - 1 << "\n";
 
-      // Write some dummy data to the input file
       for (int i = 0; i < NUM_100 * NUM_100; ++i) {
         output_file.put(static_cast<char>(i % FOTO));
         output_file.put(static_cast<char>((i + 1) % FOTO));
@@ -98,28 +97,28 @@ class ImageAOSTest : public ::testing::Test {
         delete imageAOS;
         imageAOS = nullptr;
       }
-      if (std::ifstream(test_image_path.c_str()).good()) {
-        if (std::remove(test_image_path.c_str()) != 0) { std::perror("Error deleting file"); }
+      if (ifstream(test_image_path.c_str()).good()) {
+        if (remove(test_image_path.c_str()) != 0) { std::perror("Error deleting file"); }
       }
 
       if (std::ifstream("test_image.ppm").good()) {
-        if (std::remove("test_image.ppm") != 0) { std::perror("Error deleting file"); }
+        if (remove("test_image.ppm") != 0) { std::perror("Error deleting file"); }
       }
     }
 
   public:
-    // Default constructor
+
     ImageAOSTest() = default;
 
-    // Destructor
+
     ~ImageAOSTest() override { delete imageAOS; }
 
-    // Copy constructor
+
     ImageAOSTest(ImageAOSTest const & other)
       : imageAOS(new ImageAOS(std::move(*other.imageAOS))), test_image_path(other.test_image_path) {
     }
 
-    // Copy assignment operator
+
     ImageAOSTest & operator=(ImageAOSTest const & other) {
       if (this != &other) {
         delete imageAOS;
@@ -129,13 +128,13 @@ class ImageAOSTest : public ::testing::Test {
       return *this;
     }
 
-    // Move constructor
+
     ImageAOSTest(ImageAOSTest && other) noexcept
       : imageAOS(other.imageAOS), test_image_path(std::move(other.test_image_path)) {
       other.imageAOS = nullptr;
     }
 
-    // Move assignment operator
+
     ImageAOSTest & operator=(ImageAOSTest && other) noexcept {
       if (this != &other) {
         delete imageAOS;
@@ -201,16 +200,11 @@ TEST_F(ImageAOSTest, RszObtainSquareMinFailure) {
     {.r = NUM_8, .g = NUM_23,  .b = NUM_8},
     {.r = NUM_9, .g = NUM_24,  .b = NUM_9}
   };
-  /*
-  image.r = {0, 1, 2, 3, 4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_10, NUM_11, NUM_12, NUM_13,
-  NUM_14}; image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23,
-  NUM_24}; image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
-  */
+
   std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
   std::array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
 
-  // Intentionally incorrect expected values to cause the test to fail
   EXPECT_NE(result[0].r, 1);
   EXPECT_NE(result[0].g, 11);
   EXPECT_NE(result[0].b, 21);
@@ -303,10 +297,10 @@ TEST_F(ImageAOSTest, RszObtainSquareMaxFailure) {
 // Test con el metodo rsz_interpolate_min que funciona correctamente
 TEST_F(ImageAOSTest, RszInterpolateMinSuccess) {
   std::array<rgb_small, 4> const square = {
-    rgb_small{ .r = 10,  .g = 20,  .b = 30},
-    rgb_small{ .r = 40,  .g = 50,  .b = 60},
-    rgb_small{ .r = 70,  .g = 80,  .b = 90},
-    rgb_small{.r = 100, .g = 110, .b = 120}
+    rgb_small{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
+    rgb_small{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
+    rgb_small{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
+    rgb_small{.r = NUM_100, .g = NUM_110, .b = NUM_120}
   };
 
   double const u_param = 0.5;
@@ -314,18 +308,18 @@ TEST_F(ImageAOSTest, RszInterpolateMinSuccess) {
 
   rgb_small const result = ImageAOS::rsz_interpolate_min(u_param, square, t_param);
 
-  EXPECT_EQ(result.r, 55);
-  EXPECT_EQ(result.g, 65);
-  EXPECT_EQ(result.b, 75);
+  EXPECT_EQ(result.r, NUM_55);
+  EXPECT_EQ(result.g, NUM_65);
+  EXPECT_EQ(result.b, NUM_75);
 }
 
 // Test con el metodo rsz_interpolate_min que no funciona
 TEST_F(ImageAOSTest, RszInterpolateMinFailure) {
   std::array<rgb_small, 4> const square = {
-    rgb_small{ .r = 10,  .g = 20,  .b = 30},
-    rgb_small{ .r = 40,  .g = 50,  .b = 60},
-    rgb_small{ .r = 70,  .g = 80,  .b = 90},
-    rgb_small{.r = 100, .g = 110, .b = 120}
+    rgb_small{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
+    rgb_small{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
+    rgb_small{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
+    rgb_small{.r = NUM_100, .g = NUM_110, .b = NUM_120}
   };
 
   double const u_param = 0.5;
@@ -334,18 +328,18 @@ TEST_F(ImageAOSTest, RszInterpolateMinFailure) {
   rgb_small const result = ImageAOS::rsz_interpolate_min(u_param, square, t_param);
 
   // Intentionally incorrect expected values to cause the test to fail
-  EXPECT_NE(result.r, 10);
-  EXPECT_NE(result.g, 20);
-  EXPECT_NE(result.b, 30);
+  EXPECT_NE(result.r, NUM_10);
+  EXPECT_NE(result.g, NUM_20);
+  EXPECT_NE(result.b, NUM_30);
 }
 
 // Test con el metodo rsz_interpolate_max que funciona correctamente
 TEST_F(ImageAOSTest, RszInterpolateMaxSuccess) {
   std::array<rgb_big, 4> const square = {
-    rgb_big{ .r = 10,  .g = 20,  .b = 30},
-    rgb_big{ .r = 40,  .g = 50,  .b = 60},
-    rgb_big{ .r = 70,  .g = 80,  .b = 90},
-    rgb_big{.r = 100, .g = 110, .b = 120}
+    rgb_big{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
+    rgb_big{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
+    rgb_big{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
+    rgb_big{.r = NUM_100, .g = NUM_110, .b = NUM_120}
   };
 
   double const u_param = 0.5;
@@ -353,18 +347,18 @@ TEST_F(ImageAOSTest, RszInterpolateMaxSuccess) {
 
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
-  EXPECT_EQ(result.r, 55);
-  EXPECT_EQ(result.g, 65);
-  EXPECT_EQ(result.b, 75);
+  EXPECT_EQ(result.r, NUM_55);
+  EXPECT_EQ(result.g, NUM_65);
+  EXPECT_EQ(result.b, NUM_75);
 }
 
 // Test con el metodo rsz_interpolate_max que no funciona por un error de acceso a memoria
 TEST_F(ImageAOSTest, RszInterpolateMaxOutOfBounds) {
   std::array<rgb_big, 4> const square = {
-    rgb_big{.r = 10, .g = 20, .b = 30},
-    rgb_big{.r = 40, .g = 50, .b = 60},
-    rgb_big{.r = 70, .g = 80, .b = 90},
-    rgb_big{ .r = 0,  .g = 0,  .b = 0}  // Adding a dummy element to make it 4 elements
+    rgb_big{.r = NUM_10, .g = NUM_20, .b = NUM_30},
+    rgb_big{.r = NUM_40, .g = NUM_50, .b = NUM_60},
+    rgb_big{.r = NUM_70, .g = NUM_80, .b = NUM_90},
+    rgb_big{ .r = NUM_0,  .g = NUM_0,  .b = NUM_0}  // Adding a dummy element to make it 4 elements
   };
 
   double const u_param = 0.5;
@@ -374,18 +368,18 @@ TEST_F(ImageAOSTest, RszInterpolateMaxOutOfBounds) {
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
   // Check for incorrect results due to invalid array size
-  EXPECT_NE(result.r, 55);
-  EXPECT_NE(result.g, 65);
-  EXPECT_NE(result.b, 75);
+  EXPECT_NE(result.r, NUM_55);
+  EXPECT_NE(result.g, NUM_65);
+  EXPECT_NE(result.b, NUM_75);
 }
 
 // Test con el metodo rsz_interpolate_max que no funciona por un valor de u_param invalido
 TEST_F(ImageAOSTest, RszInterpolateMaxInvalidUParam) {
   std::array<rgb_big, 4> const square = {
-    rgb_big{ .r = 10,  .g = 20,  .b = 30},
-    rgb_big{ .r = 40,  .g = 50,  .b = 60},
-    rgb_big{ .r = 70,  .g = 80,  .b = 90},
-    rgb_big{.r = 100, .g = 110, .b = 120}
+    rgb_big{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
+    rgb_big{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
+    rgb_big{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
+    rgb_big{.r = NUM_100, .g = NUM_110, .b = NUM_120}
   };
 
   constexpr double u_param = 1.5;  // Invalid value
@@ -394,18 +388,18 @@ TEST_F(ImageAOSTest, RszInterpolateMaxInvalidUParam) {
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
   // Check for incorrect results due to invalid u_param
-  EXPECT_NE(result.r, 55);
-  EXPECT_NE(result.g, 65);
-  EXPECT_NE(result.b, 75);
+  EXPECT_NE(result.r, NUM_55);
+  EXPECT_NE(result.g, NUM_65);
+  EXPECT_NE(result.b, NUM_75);
 }
 
 // Test con el methods rsz_interpolate_max que no function por un valor de t_param invalid
 TEST_F(ImageAOSTest, RszInterpolateMaxInvalidTParam) {
   constexpr std::array<rgb_big, 4> square = {
-    rgb_big{ .r = 10,  .g = 20,  .b = 30},
-    rgb_big{ .r = 40,  .g = 50,  .b = 60},
-    rgb_big{ .r = 70,  .g = 80,  .b = 90},
-    rgb_big{.r = 100, .g = 110, .b = 120}
+    rgb_big{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
+    rgb_big{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
+    rgb_big{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
+    rgb_big{.r = NUM_100, .g = NUM_110, .b = NUM_120}
   };
 
   constexpr double u_param = 0.5;
@@ -414,9 +408,9 @@ TEST_F(ImageAOSTest, RszInterpolateMaxInvalidTParam) {
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
   // Check for incorrect results due to invalid t_param
-  EXPECT_NE(result.r, 55);
-  EXPECT_NE(result.g, 65);
-  EXPECT_NE(result.b, 75);
+  EXPECT_NE(result.r, NUM_55);
+  EXPECT_NE(result.g, NUM_65);
+  EXPECT_NE(result.b, NUM_75);
 }
 
 TEST_F(ImageAOSTest, ReadImageRGBSmallSuccess) {
@@ -442,12 +436,12 @@ TEST_F(ImageAOSTest, ReadImageRGBSmallCorruptData) {
 
   // Add assertions to check for corrupt data
   for (auto const & iter : result) {
-    EXPECT_GE(iter.r, 0);
-    EXPECT_LE(iter.r, 255);
-    EXPECT_GE(iter.g, 0);
-    EXPECT_LE(iter.g, 255);
-    EXPECT_GE(iter.b, 0);
-    EXPECT_LE(iter.b, 255);
+    EXPECT_GE(iter.r, NUM_0);
+    EXPECT_LE(iter.r, NUM_255);
+    EXPECT_GE(iter.g, NUM_0);
+    EXPECT_LE(iter.g, NUM_255);
+    EXPECT_GE(iter.b, NUM_0);
+    EXPECT_LE(iter.b, NUM_255);
   }
 }
 
@@ -569,41 +563,7 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_NegativeHeight) {
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when height is negative.";
 }
 
-/*
-TEST_F(ImageAOSTest, CfAddNodesBIG_Success) {
-  ImageAOS ImageAOS(0, {});
-  getImageAOS()->cf_add_nodes_BIG(NUM_75, NUM_150, NUM_240);
 
-  EXPECT_EQ(ImageAOS.nodBIG.size(), 0);
-  EXPECT_EQ(ImageAOS.nodBIG[0], packRGBIG(75, 75, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[1], packRGBIG(75, 75, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[2], packRGBIG(75, 75, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[3], packRGBIG(75, 150, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[4], packRGBIG(75, 150, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[5], packRGBIG(75, 150, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[6], packRGBIG(75, 240, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[7], packRGBIG(75, 240, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[8], packRGBIG(75, 240, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[9], packRGBIG(150, 75, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[10], packRGBIG(150, 75, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[11], packRGBIG(150, 75, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[12], packRGBIG(150, 150, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[13], packRGBIG(150, 150, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[14], packRGBIG(150, 150, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[15], packRGBIG(150, 240, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[16], packRGBIG(150, 240, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[17], packRGBIG(150, 240, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[18], packRGBIG(240, 75, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[19], packRGBIG(240, 75, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[20], packRGBIG(240, 75, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[21], packRGBIG(240, 150, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[22], packRGBIG(240, 150, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[23], packRGBIG(240, 150, 240));
-  EXPECT_EQ(ImageAOS.nodBIG[24], packRGBIG(240, 240, 75));
-  EXPECT_EQ(ImageAOS.nodBIG[25], packRGBIG(240, 240, 150));
-  EXPECT_EQ(ImageAOS.nodBIG[26], packRGBIG(240, 240, 240));
-}
-*/
 TEST_F(ImageAOSTest, CfAddNodesBIG_Failure) {
   ImageAOS const ImageAOS(0, {});
   getImageAOS()->cf_add_nodes_BIG(static_cast<__uint16_t>(NUM_M75),
@@ -894,105 +854,6 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG4_Failure) {
   EXPECT_NE(graph[getImageAOS()->nodBIG[26]].first.size(), 2);
 }
 
-TEST_F(ImageAOSTest, CfWriteInExit_EmptyDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems;
-  getImageAOS()->array_small = {
-    {.r = NUM_10, .g = NUM_40, .b = NUM_70},
-    {.r = NUM_20, .g = NUM_50, .b = NUM_80},
-    {.r = NUM_30, .g = NUM_60, .b = NUM_90}
-  };
-
-  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageAOSTest, CfWriteInExit_SomeColorsInDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
-    {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
-  };
-  getImageAOS()->array_small = {
-    {.r = NUM_10, .g = NUM_40, .b = NUM_70},
-    {.r = NUM_20, .g = NUM_50, .b = NUM_80},
-    {.r = NUM_30, .g = NUM_60, .b = NUM_90}
-  };
-
-  std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageAOSTest, CfWriteInExit_AllColorsInDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
-    {packRGB(10, 40, 70), packRGB(100, 110, 120)},
-    {packRGB(20, 50, 80), packRGB(130, 140, 150)},
-    {packRGB(30, 60, 90), packRGB(160, 170, 180)}
-  };
-  getImageAOS()->array_small = {{.r =NUM_10, .g =NUM_40, .b =NUM_70}, {.r = NUM_20, .g = NUM_50, .b = NUM_80}, {.r = NUM_30, .g = NUM_60, .b = NUM_90}};
-
-  std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageAOSTest, CfWriteInExitBIG_EmptyDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems;
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
-
-  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageAOSTest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
-    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)}
-  };
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
-
-
-  std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageAOSTest, CfWriteInExitBIG_AllColorsInDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
-    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)},
-    {packRGBIG(2000, 5000, 8000), packRGBIG(13000, 14000, 15000)},
-    {packRGBIG(3000, 6000, 9000), packRGBIG(16000, 17000, 18000)}
-  };
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
-
-
-  std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageAOSTest, CfWriteInExitBIG2_EmptyDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems;
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
-
-  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
-  getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
 
 
 
@@ -1008,7 +869,6 @@ TEST_F(ImageAOSTest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
 
   ImageAOS::cf_search_in_graph_small(Deleteitems, graph);
 
-  // Add assertions to verify the Deleteitems content
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
 }
 
@@ -1020,14 +880,14 @@ TEST_F(ImageAOSTest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
   };
   unordered_map<__uint32_t,pair<std::vector<uint32_t>,vector<__uint32_t>>>
       const graph = {
-    {packRGB(100, 110, 120), {{packRGB(130, 140, 150)}, {packRGB(160, 170, 180)}}},
-    {packRGB(130, 140, 150), {{packRGB(160, 170, 180)}, {packRGB(190, 200, 210)}}},
-    {packRGB(160, 170, 180), {{packRGB(100, 110, 120)}, {packRGB(220, 230, 240)}}}
+    {packRGB(NUM_100, NUM_110, NUM_120), {{packRGB(NUM_130, NUM_140, NUM_150)}, {packRGB(NUM_160, NUM_170, NUM_180)}}},
+    {packRGB(NUM_130, NUM_140, NUM_150), {{packRGB(NUM_160, NUM_170, NUM_180)}, {packRGB(NUM_190, NUM_200, NUM_210)}}},
+    {packRGB(NUM_160, NUM_170, NUM_180), {{packRGB(NUM_100, NUM_110, NUM_120)}, {packRGB(NUM_220, NUM_230, NUM_240)}}}
       };
   ImageAOS::cf_search_in_graph_small(Deleteitems, graph);
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_20, NUM_50, NUM_80));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_30, NUM_60, NUM_90));
+  EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_160, NUM_170, NUM_180));
+  EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_160, NUM_170, NUM_180));
 }
 
 

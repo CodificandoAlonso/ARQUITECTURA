@@ -378,7 +378,9 @@ int Image::maxlevel() {
 }
 
 /**
- *
+ *Funcion auxiliar de cutfreq que se encarga de recibir un deque, un contador y un value.
+ *Esta funcion se encarga de ordenar los contador elementos del deque en otro deque en funcion del
+ *color indicado por el value
  */
 deque<pair<__uint32_t, __uint16_t>> Image::cf_same_bgr_vector(params_same_vector_small params) {
   // Value será 1 para blue, 2 para green y 3 para red
@@ -402,7 +404,8 @@ deque<pair<__uint32_t, __uint16_t>> Image::cf_same_bgr_vector(params_same_vector
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 deque<pair<__uint64_t, __uint16_t>> Image::cf_same_bgr_vector_BIG(params_same_vector_BIG params) {
   // Value será 1 para blue, 2 para green y 3 para red
@@ -428,7 +431,11 @@ deque<pair<__uint64_t, __uint16_t>> Image::cf_same_bgr_vector_BIG(params_same_ve
 }
 
 /**
- *
+ *Funcion auxiliar de cutfreq que se invoca en caso de igualdad de valor de componentes en el
+ *color_vector entre el elemento 0 y el 1. Esta se encarga de comprobar cuantos valores posteriores
+ *tienen tambien esa igualdad de componentes. En caso de ser asi, devueve el numero de elementos
+ *con igualdad, y en caso contrario, compara el valor de la siguiente componente y elimina o el
+ *0 o el 1.
  */
 int Image::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vector, int const color,
                                unordered_map<__uint32_t, __uint32_t> & Deleteitems,
@@ -463,7 +470,8 @@ int Image::cf_check_and_delete(deque<pair<__uint32_t, __uint16_t>> & color_vecto
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 int Image::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_vector,
                                    int const color,
@@ -499,16 +507,7 @@ int Image::cf_check_and_delete_BIG(deque<pair<__uint64_t, __uint16_t>> & color_v
 }
 
 /**
- *
- */
-void Image::cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
-                                     size_t index) {
-  swap(deque_general[0], deque_general[index]);
-  deque_general.pop_front();
-}
-
-/**
- *
+ *Funcion auxiliar del cutfreq que se encarga de popear el n elemento del deque
  */
 void Image::cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_general,
                                  size_t index) {
@@ -517,18 +516,17 @@ void Image::cf_delete_from_deque(deque<pair<__uint32_t, __uint16_t>> & deque_gen
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
-size_t Image::cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
-                                    __uint64_t & first) {
-  for (size_t i = 0; i < pairs.size(); i++) {
-    if (pairs[i].first == first) { return i; }
-  }
-  return 0;
+void Image::cf_delete_from_deque_BIG(deque<pair<__uint64_t, __uint16_t>> & deque_general,
+                                     size_t index) {
+  swap(deque_general[0], deque_general[index]);
+  deque_general.pop_front();
 }
 
 /**
- *
+ *Funcion auxiliar del cutfreq que dado un numero te devuelve el indice de donde esta colocado en un deque
  */
 size_t Image::cf_search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
                                 __uint32_t & first) {
@@ -539,36 +537,21 @@ size_t Image::cf_search_in_blue(deque<pair<__uint32_t, unsigned short>> & pairs,
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
-void Image::cf_delete_and_rest(unordered_map<__uint32_t, __uint32_t> & Deleteitems, int & num_left,
-                               deque<pair<__uint32_t, __uint16_t>> & bluevalues,
-                               size_t const index) {
-  Deleteitems[bluevalues[index].first] = 0;
-  bluevalues.pop_front();
-  num_left--;
-}
-
-/**
- *
- */
-int Image::cf_check_just_blue(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
-                              deque<pair<__uint32_t, __uint16_t>> & bluevalues, int & num_left) {
-  if (int const my_meanwhile = cf_check_and_delete(bluevalues, 1, Deleteitems, bluevalues);
-      my_meanwhile > 0) {
-    if (my_meanwhile < num_left) {
-      auto iterator = static_cast<size_t>(my_meanwhile);
-      for (size_t iii = 0; iii < iterator; iii++) {
-        cf_delete_and_rest(Deleteitems, num_left, bluevalues, 0);
-      }
-    }
-    return my_meanwhile;
+size_t Image::cf_search_in_blue_BIG(deque<pair<__uint64_t, unsigned short>> & pairs,
+                                    __uint64_t & first) {
+  for (size_t i = 0; i < pairs.size(); i++) {
+    if (pairs[i].first == first) { return i; }
   }
   return 0;
 }
 
+
 /**
- *
+ *Funcion auxiliar del cutfreq que se encarga de eliminar el primer elemento de Bluevalues, asi como
+ *de guardarlo en Deleteitems
  */
 void Image::cf_delete_first_blue_value(unordered_map<__uint32_t, __uint32_t> & Deleteitems,
                                        int & num_left,
@@ -579,7 +562,8 @@ void Image::cf_delete_first_blue_value(unordered_map<__uint32_t, __uint32_t> & D
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 void Image::cf_delete_first_blue_value_BIG(unordered_map<__uint64_t, __uint64_t> & Deleteitems,
                                            int & num_left,
@@ -590,7 +574,11 @@ void Image::cf_delete_first_blue_value_BIG(unordered_map<__uint64_t, __uint64_t>
 }
 
 /**
- *
+ *Funcion auxiliar del cutfreq que se encarga de tratar el caso en el que hay mas de 2 colores
+ *con la misma componente azul y la longitud de este es mayor que el numero de elementos restantes
+ *por mandar a eliminación. Para eso nos creamos un deque con los colores pero ahora ordenados por
+ *verde, y se vuelve a hacer la misma comparacion, se va popeando el elemento de Bluevalues que
+ *corresponda y guardandolo en Deleteitems.
  */
 void Image::cf_equal_blue_case(params_equal_blu * params) {
   while (*params->num_left > 0) {
@@ -629,7 +617,8 @@ void Image::cf_equal_blue_case(params_equal_blu * params) {
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 void Image::cf_equal_blue_case_BIG(params_equal_blu_BIG * params) {
   params_same_vector_BIG const params_green = {.father_vector = *params->bluevalues,
@@ -666,7 +655,10 @@ void Image::cf_equal_blue_case_BIG(params_equal_blu_BIG * params) {
 }
 
 /**
- *
+ *Funcion auxiliar del cutfreq que se encarga de gestionar el caso de los colores con igual
+ *frecuencia que el n-esimo. Este recibe esos colores ordenados segun el azul de sus componentes
+ *y se encarga de ir eliminando segun criterios del enunciado, hasta que complete los n colores
+ *solicitados
  */
 unordered_map<__uint32_t, __uint32_t>
     Image::cf_check_colors_to_delete(unordered_map<__uint32_t, __uint32_t> Deleteitems,
@@ -706,7 +698,8 @@ unordered_map<__uint32_t, __uint32_t>
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 unordered_map<__uint64_t, __uint64_t>
     Image::cf_check_colors_to_delete_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems,
@@ -747,7 +740,10 @@ unordered_map<__uint64_t, __uint64_t>
 }
 
 /**
- *
+ *Funcion auxiliar del cutfreq que se encarga de buscar si existe algun elemento en los nodos
+ *vecinos que tenga menor distancia euclidea que la encontrada en el nodo principal. En caso
+ *de que los nodos no contengan ningun elemento y no encuentren nada, se añadirán tambien los
+ *vecinos de los vecinos, realizandolo de forma iterativa
  */
 __uint32_t Image::cf_find_closest_in_neighbors(cf_find_neigh_small const * params) {
   __uint32_t closest_color                           = 0;
@@ -784,7 +780,8 @@ __uint32_t Image::cf_find_closest_in_neighbors(cf_find_neigh_small const * param
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 __uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * params) {
   __uint64_t closest_color                           = 0;
@@ -820,7 +817,10 @@ __uint64_t Image::cf_find_closest_in_neighbors_BIG(cf_find_neigh_BIG const * par
 }
 
 /**
- *
+ *Funcion auxiliar del cutfreq que se encarga de finalizar el grafo, añadiendo al pair.second los
+ *colores NO a eliminar pertenecientes al subconjunto de colores cercanos a cada nodo, asi como
+ *añadiendo de forma temporal al value de cada elemento de Deleteitems el nodo que le perteneceria
+ *en caso de NO eliminarsee, para saber por donde empezar a buscar
  */
 void Image::cf_finish_graph(params_finish_graph const * params) {
   for (auto const & key : *params->myMap | views::keys) {
@@ -842,7 +842,8 @@ void Image::cf_finish_graph(params_finish_graph const * params) {
 }
 
 /**
- *
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
  */
 void Image::cf_finish_graph_BIG(params_finish_graph_BIG const * params) {
   for (auto const & key : *params->myMap | views::keys) {
