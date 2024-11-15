@@ -103,7 +103,7 @@ class ImageSOA : public Image {
     vector<__uint32_t> nod;
     vector<__uint64_t> nodBIG;
 
-    friend class ImageSOATest_ProcessOperation_Info_Test;
+    friend class ImageSOATest;
     friend class ImageSOATest_RszObtainSquareMax_Test;
     friend class ImageSOATest_RszObtainSquareMaxFailure_Test;
     friend class ImageSOATest_RszObtainSquareMin_Test;
@@ -116,14 +116,9 @@ class ImageSOA : public Image {
     friend class ImageSOATest_RszInterpolateMaxInvalidTParam_Test;
     friend class ImageSOATest_ReadImageRGBSmallSuccess_Test;
     friend class ImageSOATest_ReadImageRGBSmallFileNotFound_Test;
-    friend class ImageSOATest_ReadImageRGBSmallIncompleteData_Test;
-    friend class ImageSOATest_ReadImageRGBSmallCorruptData_Test;
-    friend class ImageSOATest_ReadImageRGBSmallMemoryError_Test;
     friend class ImageSOATest_ReadImageRGBBig_Success_Test;
     friend class ImageSOATest_ReadImageRGBBig_FileNotOpen_Test;
-    friend class ImageSOATest_ReadImageRGBBig_FileReadError_Test;
     friend class ImageSOATest_LoadAndMap8_Success_Test;
-
     friend class ImageSOATest_CfLoadAndMap8BIGSuccess_Test;
     friend class ImageSOATest_CfLoadAndMap8BIG_FileNotOpen_Test;
     friend class ImageSOATest_CfLoadAndMap8BIG_InvalidWidth_Test;
@@ -138,7 +133,6 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfGenerateGraph_Failure_Test;
     friend class ImageSOATest_CfGenerateGraph2_Success_Test;
     friend class ImageSOATest_CfGenerateGraph2_Failure_Test;
-    friend class ImageSOATest;
     friend class ImageSOATest_CfGenerateGraph3_Success_Test;
     friend class ImageSOATest_CfGenerateGraph3_Failure_Test;
     friend class ImageSOATest_CfGenerateGraph4_Success_Test;
@@ -151,13 +145,6 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfGenerateGraphBIG3_Failure_Test;
     friend class ImageSOATest_CfGenerateGraphBIG4_Success_Test;
     friend class ImageSOATest_CfGenerateGraphBIG4_Failure_Test;
-    friend class ImageSOATest_CfWriteInExit_EmptyDeleteitems_Test;
-    friend class ImageSOATest_CfWriteInExit_SomeColorsInDeleteitems_Test;
-    friend class ImageSOATest_CfWriteInExit_AllColorsInDeleteitems_Test;
-    friend class ImageSOATest_CfWriteInExitBIG_EmptyDeleteitems_Test;
-    friend class ImageSOATest_CfWriteInExitBIG_SomeColorsInDeleteitems_Test;
-    friend class ImageSOATest_CfWriteInExitBIG_AllColorsInDeleteitems_Test;
-    friend class ImageSOATest_CfSearchInGraphSmall_EmptyDeleteitems_Test;
     friend class ImageSOATest_CfSearchInGraphSmall_SomeColorsInDeleteitems_Test;
     friend class ImageSOATest_CfSearchInGraphSmall_AllColorsInDeleteitems_Test;
     friend class ImageSOATest_CfSearchInGraphBIG_SomeColorsInDeleteitems_Test;
@@ -168,7 +155,7 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CpExportBIG_LessThan256Colors_Test;
     friend class ImageSOATest_CpExportBIG_LessThan65536Colors_Test;
     friend class ImageSOATest_CpExportBIG_LessThan4294967296Colors_Test;
-    friend class ImageSOATest_CpExportBIG_TooManyColors_Test;
+
 
 };
 
