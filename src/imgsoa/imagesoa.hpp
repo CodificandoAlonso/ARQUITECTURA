@@ -157,6 +157,15 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfSearchInGraphSmall_EmptyDeleteitems_Test;
     friend class ImageSOATest_CfSearchInGraphSmall_SomeColorsInDeleteitems_Test;
     friend class ImageSOATest_CfSearchInGraphSmall_AllColorsInDeleteitems_Test;
+    friend class ImageSOATest_CfSearchInGraphBIG_SomeColorsInDeleteitems_Test;
+    friend class ImageSOATest_CfSearchInGraphBIG_AllColorsInDeleteitems_Test;
+    friend class ImageSOATest_CpExport_LessThan256Colors_Test;
+    friend class ImageSOATest_CpExport_LessThan65536Colors_Test;
+    friend class ImageSOATest_CpExport_MoreThan65536Colors_Test;
+    friend class ImageSOATest_CpExportBIG_LessThan256Colors_Test;
+    friend class ImageSOATest_CpExportBIG_LessThan65536Colors_Test;
+    friend class ImageSOATest_CpExportBIG_LessThan4294967296Colors_Test;
+    friend class ImageSOATest_CpExportBIG_TooManyColors_Test;
 
 };
 

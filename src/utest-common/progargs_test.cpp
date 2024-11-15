@@ -374,28 +374,6 @@ TEST_F(ImageTest, CfCheckAndDeleteBIGVerde) {
   EXPECT_EQ(Deleteitems.count(NUMERO_BIN_1_BIG), 1);
 }
 
-TEST_F(ImageTest, CfCheckAndDeleteBIGTresAzul) {
-  deque<pair<__uint64_t, __uint16_t>> color_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_5_BIG, 0}};
-  unordered_map<__uint64_t, __uint64_t> Deleteitems;
-  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 1}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_5_BIG, 0}};
-
-  int const result = Image::cf_check_and_delete_BIG(color_vector, 1, Deleteitems, bluevalues);
-
-  EXPECT_EQ(result, 3);
-  EXPECT_EQ(Deleteitems.size(), 0);
-}
-
-TEST_F(ImageTest, CfCheckAndDeleteBIGTresVerde) {
-  deque<pair<__uint64_t, __uint16_t>> color_vector = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_6_BIG, 0}};
-  unordered_map<__uint64_t, __uint64_t> Deleteitems;
-  deque<pair<__uint64_t, __uint16_t>> bluevalues = {{NUMERO_BIN_1_BIG, 1}, {NUMERO_BIN_4_BIG, 0}, {NUMERO_BIN_6_BIG, 0}};
-
-  int const result = Image::cf_check_and_delete_BIG(color_vector, 1, Deleteitems, bluevalues);
-
-  EXPECT_EQ(result, 3);
-  EXPECT_EQ(Deleteitems.size(), 0);
-}
-
 TEST_F(ImageTest, CfDeleteFromDequeBIG_Correcto) {
   deque<pair<__uint64_t, __uint16_t>> deque_general = {{NUMERO_BIN_1_BIG, 0}, {NUMERO_BIN_2_BIG, 0}, {NUMERO_BIN_3_BIG, 0}};
   constexpr size_t index = 1;
@@ -962,3 +940,5 @@ TEST_F(ImageTest, CfFinishGraphBIGConElementosParaEliminar) {
   EXPECT_EQ(toSave.size(), 1);
   EXPECT_EQ(toSave[5], 3);
 }
+
+

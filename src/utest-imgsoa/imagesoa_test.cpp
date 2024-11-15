@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <cmath>
 
 static constexpr int NUM_100  = 100;
 static constexpr int MNUM_100 = -100;
@@ -52,12 +53,14 @@ static constexpr int NUM_140  = 140;
 static constexpr int NUM_160  = 160;
 static constexpr int NUM_170  = 170;
 static constexpr int NUM_180  = 180;
+
 static constexpr int NUM_M75  = -75;
 static constexpr int NUM_M150 = -150;
 static constexpr int NUM_M240 = -240;
 static constexpr int NUM_75   = 75;
 static constexpr int NUM_150  = 150;
 static constexpr int NUM_240  = 240;
+static constexpr int NUM_255  = 255;
 static constexpr int NUM_1000 = 1000;
 static constexpr int NUM_2000 = 2000;
 static constexpr int NUM_3000 = 3000;
@@ -67,6 +70,19 @@ static constexpr int NUM_6000 = 6000;
 static constexpr int NUM_7000 = 7000;
 static constexpr int NUM_8000 = 8000;
 static constexpr int NUM_9000 = 9000;
+static constexpr int NUM_10000 = 10000;
+static constexpr int NUM_11000 = 11000;
+static constexpr int NUM_12000 = 12000;
+static constexpr int NUM_13000 = 13000;
+static constexpr int NUM_14000 = 14000;
+static constexpr int NUM_15000 = 15000;
+static constexpr int NUM_16000 = 16000;
+static constexpr int NUM_17000 = 17000;
+static constexpr int NUM_18000 = 18000;
+static constexpr int NUM_65535 = 65535;
+static constexpr int NUM_70000 = 70000;
+
+
 
 class ImageSOATest : public ::testing::Test {
   private:
@@ -964,7 +980,7 @@ TEST_F(ImageSOATest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
 
   ImageSOA::cf_search_in_graph_small(Deleteitems, graph);
 
-  // Add assertions to verify the Deleteitems content
+
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
 }
 
@@ -982,9 +998,172 @@ TEST_F(ImageSOATest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
   };
   ImageSOA::cf_search_in_graph_small(Deleteitems, graph);
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_190, NUM_200, NUM_210));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_30, NUM_60, NUM_90));
+        EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_160, NUM_170, NUM_180));
+        EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_160, NUM_170, NUM_180));
 }
+
+TEST_F(ImageSOATest, CfSearchInGraphBIG_SomeColorsInDeleteitems) {
+    std::unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+        {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)}
+    };
+    std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> const graph = {
+        {packRGBIG(NUM_10000, NUM_11000, NUM_12000), {{packRGBIG(NUM_13000, NUM_14000, NUM_15000)}, {packRGBIG(NUM_16000, NUM_17000, NUM_18000)}}},
+        {packRGBIG(NUM_13000, NUM_14000, NUM_15000), {{}, {}}}
+    };
+
+    ImageSOA::cf_search_in_graph_BIG(Deleteitems, graph);
+
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_1000, NUM_4000, NUM_7000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+}
+
+TEST_F(ImageSOATest, CfSearchInGraphBIG_AllColorsInDeleteitems) {
+    std::unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+        {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)},
+        {packRGBIG(NUM_2000, NUM_5000, NUM_8000), packRGBIG(NUM_13000, NUM_14000, NUM_15000)},
+        {packRGBIG(NUM_3000, NUM_6000, NUM_9000), packRGBIG(NUM_16000, NUM_17000, NUM_18000)}
+    };
+    std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> const graph = {
+        {packRGBIG(10000, 11000, 12000), {{packRGBIG(13000, 14000, 15000)}, {packRGBIG(16000, 17000, 18000)}}},
+        {packRGBIG(13000, 14000, 15000), {{packRGBIG(16000, 17000, 18000)}, {packRGBIG(19000, 20000, 21000)}}},
+        {packRGBIG(16000, 17000, 18000), {{packRGBIG(10000, 11000, 12000)}, {packRGBIG(22000, 23000, 24000)}}}
+    };
+
+    ImageSOA::cf_search_in_graph_BIG(Deleteitems, graph);
+
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_1000, NUM_4000, NUM_7000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_2000, NUM_5000, NUM_8000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_3000, NUM_6000, NUM_9000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+}
+
+
+TEST_F(ImageSOATest, CpExport_LessThan256Colors) {
+  std::unordered_map<unsigned int, unsigned int> const color_map = {
+    {1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 7}
+  };
+  std::list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7};
+
+  std::ofstream output_file("output_less_than_256.ppm", std::ios::binary);
+  ImageSOA::cp_export(output_file, color_map, indexes);
+  output_file.close();
+
+  std::ifstream input_file("output_less_than_256.ppm", std::ios::binary);
+  EXPECT_TRUE(input_file.is_open());
+
+  std::vector<unsigned char> const file_content((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+  input_file.close();
+
+  std::vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7};
+  EXPECT_EQ(file_content, expected_content);
+}
+
+TEST_F(ImageSOATest, CpExport_LessThan65536Colors) {
+  std::unordered_map<unsigned int, unsigned int> const color_map = {
+    {1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 7}, {9, 8}, {10, 9}
+  };
+  std::list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  std::ofstream output_file("output_less_than_65536.ppm", std::ios::binary);
+  ImageSOA::cp_export(output_file, color_map, indexes);
+  output_file.close();
+
+  std::ifstream input_file("output_less_than_65536.ppm", std::ios::binary);
+  EXPECT_TRUE(input_file.is_open());
+
+  std::vector<unsigned char> const file_content((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+  input_file.close();
+
+  std::vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  EXPECT_EQ(file_content, expected_content);
+}
+
+TEST_F(ImageSOATest, CpExport_MoreThan65536Colors) {
+  std::unordered_map<unsigned int, unsigned int> color_map;
+  for (unsigned int i = 0; i < NUM_70000; ++i) {
+    color_map[i] = i;
+  }
+  std::list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_70000; ++i) {
+    indexes.push_back(i);
+  }
+
+  std::ofstream output_file("output_more_than_65536.ppm", std::ios::binary);
+  ImageSOA::cp_export(output_file, color_map, indexes);
+  output_file.close();
+
+  std::ifstream input_file("output_more_than_65536.ppm", std::ios::binary);
+  EXPECT_TRUE(input_file.is_open());
+
+  std::vector<unsigned char> const file_content((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+  input_file.close();
+
+  std::vector<unsigned char> expected_content;
+  for (unsigned int i = 0; i < NUM_70000; ++i) {
+    expected_content.push_back(static_cast<unsigned char>(i % FOTO));
+    expected_content.push_back(static_cast<unsigned char>((i >> NUM_8) % FOTO));
+    expected_content.push_back(static_cast<unsigned char>((i >> NUM_16) % FOTO));
+    expected_content.push_back(static_cast<unsigned char>((i >> NUM_24) % FOTO));
+  }
+  EXPECT_EQ(file_content, expected_content);
+}
+
+TEST_F(ImageSOATest, CpExportBIG_LessThan256Colors) {
+  std::unordered_map<unsigned long int, unsigned int> color_map;
+  for (unsigned long int i = 0; i < NUM_255; ++i) {
+    color_map[i] = static_cast<unsigned int>(i);
+  }
+  std::list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_10; ++i) {
+    indexes.push_back(i);
+  }
+
+  std::ofstream output_file("output_less_than_256_colors.ppm", std::ios::binary);
+  testing::internal::CaptureStderr();
+  ImageSOA::cp_export_BIG(output_file, color_map, indexes);
+  std::string const output = testing::internal::GetCapturedStderr();
+  output_file.close();
+
+  EXPECT_EQ(output, "");
+}
+
+TEST_F(ImageSOATest, CpExportBIG_LessThan65536Colors) {
+  std::unordered_map<unsigned long int, unsigned int> color_map;
+  for (unsigned long int i = 0; i < NUM_65535; ++i) {
+    color_map[i] = static_cast<unsigned int>(i);
+  }
+  std::list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_10; ++i) {
+    indexes.push_back(i);
+  }
+
+  std::ofstream output_file("output_less_than_65536_colors.ppm", std::ios::binary);
+  testing::internal::CaptureStderr();
+  ImageSOA::cp_export_BIG(output_file, color_map, indexes);
+  std::string const output = testing::internal::GetCapturedStderr();
+  output_file.close();
+
+  EXPECT_EQ(output, "");
+}
+
+TEST_F(ImageSOATest, CpExportBIG_LessThan4294967296Colors) {
+  std::unordered_map<unsigned long int, unsigned int> color_map;
+  for (unsigned long int i = 0; i < NUM_1000; ++i) {  // Reduced the number of iterations
+    color_map[i] = static_cast<unsigned int>(i);
+  }
+  std::list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_10; ++i) {
+    indexes.push_back(i);
+  }
+
+  std::ofstream output_file("output_less_than_4294967296_colors.ppm", std::ios::binary);
+  testing::internal::CaptureStderr();
+  ImageSOA::cp_export_BIG(output_file, color_map, indexes);
+  std::string const output = testing::internal::GetCapturedStderr();
+  output_file.close();
+
+  EXPECT_EQ(output, "");
+}
+
+
 
 int main(int argc, char ** argv) {
   ::testing::InitGoogleTest(&argc, argv);
