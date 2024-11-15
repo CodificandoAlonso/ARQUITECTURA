@@ -3,6 +3,7 @@
 //
 #include "imgaos/imageaos.hpp"  // Ensure the correct path to the header file
 #include "common/binario.hpp"
+#include <filesystem>
 #include <array>
 #include <cstdio>
 #include <fstream>
@@ -327,7 +328,6 @@ TEST_F(ImageAOSTest, RszInterpolateMinFailure) {
 
   rgb_small const result = ImageAOS::rsz_interpolate_min(u_param, square, t_param);
 
-  // Intentionally incorrect expected values to cause the test to fail
   EXPECT_NE(result.r, NUM_10);
   EXPECT_NE(result.g, NUM_20);
   EXPECT_NE(result.b, NUM_30);
@@ -358,16 +358,14 @@ TEST_F(ImageAOSTest, RszInterpolateMaxOutOfBounds) {
     rgb_big{.r = NUM_10, .g = NUM_20, .b = NUM_30},
     rgb_big{.r = NUM_40, .g = NUM_50, .b = NUM_60},
     rgb_big{.r = NUM_70, .g = NUM_80, .b = NUM_90},
-    rgb_big{ .r = NUM_0,  .g = NUM_0,  .b = NUM_0}  // Adding a dummy element to make it 4 elements
+    rgb_big{ .r = NUM_0,  .g = NUM_0,  .b = NUM_0}
   };
 
   double const u_param = 0.5;
   double const t_param = 0.5;
 
-  // This should not cause an out-of-bounds access now
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
-  // Check for incorrect results due to invalid array size
   EXPECT_NE(result.r, NUM_55);
   EXPECT_NE(result.g, NUM_65);
   EXPECT_NE(result.b, NUM_75);
@@ -382,12 +380,11 @@ TEST_F(ImageAOSTest, RszInterpolateMaxInvalidUParam) {
     rgb_big{.r = NUM_100, .g = NUM_110, .b = NUM_120}
   };
 
-  constexpr double u_param = 1.5;  // Invalid value
+  constexpr double u_param = 1.5;
   constexpr double t_param = 0.5;
 
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
-  // Check for incorrect results due to invalid u_param
   EXPECT_NE(result.r, NUM_55);
   EXPECT_NE(result.g, NUM_65);
   EXPECT_NE(result.b, NUM_75);
@@ -403,11 +400,10 @@ TEST_F(ImageAOSTest, RszInterpolateMaxInvalidTParam) {
   };
 
   constexpr double u_param = 0.5;
-  constexpr double t_param = 1.5;  // Invalid value
+  constexpr double t_param = 1.5;
 
   rgb_big const result = ImageAOS::rsz_interpolate_max(u_param, square, t_param);
 
-  // Check for incorrect results due to invalid t_param
   EXPECT_NE(result.r, NUM_55);
   EXPECT_NE(result.g, NUM_65);
   EXPECT_NE(result.b, NUM_75);
@@ -419,7 +415,6 @@ TEST_F(ImageAOSTest, ReadImageRGBSmallSuccess) {
 
   vector<rgb_small> const result = getImageAOS()->read_image_rgb_small(input_file);
 
-  // Add assertions to check the correctness of the result
   EXPECT_EQ(result.size(), getImageAOS()->get_width() * getImageAOS()->get_height());
 }
 
@@ -434,7 +429,6 @@ TEST_F(ImageAOSTest, ReadImageRGBSmallCorruptData) {
 
   vector<rgb_small> const result = getImageAOS()->read_image_rgb_small(input_file);
 
-  // Add assertions to check for corrupt data
   for (auto const & iter : result) {
     EXPECT_GE(iter.r, NUM_0);
     EXPECT_LE(iter.r, NUM_255);
@@ -515,7 +509,6 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_FileNotOpen) {
   ImageAOS const ImageAOS(0, {});
   auto result = getImageAOS()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), NUM_100);
 
-  // Check if the result is not empty since the function does not handle file not open case
   EXPECT_FALSE(result.empty())
       << "Expected result to be not empty when input file cannot be opened.";
 }
@@ -527,7 +520,6 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_InvalidWidth) {
   ImageAOS const ImageAOS(0, {});
   auto result = getImageAOS()->cf_load_and_map_8BIG(0, std::move(input_file), NUM_100);
 
-  // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when width is zero.";
 }
 
@@ -538,7 +530,6 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_InvalidHeight) {
   ImageAOS const ImageAOS(0, {});
   auto result = getImageAOS()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), 0);
 
-  // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when height is zero.";
 }
 
@@ -549,7 +540,6 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_NegativeWidth) {
   ImageAOS const ImageAOS(0, {});
   auto result = getImageAOS()->cf_load_and_map_8BIG(MNUM_100, std::move(input_file), NUM_100);
 
-  // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when width is negative.";
 }
 
@@ -606,7 +596,6 @@ TEST_F(ImageAOSTest, CfGenerateGraph2_Success) {
    getImageAOS()->cf_generate_graph();
   getImageAOS()->cf_generate_graph_2(graph);
 
-  // Correct assertions to verify the graph structure
   EXPECT_EQ(graph.size(), 14);
   EXPECT_EQ(graph[getImageAOS()->nod[7]].first.size(), 4);
   EXPECT_EQ(graph[getImageAOS()->nod[8]].first.size(), 3);
@@ -622,10 +611,8 @@ TEST_F(ImageAOSTest, CfGenerateGraph2_Failure) {
     getImageAOS()->cf_generate_graph();;
   getImageAOS()->cf_generate_graph_2(graph);
 
-  // Intentionally incorrect assertions to cause the test to fail
   EXPECT_NE(graph.size(), 5);
 
-  // Check if specific nodes and their connections are incorrect
   EXPECT_NE(graph[getImageAOS()->nod[7]].first.size(), 5);
   EXPECT_NE(graph[getImageAOS()->nod[8]].first.size(), 1);
   EXPECT_NE(graph[getImageAOS()->nod[9]].first.size(), 7);
@@ -641,7 +628,6 @@ TEST_F(ImageAOSTest, CfGenerateGraph3_Success) {
   getImageAOS()->cf_generate_graph_2(graph);
   getImageAOS()->cf_generate_graph_3(graph);
 
-  // Correct assertions to verify the graph structure
   EXPECT_EQ(graph.size(), 22);
   EXPECT_EQ(graph[getImageAOS()->nod[14]].first.size(), 5);
   EXPECT_EQ(graph[getImageAOS()->nod[15]].first.size(), 6);
@@ -657,10 +643,9 @@ TEST_F(ImageAOSTest, CfGenerateGraph3_Failure) {
     getImageAOS()->cf_generate_graph();;
   getImageAOS()->cf_generate_graph_2(graph);
   getImageAOS()->cf_generate_graph_3(graph);
-  // Intentionally incorrect assertions to cause the test to fail
+
   EXPECT_NE(graph.size(), 4);
 
-  // Check if specific nodes and their connections are incorrect
   EXPECT_NE(graph[getImageAOS()->nod[14]].first.size(), 1);
   EXPECT_NE(graph[getImageAOS()->nod[15]].first.size(), 2);
   EXPECT_NE(graph[getImageAOS()->nod[16]].first.size(), 3);
@@ -677,7 +662,6 @@ TEST_F(ImageAOSTest, CfGenerateGraph4_Success) {
   getImageAOS()->cf_generate_graph_3(graph);
         getImageAOS()->cf_generate_graph_4(graph);
 
-  // Correct assertions to verify the graph structure
   EXPECT_EQ(graph.size(), 27);
   EXPECT_EQ(graph[getImageAOS()->nod[21]].first.size(), 3);
   EXPECT_EQ(graph[getImageAOS()->nod[22]].first.size(), 5);
@@ -694,10 +678,8 @@ TEST_F(ImageAOSTest, CfGenerateGraph4_Failure) {
   getImageAOS()->cf_generate_graph_3(graph);
         getImageAOS()->cf_generate_graph_4(graph);
 
-  // Intentionally incorrect assertions to cause the test to fail
   EXPECT_NE(graph.size(), 7);
 
-  // Check if specific nodes and their connections are incorrect
   EXPECT_NE(graph[getImageAOS()->nod[21]].first.size(), 1);
   EXPECT_NE(graph[getImageAOS()->nod[22]].first.size(), 7);
   EXPECT_NE(graph[getImageAOS()->nod[23]].first.size(), 1);
@@ -710,7 +692,6 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG_Success) {
   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   getImageAOS()->cf_generate_graph_BIG();
 
-  // Correct assertions to verify the expected behavior
   EXPECT_EQ(graph.size(), 0);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[0]].first.size(), 0);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[1]].first.size(), 0);
@@ -725,7 +706,6 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG_Failure) {
   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   getImageAOS()->cf_generate_graph_BIG();
 
-  // Intentionally incorrect assertions to cause the test to fail
   EXPECT_NE(graph.size(), 7);
   EXPECT_NE(graph[getImageAOS()->nodBIG[0]].first.size(), 3);
   EXPECT_NE(graph[getImageAOS()->nodBIG[1]].first.size(), 4);
@@ -737,15 +717,12 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Success) {
-  // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
       graph = getImageAOS()->cf_generate_graph_BIG();
 
-  // Llama a la función cf_generate_graph_BIG_2
   getImageAOS()->cf_generate_graph_BIG_2(graph);
 
-  // Verifica que el grafo se haya actualizado correctamente
-  EXPECT_EQ(graph.size(), 14);  // Ajusta el tamaño esperado según tu implementación
+  EXPECT_EQ(graph.size(), 14);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[7]].first.size(), 4);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[8]].first.size(), 3);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[9]].first.size(), 4);
@@ -755,15 +732,12 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Failure) {
-  // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
       graph = getImageAOS()->cf_generate_graph_BIG();
 
-  // Llama a la función cf_generate_graph_BIG_2
   getImageAOS()->cf_generate_graph_BIG_2(graph);
 
-  // Intentionally incorrect assertions to cause the test to fail
-  EXPECT_NE(graph.size(), 12);  // Ajusta el tamaño esperado según tu implementación
+  EXPECT_NE(graph.size(), 12);
   EXPECT_NE(graph[getImageAOS()->nodBIG[7]].first.size(), 5);
   EXPECT_NE(graph[getImageAOS()->nodBIG[8]].first.size(), 4);
   EXPECT_NE(graph[getImageAOS()->nodBIG[9]].first.size(), 3);
@@ -773,18 +747,14 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Success) {
-  // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
-  graph = getImageAOS()->cf_generate_graph_BIG();
+  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph =
+      getImageAOS()->cf_generate_graph_BIG();
 
-  // Llama a la función cf_generate_graph_BIG_2 para actualizar el grafo
   getImageAOS()->cf_generate_graph_BIG_2(graph);
 
-  // Llama a la función cf_generate_graph_BIG_3 para actualizar el grafo
   getImageAOS()->cf_generate_graph_BIG_3(graph);
 
-  // Verifica que el grafo se haya actualizado correctamente
-  EXPECT_EQ(graph.size(), 22);  // Ajusta el tamaño esperado según tu implementación
+  EXPECT_EQ(graph.size(), 22);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[14]].first.size(), 5);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[15]].first.size(), 5);
   EXPECT_EQ(graph[getImageAOS()->nodBIG[16]].first.size(), 5);
@@ -796,18 +766,14 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Failure) {
-  // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
-  graph = getImageAOS()->cf_generate_graph_BIG();
+  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph =
+      getImageAOS()->cf_generate_graph_BIG();
 
-  // Llama a la función cf_generate_graph_BIG_2 para actualizar el grafo
   getImageAOS()->cf_generate_graph_BIG_2(graph);
 
-  // Llama a la función cf_generate_graph_BIG_3 para actualizar el grafo
   getImageAOS()->cf_generate_graph_BIG_3(graph);
 
-  // Verifica que el grafo se haya actualizado correctamente
-  EXPECT_NE(graph.size(), 2);  // Ajusta el tamaño esperado según tu implementación
+  EXPECT_NE(graph.size(), 2);
   EXPECT_NE(graph[getImageAOS()->nodBIG[14]].first.size(), 6);
   EXPECT_NE(graph[getImageAOS()->nodBIG[15]].first.size(), 4);
   EXPECT_NE(graph[getImageAOS()->nodBIG[16]].first.size(), 3);
