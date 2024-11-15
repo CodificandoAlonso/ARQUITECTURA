@@ -87,15 +87,15 @@ static constexpr int NUM_70000 = 70000;
 class ImageSOATest : public ::testing::Test {
   private:
     gsl::owner<ImageSOA *> imageSOA = nullptr;
-    std::string test_image_path;
+    string test_image_path;
 
   protected:
     void SetUp() override {
-      std::vector<std::string> const args = {"param", "test_image.ppm", "output_image.ppm"};
+      vector<string> const args = {"param", "test_image.ppm", "output_image.ppm"};
       imageSOA                            = new ImageSOA(static_cast<int>(args.size()), args);
 
       test_image_path = "test_image.ppm";
-      std::ofstream output_file(test_image_path, std::ios::binary);
+      ofstream output_file(test_image_path, ios::binary);
       if (!output_file) { FAIL() << "Failed to create test image file."; }
       output_file << "P6\n" << NUM_100 << " " << NUM_100 << "\n" << FOTO - 1 << "\n";
 
@@ -117,12 +117,12 @@ class ImageSOATest : public ::testing::Test {
         delete imageSOA;
         imageSOA = nullptr;
       }
-      if (std::ifstream(test_image_path.c_str()).good()) {
-        if (std::remove(test_image_path.c_str()) != 0) { std::perror("Error deleting file"); }
+      if (ifstream(test_image_path.c_str()).good()) {
+        if (remove(test_image_path.c_str()) != 0) { perror("Error deleting file"); }
       }
 
-      if (std::ifstream("test_image.ppm").good()) {
-        if (std::remove("test_image.ppm") != 0) { std::perror("Error deleting file"); }
+      if (ifstream("test_image.ppm").good()) {
+        if (remove("test_image.ppm") != 0) { perror("Error deleting file"); }
       }
     }
 
@@ -165,7 +165,7 @@ class ImageSOATest : public ::testing::Test {
       return *this;
     }
 
-    [[nodiscard]] std::string const & getTestImagePath() const { return test_image_path; }
+    [[nodiscard]] string const & getTestImagePath() const { return test_image_path; }
 
     [[nodiscard]] gsl::owner<ImageSOA *> getImageSOA() const { return imageSOA; }
 };
@@ -178,9 +178,9 @@ TEST_F(ImageSOATest, RszObtainSquareMin) {
   image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
   image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
+  array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
 
   EXPECT_EQ(result[0].r, 14);
   EXPECT_EQ(result[0].g, 0);
@@ -207,9 +207,9 @@ TEST_F(ImageSOATest, RszObtainSquareMinFailure) {
   image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
   image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
+  array<rgb_small, 4> result = ImageSOA::rsz_obtain_square_min(image, args);
 
   // Intentionally incorrect expected values to cause the test to fail
   EXPECT_NE(result[0].r, 1);
@@ -237,9 +237,9 @@ TEST_F(ImageSOATest, RszObtainSquareMax) {
   image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
   image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
+  array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
 
   EXPECT_EQ(result[0].r, 14);
   EXPECT_EQ(result[0].g, 0);
@@ -266,9 +266,9 @@ TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
   image.g = {NUM_15, NUM_16, NUM_17, NUM_18, NUM_19, NUM_20, NUM_21, NUM_22, NUM_23, NUM_24};
   image.b = {NUM_25, NUM_26, NUM_27, NUM_28, NUM_29, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9};
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
+  array<rgb_big, 4> result = ImageSOA::rsz_obtain_square_max(image, args);
 
   EXPECT_NE(result[0].r, 1);
   EXPECT_NE(result[0].g, 11);
@@ -289,7 +289,7 @@ TEST_F(ImageSOATest, RszObtainSquareMaxFailure) {
 
 // Test con el metodo rsz_interpolate_min que funciona correctamente
 TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
-  constexpr std::array<rgb_small, 4> square = {
+  constexpr array<rgb_small, 4> square = {
     rgb_small{ .r = 10,  .g = 20,  .b = 30},
     rgb_small{ .r = 40,  .g = 50,  .b = 60},
     rgb_small{ .r = 70,  .g = 80,  .b = 90},
@@ -308,7 +308,7 @@ TEST_F(ImageSOATest, RszInterpolateMinSuccess) {
 
 // Test con el metodo rsz_interpolate_min que no funciona
 TEST_F(ImageSOATest, RszInterpolateMinFailure) {
-  constexpr std::array<rgb_small, 4> square = {
+  constexpr array<rgb_small, 4> square = {
     rgb_small{ .r = 10,  .g = 20,  .b = 30},
     rgb_small{ .r = 40,  .g = 50,  .b = 60},
     rgb_small{ .r = 70,  .g = 80,  .b = 90},
@@ -328,7 +328,7 @@ TEST_F(ImageSOATest, RszInterpolateMinFailure) {
 
 // Test con el metodo rsz_interpolate_max que funciona correctamente
 TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
-  constexpr std::array<rgb_big, 4> square = {
+  constexpr array<rgb_big, 4> square = {
     rgb_big{ .r = 10,  .g = 20,  .b = 30},
     rgb_big{ .r = 40,  .g = 50,  .b = 60},
     rgb_big{ .r = 70,  .g = 80,  .b = 90},
@@ -347,7 +347,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxSuccess) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un error de acceso a memoria
 TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
-  constexpr std::array<rgb_big, 4> square = {
+  constexpr array<rgb_big, 4> square = {
     rgb_big{.r = 10, .g = 20, .b = 30},
     rgb_big{.r = 40, .g = 50, .b = 60},
     rgb_big{.r = 70, .g = 80, .b = 90},
@@ -368,7 +368,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxOutOfBounds) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un valor de u_param invalido
 TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
-  constexpr std::array<rgb_big, 4> square = {
+  constexpr array<rgb_big, 4> square = {
     rgb_big{ .r = 10,  .g = 20,  .b = 30},
     rgb_big{ .r = 40,  .g = 50,  .b = 60},
     rgb_big{ .r = 70,  .g = 80,  .b = 90},
@@ -388,7 +388,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidUParam) {
 
 // Test con el methods rsz_interpolate_max que no function por un valor de t_param invalid
 TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
-  constexpr std::array<rgb_big, 4> square = {
+  constexpr array<rgb_big, 4> square = {
     rgb_big{ .r = 10,  .g = 20,  .b = 30},
     rgb_big{ .r = 40,  .g = 50,  .b = 60},
     rgb_big{ .r = 70,  .g = 80,  .b = 90},
@@ -407,7 +407,7 @@ TEST_F(ImageSOATest, RszInterpolateMaxInvalidTParam) {
 }
 
 TEST_F(ImageSOATest, ReadImageRGBSmallSuccess) {
-  std::ifstream input_file(getTestImagePath(), std::ios::binary);
+  ifstream input_file(getTestImagePath(), ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   soa_rgb_small const result = getImageSOA()->read_image_rgb_small(input_file);
@@ -419,12 +419,12 @@ TEST_F(ImageSOATest, ReadImageRGBSmallSuccess) {
 }
 
 TEST_F(ImageSOATest, ReadImageRGBSmallFileNotFound) {
-  std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
+  ifstream input_file("non_existent_file.rgb", ios::binary);
   EXPECT_FALSE(input_file.is_open());
 }
 
 TEST_F(ImageSOATest, ReadImageRGBSmallCorruptData) {
-  std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
+  ifstream input_file("corrupt_image.rgb", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   soa_rgb_small result = getImageSOA()->read_image_rgb_small(input_file);
@@ -442,7 +442,7 @@ TEST_F(ImageSOATest, ReadImageRGBSmallCorruptData) {
 
 // Test con el metodo read_image_rgb_big que funciona correctamente
 TEST_F(ImageSOATest, ReadImageRGBBig_Success) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -457,7 +457,7 @@ TEST_F(ImageSOATest, ReadImageRGBBig_Success) {
 
 // Test con el metodo read_image_rgb_big que no funciona porque no se puede abrir un archivo
 TEST_F(ImageSOATest, ReadImageRGBBig_FileNotOpen) {
-  std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
+  ifstream input_file("non_existent_file.rgb", ios::binary);
   EXPECT_FALSE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -470,7 +470,7 @@ TEST_F(ImageSOATest, ReadImageRGBBig_FileNotOpen) {
 
 // Test con el metodo read_image_rgb_big que no funciona porque hay errores al leer el archivo
 TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
-  std::ofstream output_file("corrupt_image.rgb", std::ios::binary);
+  ofstream output_file("corrupt_image.rgb", ios::binary);
   for (int i = 0; i < NUM_10; ++i) {
     auto value = static_cast<unsigned short>(i);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -478,7 +478,7 @@ TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
   }
   output_file.close();
 
-  std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
+  ifstream input_file("corrupt_image.rgb", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -492,7 +492,7 @@ TEST_F(ImageSOATest, ReadImageRGBBig_FileReadError) {
 }
 
 TEST_F(ImageSOATest, LoadAndMap8_Success) {
-  std::ifstream input_file(getTestImagePath(), std::ios::binary);
+  ifstream input_file(getTestImagePath(), ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   auto result = getImageSOA()->cf_load_and_map_8(NUM_100, std::move(input_file), NUM_100);
@@ -501,7 +501,7 @@ TEST_F(ImageSOATest, LoadAndMap8_Success) {
 
 // Test cf_load_map_8_BIG funciona
 TEST_F(ImageSOATest, CfLoadAndMap8BIGSuccess) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -510,7 +510,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIGSuccess) {
 }
 
 TEST_F(ImageSOATest, CfLoadAndMap8BIG_FileNotOpen) {
-  std::ifstream input_file("non_existent.ppm", std::ios::binary);
+  ifstream input_file("non_existent.ppm", ios::binary);
   EXPECT_FALSE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -522,7 +522,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_FileNotOpen) {
 }
 
 TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidWidth) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -533,7 +533,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidWidth) {
 }
 
 TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidHeight) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -544,7 +544,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidHeight) {
 }
 
 TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeWidth) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -555,7 +555,7 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeWidth) {
 }
 
 TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeHeight) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageSOA const imageSOA(0, {});
@@ -762,7 +762,7 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG_Failure) {
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG2_Success) {
   // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
       graph = getImageSOA()->cf_generate_graph_BIG();
 
   // Llama a la función cf_generate_graph_BIG_2
@@ -780,7 +780,7 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG2_Success) {
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG2_Failure) {
   // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
       graph = getImageSOA()->cf_generate_graph_BIG();
 
   // Llama a la función cf_generate_graph_BIG_2
@@ -798,7 +798,7 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG2_Failure) {
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG3_Success) {
   // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   graph = getImageSOA()->cf_generate_graph_BIG();
 
   // Llama a la función cf_generate_graph_BIG_2 para actualizar el grafo
@@ -821,7 +821,7 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG3_Success) {
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG3_Failure) {
   // Crea un grafo inicial
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   graph = getImageSOA()->cf_generate_graph_BIG();
 
   // Llama a la función cf_generate_graph_BIG_2 para actualizar el grafo
@@ -843,7 +843,7 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG3_Failure) {
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG4_Success) {
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   graph = getImageSOA()->cf_generate_graph_BIG();
 
   getImageSOA()->cf_generate_graph_BIG_2(graph);
@@ -861,7 +861,7 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG4_Success) {
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   graph = getImageSOA()->cf_generate_graph_BIG();
 
   getImageSOA()->cf_generate_graph_BIG_2(graph);
@@ -879,12 +879,12 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
 }
 
 TEST_F(ImageSOATest, CfWriteInExit_EmptyDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems;
+  unordered_map<__uint32_t, __uint32_t> const Deleteitems;
   getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
   getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
   getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
 
-  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
+  ofstream output_file("output_empty_deleteitems.ppm", ios::binary);
   getImageSOA()->cf_write_in_exit(Deleteitems);
   output_file.close();
 
@@ -892,14 +892,14 @@ TEST_F(ImageSOATest, CfWriteInExit_EmptyDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfWriteInExit_SomeColorsInDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
+  unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
     {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
   };
   getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
   getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
   getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
 
-  std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
+  ofstream output_file("output_some_colors_deleteitems.ppm", ios::binary);
   getImageSOA()->cf_write_in_exit(Deleteitems);
   output_file.close();
 
@@ -907,7 +907,7 @@ TEST_F(ImageSOATest, CfWriteInExit_SomeColorsInDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
+  unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
     {packRGB(10, 40, 70), packRGB(100, 110, 120)},
     {packRGB(20, 50, 80), packRGB(130, 140, 150)},
     {packRGB(30, 60, 90), packRGB(160, 170, 180)}
@@ -916,7 +916,7 @@ TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
   getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
   getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
 
-  std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
+  ofstream output_file("output_all_colors_deleteitems.ppm", ios::binary);
   getImageSOA()->cf_write_in_exit(Deleteitems);
   output_file.close();
 
@@ -924,12 +924,12 @@ TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfWriteInExitBIG_EmptyDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems;
+  unordered_map<__uint64_t, __uint64_t> const Deleteitems;
   getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
   getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
   getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
 
-  std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
+  ofstream output_file("output_empty_deleteitems.ppm", ios::binary);
   getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
   output_file.close();
 
@@ -937,14 +937,14 @@ TEST_F(ImageSOATest, CfWriteInExitBIG_EmptyDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
+  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
     {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)}
   };
   getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
   getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
   getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
 
-  std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
+  ofstream output_file("output_some_colors_deleteitems.ppm", ios::binary);
   getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
   output_file.close();
 
@@ -952,7 +952,7 @@ TEST_F(ImageSOATest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfWriteInExitBIG_AllColorsInDeleteitems) {
-  std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
+  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
     {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)},
     {packRGBIG(2000, 5000, 8000), packRGBIG(13000, 14000, 15000)},
     {packRGBIG(3000, 6000, 9000), packRGBIG(16000, 17000, 18000)}
@@ -961,7 +961,7 @@ TEST_F(ImageSOATest, CfWriteInExitBIG_AllColorsInDeleteitems) {
   getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
   getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
 
-  std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
+  ofstream output_file("output_all_colors_deleteitems.ppm", ios::binary);
   getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
   output_file.close();
 
@@ -970,7 +970,7 @@ TEST_F(ImageSOATest, CfWriteInExitBIG_AllColorsInDeleteitems) {
 
 
 TEST_F(ImageSOATest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> Deleteitems = {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems = {
     {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
   };
   unordered_map<__uint32_t, pair<vector<uint32_t>, vector<__uint32_t>>> const graph = {
@@ -985,12 +985,12 @@ TEST_F(ImageSOATest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
-  std::unordered_map<__uint32_t, __uint32_t> Deleteitems = {
+  unordered_map<__uint32_t, __uint32_t> Deleteitems = {
     {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)},
     {packRGB(NUM_20, NUM_50, NUM_80), packRGB(NUM_130, NUM_140,     NUM_150)},
     {    packRGB(NUM_30,NUM_60,NUM_90),     packRGB(NUM_160,NUM_170,NUM_180)}
   };
-  std::unordered_map<__uint32_t, std::pair<std::vector<__uint32_t>, std::vector<__uint32_t>>>
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
       const graph = {
         {packRGB(100, 110, 120), {{packRGB(130, 140, 150)}, {packRGB(160, 170, 180)}}},
         {packRGB(130, 140, 150), {{packRGB(160, 170, 180)}, {packRGB(190, 200, 210)}}},
@@ -1003,10 +1003,10 @@ TEST_F(ImageSOATest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfSearchInGraphBIG_SomeColorsInDeleteitems) {
-    std::unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+    unordered_map<__uint64_t, __uint64_t> Deleteitems = {
         {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)}
     };
-    std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> const graph = {
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const graph = {
         {packRGBIG(NUM_10000, NUM_11000, NUM_12000), {{packRGBIG(NUM_13000, NUM_14000, NUM_15000)}, {packRGBIG(NUM_16000, NUM_17000, NUM_18000)}}},
         {packRGBIG(NUM_13000, NUM_14000, NUM_15000), {{}, {}}}
     };
@@ -1017,12 +1017,12 @@ TEST_F(ImageSOATest, CfSearchInGraphBIG_SomeColorsInDeleteitems) {
 }
 
 TEST_F(ImageSOATest, CfSearchInGraphBIG_AllColorsInDeleteitems) {
-    std::unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+    unordered_map<__uint64_t, __uint64_t> Deleteitems = {
         {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)},
         {packRGBIG(NUM_2000, NUM_5000, NUM_8000), packRGBIG(NUM_13000, NUM_14000, NUM_15000)},
         {packRGBIG(NUM_3000, NUM_6000, NUM_9000), packRGBIG(NUM_16000, NUM_17000, NUM_18000)}
     };
-    std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> const graph = {
+    unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const graph = {
         {packRGBIG(10000, 11000, 12000), {{packRGBIG(13000, 14000, 15000)}, {packRGBIG(16000, 17000, 18000)}}},
         {packRGBIG(13000, 14000, 15000), {{packRGBIG(16000, 17000, 18000)}, {packRGBIG(19000, 20000, 21000)}}},
         {packRGBIG(16000, 17000, 18000), {{packRGBIG(10000, 11000, 12000)}, {packRGBIG(22000, 23000, 24000)}}}
@@ -1037,66 +1037,66 @@ TEST_F(ImageSOATest, CfSearchInGraphBIG_AllColorsInDeleteitems) {
 
 
 TEST_F(ImageSOATest, CpExport_LessThan256Colors) {
-  std::unordered_map<unsigned int, unsigned int> const color_map = {
+  unordered_map<unsigned int, unsigned int> const color_map = {
     {1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 7}
   };
-  std::list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7};
+  list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7};
 
-  std::ofstream output_file("output_less_than_256.ppm", std::ios::binary);
+  ofstream output_file("output_less_than_256.ppm", ios::binary);
   ImageSOA::cp_export(output_file, color_map, indexes);
   output_file.close();
 
-  std::ifstream input_file("output_less_than_256.ppm", std::ios::binary);
+  ifstream input_file("output_less_than_256.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
-  std::vector<unsigned char> const file_content((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+  vector<unsigned char> const file_content((istreambuf_iterator<char>(input_file)), istreambuf_iterator<char>());
   input_file.close();
 
-  std::vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7};
+  vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7};
   EXPECT_EQ(file_content, expected_content);
 }
 
 TEST_F(ImageSOATest, CpExport_LessThan65536Colors) {
-  std::unordered_map<unsigned int, unsigned int> const color_map = {
+  unordered_map<unsigned int, unsigned int> const color_map = {
     {1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 7}, {9, 8}, {10, 9}
   };
-  std::list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-  std::ofstream output_file("output_less_than_65536.ppm", std::ios::binary);
+  ofstream output_file("output_less_than_65536.ppm", ios::binary);
   ImageSOA::cp_export(output_file, color_map, indexes);
   output_file.close();
 
-  std::ifstream input_file("output_less_than_65536.ppm", std::ios::binary);
+  ifstream input_file("output_less_than_65536.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
-  std::vector<unsigned char> const file_content((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+  vector<unsigned char> const file_content((istreambuf_iterator<char>(input_file)), istreambuf_iterator<char>());
   input_file.close();
 
-  std::vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   EXPECT_EQ(file_content, expected_content);
 }
 
 TEST_F(ImageSOATest, CpExport_MoreThan65536Colors) {
-  std::unordered_map<unsigned int, unsigned int> color_map;
+  unordered_map<unsigned int, unsigned int> color_map;
   for (unsigned int i = 0; i < NUM_70000; ++i) {
     color_map[i] = i;
   }
-  std::list<unsigned int> indexes;
+  list<unsigned int> indexes;
   for (unsigned int i = 0; i < NUM_70000; ++i) {
     indexes.push_back(i);
   }
 
-  std::ofstream output_file("output_more_than_65536.ppm", std::ios::binary);
+  ofstream output_file("output_more_than_65536.ppm", ios::binary);
   ImageSOA::cp_export(output_file, color_map, indexes);
   output_file.close();
 
-  std::ifstream input_file("output_more_than_65536.ppm", std::ios::binary);
+  ifstream input_file("output_more_than_65536.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
-  std::vector<unsigned char> const file_content((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+  vector<unsigned char> const file_content((istreambuf_iterator<char>(input_file)), istreambuf_iterator<char>());
   input_file.close();
 
-  std::vector<unsigned char> expected_content;
+  vector<unsigned char> expected_content;
   for (unsigned int i = 0; i < NUM_70000; ++i) {
     expected_content.push_back(static_cast<unsigned char>(i % FOTO));
     expected_content.push_back(static_cast<unsigned char>((i >> NUM_8) % FOTO));
@@ -1107,57 +1107,57 @@ TEST_F(ImageSOATest, CpExport_MoreThan65536Colors) {
 }
 
 TEST_F(ImageSOATest, CpExportBIG_LessThan256Colors) {
-  std::unordered_map<unsigned long int, unsigned int> color_map;
+  unordered_map<unsigned long int, unsigned int> color_map;
   for (unsigned long int i = 0; i < NUM_255; ++i) {
     color_map[i] = static_cast<unsigned int>(i);
   }
-  std::list<unsigned int> indexes;
+  list<unsigned int> indexes;
   for (unsigned int i = 0; i < NUM_10; ++i) {
     indexes.push_back(i);
   }
 
-  std::ofstream output_file("output_less_than_256_colors.ppm", std::ios::binary);
+  ofstream output_file("output_less_than_256_colors.ppm", ios::binary);
   testing::internal::CaptureStderr();
   ImageSOA::cp_export_BIG(output_file, color_map, indexes);
-  std::string const output = testing::internal::GetCapturedStderr();
+  string const output = testing::internal::GetCapturedStderr();
   output_file.close();
 
   EXPECT_EQ(output, "");
 }
 
 TEST_F(ImageSOATest, CpExportBIG_LessThan65536Colors) {
-  std::unordered_map<unsigned long int, unsigned int> color_map;
+  unordered_map<unsigned long int, unsigned int> color_map;
   for (unsigned long int i = 0; i < NUM_65535; ++i) {
     color_map[i] = static_cast<unsigned int>(i);
   }
-  std::list<unsigned int> indexes;
+  list<unsigned int> indexes;
   for (unsigned int i = 0; i < NUM_10; ++i) {
     indexes.push_back(i);
   }
 
-  std::ofstream output_file("output_less_than_65536_colors.ppm", std::ios::binary);
+  ofstream output_file("output_less_than_65536_colors.ppm", ios::binary);
   testing::internal::CaptureStderr();
   ImageSOA::cp_export_BIG(output_file, color_map, indexes);
-  std::string const output = testing::internal::GetCapturedStderr();
+  string const output = testing::internal::GetCapturedStderr();
   output_file.close();
 
   EXPECT_EQ(output, "");
 }
 
 TEST_F(ImageSOATest, CpExportBIG_LessThan4294967296Colors) {
-  std::unordered_map<unsigned long int, unsigned int> color_map;
+  unordered_map<unsigned long int, unsigned int> color_map;
   for (unsigned long int i = 0; i < NUM_1000; ++i) {  // Reduced the number of iterations
     color_map[i] = static_cast<unsigned int>(i);
   }
-  std::list<unsigned int> indexes;
+  list<unsigned int> indexes;
   for (unsigned int i = 0; i < NUM_10; ++i) {
     indexes.push_back(i);
   }
 
-  std::ofstream output_file("output_less_than_4294967296_colors.ppm", std::ios::binary);
+  ofstream output_file("output_less_than_4294967296_colors.ppm", ios::binary);
   testing::internal::CaptureStderr();
   ImageSOA::cp_export_BIG(output_file, color_map, indexes);
-  std::string const output = testing::internal::GetCapturedStderr();
+  string const output = testing::internal::GetCapturedStderr();
   output_file.close();
 
   EXPECT_EQ(output, "");
