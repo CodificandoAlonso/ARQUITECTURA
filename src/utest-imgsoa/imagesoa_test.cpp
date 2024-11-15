@@ -52,6 +52,8 @@ static constexpr int NUM_140  = 140;
 static constexpr int NUM_160  = 160;
 static constexpr int NUM_170  = 170;
 static constexpr int NUM_180  = 180;
+;
+
 static constexpr int NUM_M75  = -75;
 static constexpr int NUM_M150 = -150;
 static constexpr int NUM_M240 = -240;
@@ -67,6 +69,15 @@ static constexpr int NUM_6000 = 6000;
 static constexpr int NUM_7000 = 7000;
 static constexpr int NUM_8000 = 8000;
 static constexpr int NUM_9000 = 9000;
+static constexpr int NUM_10000 = 10000;
+static constexpr int NUM_11000 = 11000;
+static constexpr int NUM_12000 = 12000;
+static constexpr int NUM_13000 = 13000;
+static constexpr int NUM_14000 = 14000;
+static constexpr int NUM_15000 = 15000;
+static constexpr int NUM_16000 = 16000;
+static constexpr int NUM_17000 = 17000;
+static constexpr int NUM_18000 = 18000;
 
 class ImageSOATest : public ::testing::Test {
   private:
@@ -964,7 +975,7 @@ TEST_F(ImageSOATest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
 
   ImageSOA::cf_search_in_graph_small(Deleteitems, graph);
 
-  // Add assertions to verify the Deleteitems content
+
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
 }
 
@@ -982,9 +993,43 @@ TEST_F(ImageSOATest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
   };
   ImageSOA::cf_search_in_graph_small(Deleteitems, graph);
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_190, NUM_200, NUM_210));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_30, NUM_60, NUM_90));
+        EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_160, NUM_170, NUM_180));
+        EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_160, NUM_170, NUM_180));
 }
+
+TEST_F(ImageSOATest, CfSearchInGraphBIG_SomeColorsInDeleteitems) {
+    std::unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+        {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)}
+    };
+    std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> const graph = {
+        {packRGBIG(NUM_10000, NUM_11000, NUM_12000), {{packRGBIG(NUM_13000, NUM_14000, NUM_15000)}, {packRGBIG(NUM_16000, NUM_17000, NUM_18000)}}},
+        {packRGBIG(NUM_13000, NUM_14000, NUM_15000), {{}, {}}}
+    };
+
+    ImageSOA::cf_search_in_graph_BIG(Deleteitems, graph);
+
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_1000, NUM_4000, NUM_7000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+}
+
+TEST_F(ImageSOATest, CfSearchInGraphBIG_AllColorsInDeleteitems) {
+    std::unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+        {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)},
+        {packRGBIG(NUM_2000, NUM_5000, NUM_8000), packRGBIG(NUM_13000, NUM_14000, NUM_15000)},
+        {packRGBIG(NUM_3000, NUM_6000, NUM_9000), packRGBIG(NUM_16000, NUM_17000, NUM_18000)}
+    };
+    std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> const graph = {
+        {packRGBIG(10000, 11000, 12000), {{packRGBIG(13000, 14000, 15000)}, {packRGBIG(16000, 17000, 18000)}}},
+        {packRGBIG(13000, 14000, 15000), {{packRGBIG(16000, 17000, 18000)}, {packRGBIG(19000, 20000, 21000)}}},
+        {packRGBIG(16000, 17000, 18000), {{packRGBIG(10000, 11000, 12000)}, {packRGBIG(22000, 23000, 24000)}}}
+    };
+
+    ImageSOA::cf_search_in_graph_BIG(Deleteitems, graph);
+
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_1000, NUM_4000, NUM_7000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_2000, NUM_5000, NUM_8000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+    EXPECT_EQ(Deleteitems[packRGBIG(NUM_3000, NUM_6000, NUM_9000)], packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+}
+
 
 int main(int argc, char ** argv) {
   ::testing::InitGoogleTest(&argc, argv);
