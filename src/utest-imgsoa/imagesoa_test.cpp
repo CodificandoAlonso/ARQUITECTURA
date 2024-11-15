@@ -2,6 +2,7 @@
 #include "imgsoa/imagesoa.hpp"
 
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <gsl/gsl>
@@ -9,7 +10,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <cmath>
 
 static constexpr int NUM_100  = 100;
 static constexpr int MNUM_100 = -100;
@@ -81,7 +81,6 @@ static constexpr int NUM_17000 = 17000;
 static constexpr int NUM_18000 = 18000;
 static constexpr int NUM_65535 = 65535;
 static constexpr int NUM_70000 = 70000;
-
 
 
 class ImageSOATest : public ::testing::Test {
@@ -169,6 +168,7 @@ class ImageSOATest : public ::testing::Test {
 
     [[nodiscard]] gsl::owner<ImageSOA *> getImageSOA() const { return imageSOA; }
 };
+
 
 // Test con el metodo rsz_obtain_square_min que funciona correctamente
 TEST_F(ImageSOATest, RszObtainSquareMin) {
@@ -564,12 +564,87 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeHeight) {
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when height is negative.";
 }
 
-/*
+TEST_F(ImageSOATest, CfAddNodes) {
+  ImageSOA imageSOA(0, {});
+  imageSOA.cf_add_nodes();
+
+  // Verify that the nodes have been added correctly
+  ASSERT_EQ(imageSOA.nod.size(), 27);  // Check the number of nodes added
+
+  // Check some specific nodes
+  EXPECT_EQ(imageSOA.nod[0], packRGB(75, 75, 75));
+  EXPECT_EQ(imageSOA.nod[1], packRGB(75, 75, 150));
+  EXPECT_EQ(imageSOA.nod[2], packRGB(75, 75, 240));
+  EXPECT_EQ(imageSOA.nod[3], packRGB(75, 150, 75));
+  EXPECT_EQ(imageSOA.nod[4], packRGB(75, 150, 150));
+  EXPECT_EQ(imageSOA.nod[5], packRGB(75, 150, 240));
+  EXPECT_EQ(imageSOA.nod[6], packRGB(75, 240, 75));
+  EXPECT_EQ(imageSOA.nod[7], packRGB(75, 240, 150));
+  EXPECT_EQ(imageSOA.nod[8], packRGB(75, 240, 240));
+  EXPECT_EQ(imageSOA.nod[9], packRGB(150, 75, 75));
+  EXPECT_EQ(imageSOA.nod[10], packRGB(150, 75, 150));
+  EXPECT_EQ(imageSOA.nod[11], packRGB(150, 75, 240));
+  EXPECT_EQ(imageSOA.nod[12], packRGB(150, 150, 75));
+  EXPECT_EQ(imageSOA.nod[13], packRGB(150, 150, 150));
+  EXPECT_EQ(imageSOA.nod[14], packRGB(150, 150, 240));
+  EXPECT_EQ(imageSOA.nod[15], packRGB(150, 240, 75));
+  EXPECT_EQ(imageSOA.nod[16], packRGB(150, 240, 150));
+  EXPECT_EQ(imageSOA.nod[17], packRGB(150, 240, 240));
+  EXPECT_EQ(imageSOA.nod[18], packRGB(240, 75, 75));
+  EXPECT_EQ(imageSOA.nod[19], packRGB(240, 75, 150));
+  EXPECT_EQ(imageSOA.nod[20], packRGB(240, 75, 240));
+  EXPECT_EQ(imageSOA.nod[21], packRGB(240, 150, 75));
+  EXPECT_EQ(imageSOA.nod[22], packRGB(240, 150, 150));
+  EXPECT_EQ(imageSOA.nod[23], packRGB(240, 150, 240));
+  EXPECT_EQ(imageSOA.nod[24], packRGB(240, 240, 75));
+  EXPECT_EQ(imageSOA.nod[25], packRGB(240, 240, 150));
+  EXPECT_EQ(imageSOA.nod[26], packRGB(240, 240, 240));
+}
+
+TEST_F(ImageSOATest, CfAddNodes_Failure) {
+  ImageSOA imageSOA(0, {});
+  imageSOA.cf_add_nodes();
+
+  ASSERT_NE(imageSOA.nod.size(), 21);  // Check the number of nodes added
+
+  EXPECT_NE(imageSOA.nod[0], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[1], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[2], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[3], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[4], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[5], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[6], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[7], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[8], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[9], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[10], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[11], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[12], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[13], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[14], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[15], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[16], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[17], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[18], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[19], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[20], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[21], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[22], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[23], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[24], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[25], packRGB(0, 0, 0));
+  EXPECT_NE(imageSOA.nod[26], packRGB(0, 0, 0));
+}
+
+
 TEST_F(ImageSOATest, CfAddNodesBIG_Success) {
   ImageSOA imageSOA(0, {});
-  getImageSOA()->cf_add_nodes_BIG(NUM_75, NUM_150, NUM_240);
+  imageSOA.cf_add_nodes_BIG(NUM_75, NUM_150, NUM_240);
 
-  EXPECT_EQ(imageSOA.nodBIG.size(), 0);
+  // Verify that the nodes have been added correctly
+  ASSERT_EQ(imageSOA.nodBIG.size(), 27);  // Check the number of nodes added
+
+  // Check some specific nodes
   EXPECT_EQ(imageSOA.nodBIG[0], packRGBIG(75, 75, 75));
   EXPECT_EQ(imageSOA.nodBIG[1], packRGBIG(75, 75, 150));
   EXPECT_EQ(imageSOA.nodBIG[2], packRGBIG(75, 75, 240));
@@ -598,7 +673,7 @@ TEST_F(ImageSOATest, CfAddNodesBIG_Success) {
   EXPECT_EQ(imageSOA.nodBIG[25], packRGBIG(240, 240, 150));
   EXPECT_EQ(imageSOA.nodBIG[26], packRGBIG(240, 240, 240));
 }
-*/
+
 TEST_F(ImageSOATest, CfAddNodesBIG_Failure) {
   ImageSOA const imageSOA(0, {});
   getImageSOA()->cf_add_nodes_BIG(static_cast<__uint16_t>(NUM_M75),
@@ -607,6 +682,8 @@ TEST_F(ImageSOATest, CfAddNodesBIG_Failure) {
 
   EXPECT_EQ(imageSOA.nodBIG.size(), 0) << "Expected nodBIG to be empty when given negative values.";
 }
+
+
 
 TEST_F(ImageSOATest, CfGenerateGraph_Success) {
   auto graph = getImageSOA()->cf_generate_graph();

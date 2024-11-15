@@ -103,6 +103,7 @@ class ImageSOA : public Image {
     vector<__uint32_t> nod;
     vector<__uint64_t> nodBIG;
 
+    friend class ImageSOATest_ProcessOperation_Info_Test;
     friend class ImageSOATest_RszObtainSquareMax_Test;
     friend class ImageSOATest_RszObtainSquareMaxFailure_Test;
     friend class ImageSOATest_RszObtainSquareMin_Test;
@@ -129,6 +130,8 @@ class ImageSOA : public Image {
     friend class ImageSOATest_CfLoadAndMap8BIG_InvalidHeight_Test;
     friend class ImageSOATest_CfLoadAndMap8BIG_NegativeWidth_Test;
     friend class ImageSOATest_CfLoadAndMap8BIG_NegativeHeight_Test;
+    friend class ImageSOATest_CfAddNodes_Test;
+    friend class ImageSOATest_CfAddNodes_Failure_Test;
     friend class ImageSOATest_CfAddNodesBIG_Success_Test;
     friend class ImageSOATest_CfAddNodesBIG_Failure_Test;
     friend class ImageSOATest_CfGenerateGraph_Success_Test;
