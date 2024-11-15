@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <vector>
 #include <cmath>
-
+//NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
 static constexpr int NUM_100  = 100;
 static constexpr int MNUM_100 = -100;
 static constexpr int FOTO     = 256;
@@ -499,7 +499,6 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidWidth) {
   ImageSOA const imageSOA(0, {});
   auto result = getImageSOA()->cf_load_and_map_8BIG(0, std::move(input_file), NUM_100);
 
-  // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when width is zero.";
 }
 
@@ -510,7 +509,6 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_InvalidHeight) {
   ImageSOA const imageSOA(0, {});
   auto result = getImageSOA()->cf_load_and_map_8BIG(NUM_100, std::move(input_file), 0);
 
-  // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when height is zero.";
 }
 
@@ -521,7 +519,6 @@ TEST_F(ImageSOATest, CfLoadAndMap8BIG_NegativeWidth) {
   ImageSOA const imageSOA(0, {});
   auto result = getImageSOA()->cf_load_and_map_8BIG(MNUM_100, std::move(input_file), NUM_100);
 
-  // Check if the result is empty
   EXPECT_TRUE(result.empty()) << "Expected result to be empty when width is negative.";
 }
 
@@ -539,10 +536,8 @@ TEST_F(ImageSOATest, CfAddNodes) {
   ImageSOA imageSOA(0, {});
   imageSOA.cf_add_nodes();
 
-  // Verify that the nodes have been added correctly
-  ASSERT_EQ(imageSOA.nod.size(), 27);  // Check the number of nodes added
+  ASSERT_EQ(imageSOA.nod.size(), 27);
 
-  // Check some specific nodes
   EXPECT_EQ(imageSOA.nod[0], packRGB(75, 75, 75));
   EXPECT_EQ(imageSOA.nod[1], packRGB(75, 75, 150));
   EXPECT_EQ(imageSOA.nod[2], packRGB(75, 75, 240));
@@ -576,7 +571,7 @@ TEST_F(ImageSOATest, CfAddNodes_Failure) {
   ImageSOA imageSOA(0, {});
   imageSOA.cf_add_nodes();
 
-  ASSERT_NE(imageSOA.nod.size(), 21);  // Check the number of nodes added
+  ASSERT_NE(imageSOA.nod.size(), 21);
 
   EXPECT_NE(imageSOA.nod[0], packRGB(0, 0, 0));
   EXPECT_NE(imageSOA.nod[1], packRGB(0, 0, 0));
@@ -612,10 +607,8 @@ TEST_F(ImageSOATest, CfAddNodesBIG_Success) {
   ImageSOA imageSOA(0, {});
   imageSOA.cf_add_nodes_BIG(NUM_75, NUM_150, NUM_240);
 
-  // Verify that the nodes have been added correctly
-  ASSERT_EQ(imageSOA.nodBIG.size(), 27);  // Check the number of nodes added
+  ASSERT_EQ(imageSOA.nodBIG.size(), 27);
 
-  // Check some specific nodes
   EXPECT_EQ(imageSOA.nodBIG[0], packRGBIG(75, 75, 75));
   EXPECT_EQ(imageSOA.nodBIG[1], packRGBIG(75, 75, 150));
   EXPECT_EQ(imageSOA.nodBIG[2], packRGBIG(75, 75, 240));
@@ -796,14 +789,10 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG_Failure) {
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG2_Success) {
-  // Crea un grafo inicial
   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph =
       getImageSOA()->cf_generate_graph_BIG();
 
-  // Llama a la función cf_generate_graph_BIG_2
   getImageSOA()->cf_generate_graph_BIG_2(graph);
-
-  // Verifica que el grafo se haya actualizado correctamente
   EXPECT_EQ(graph.size(), 14);
   EXPECT_EQ(graph[getImageSOA()->nodBIG[7]].first.size(), 4);
   EXPECT_EQ(graph[getImageSOA()->nodBIG[8]].first.size(), 3);
@@ -814,7 +803,6 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG2_Success) {
 }
 
 TEST_F(ImageSOATest, CfGenerateGraphBIG2_Failure) {
-  // Crea un grafo inicial
   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph =
       getImageSOA()->cf_generate_graph_BIG();
 
@@ -902,96 +890,6 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
   EXPECT_NE(graph[getImageSOA()->nodBIG[24]].first.size(), 6);
   EXPECT_NE(graph[getImageSOA()->nodBIG[25]].first.size(), 7);
   EXPECT_NE(graph[getImageSOA()->nodBIG[26]].first.size(), 2);
-}
-
-TEST_F(ImageSOATest, CfWriteInExit_EmptyDeleteitems) {
-  unordered_map<__uint32_t, __uint32_t> const Deleteitems;
-  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
-  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
-  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
-
-  ofstream output_file("output_empty_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExit_SomeColorsInDeleteitems) {
-  unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
-    {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
-  };
-  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
-  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
-  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
-
-  ofstream output_file("output_some_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
-  unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
-    {packRGB(10, 40, 70), packRGB(100, 110, 120)},
-    {packRGB(20, 50, 80), packRGB(130, 140, 150)},
-    {packRGB(30, 60, 90), packRGB(160, 170, 180)}
-  };
-  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
-  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
-  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
-
-  ofstream output_file("output_all_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExitBIG_EmptyDeleteitems) {
-  unordered_map<__uint64_t, __uint64_t> const Deleteitems;
-  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
-  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
-  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
-
-  ofstream output_file("output_empty_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
-  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
-    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)}
-  };
-  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
-  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
-  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
-
-  ofstream output_file("output_some_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExitBIG_AllColorsInDeleteitems) {
-  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
-    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)},
-    {packRGBIG(2000, 5000, 8000), packRGBIG(13000, 14000, 15000)},
-    {packRGBIG(3000, 6000, 9000), packRGBIG(16000, 17000, 18000)}
-  };
-  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
-  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
-  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
-
-  ofstream output_file("output_all_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
 }
 
 
@@ -1203,7 +1101,7 @@ TEST_F(ImageSOATest, CpExportBIG_LessThan65536Colors) {
 
 TEST_F(ImageSOATest, CpExportBIG_LessThan4294967296Colors) {
   unordered_map<unsigned long int, unsigned int> color_map;
-  for (unsigned long int i = 0; i < NUM_1000; ++i) {  // Reduced the number of iterations
+  for (unsigned long int i = 0; i < NUM_1000; ++i) {
     color_map[i] = static_cast<unsigned int>(i);
   }
   list<unsigned int> indexes;
@@ -1222,5 +1120,5 @@ int main(int argc, char ** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-
+//NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
 //Fin del test

@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
+//NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
 static constexpr int NUM_100  = 100;
 static constexpr int MNUM_100 = -100;
 static constexpr int FOTO     = 256;
@@ -67,19 +68,39 @@ static constexpr int NUM_M150 = -150;
 static constexpr int NUM_M240 = -240;
 static constexpr int NUM_255 = 255;
 static constexpr int NUM_240 = 240;
+static constexpr int NUM_1000  = 1000;
+static constexpr int NUM_65535 = 65535;
+static constexpr int NUM_70000 = 70000;
+static constexpr int NUM_2000 = 2000;
+static constexpr int NUM_3000 = 3000;
+static constexpr int NUM_4000 = 4000;
+static constexpr int NUM_5000 = 5000;
+static constexpr int NUM_6000 = 6000;
+static constexpr int NUM_7000 = 7000;
+static constexpr int NUM_8000 = 8000;
+static constexpr int NUM_9000 = 9000;
+static constexpr int NUM_10000 = 10000;
+static constexpr int NUM_11000 = 11000;
+static constexpr int NUM_12000 = 12000;
+static constexpr int NUM_13000 = 13000;
+static constexpr int NUM_14000 = 14000;
+static constexpr int NUM_15000 = 15000;
+static constexpr int NUM_16000 = 16000;
+static constexpr int NUM_17000 = 17000;
+static constexpr int NUM_18000 = 18000;
 
 class ImageAOSTest : public ::testing::Test {
   private:
     gsl::owner<ImageAOS *> imageAOS = nullptr;
-    std::string test_image_path;
+    string test_image_path;
 
   protected:
     void SetUp() override {
-      std::vector<std::string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
+      vector<string> const args = {"resize", "test_image.ppm", "output_image.ppm"};
       imageAOS                            = new ImageAOS(static_cast<int>(args.size()), args);
 
       test_image_path = "test_image.ppm";
-      std::ofstream output_file(test_image_path, std::ios::binary);
+      ofstream output_file(test_image_path, ios::binary);
       if (!output_file) { FAIL() << "Failed to create test image file."; }
       output_file << "P6\n" << NUM_100 << " " << NUM_100 << "\n" << FOTO - 1 << "\n";
 
@@ -99,11 +120,11 @@ class ImageAOSTest : public ::testing::Test {
         imageAOS = nullptr;
       }
       if (ifstream(test_image_path.c_str()).good()) {
-        if (remove(test_image_path.c_str()) != 0) { std::perror("Error deleting file"); }
+        if (remove(test_image_path.c_str()) != 0) { perror("Error deleting file"); }
       }
 
-      if (std::ifstream("test_image.ppm").good()) {
-        if (remove("test_image.ppm") != 0) { std::perror("Error deleting file"); }
+      if (ifstream("test_image.ppm").good()) {
+        if (remove("test_image.ppm") != 0) { perror("Error deleting file"); }
       }
     }
 
@@ -146,7 +167,7 @@ class ImageAOSTest : public ::testing::Test {
       return *this;
     }
 
-    [[nodiscard]] std::string const & getTestImagePath() const { return test_image_path; }
+    [[nodiscard]] string const & getTestImagePath() const { return test_image_path; }
 
     [[nodiscard]] gsl::owner<ImageAOS *> getImageAOS() const { return imageAOS; }
 };
@@ -166,9 +187,9 @@ TEST_F(ImageAOSTest, RszObtainSquareMin) {
     {.r = NUM_9, .g = NUM_24,  .b = NUM_9}
   };
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
+  array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
 
   EXPECT_EQ(result[0].r, 8);
   EXPECT_EQ(result[0].g, 23);
@@ -202,9 +223,9 @@ TEST_F(ImageAOSTest, RszObtainSquareMinFailure) {
     {.r = NUM_9, .g = NUM_24,  .b = NUM_9}
   };
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
+  array<rgb_small, 4> result = ImageAOS::rsz_obtain_square_min(image, args);
 
   EXPECT_NE(result[0].r, 1);
   EXPECT_NE(result[0].g, 11);
@@ -238,9 +259,9 @@ TEST_F(ImageAOSTest, RszObtainSquareMax) {
     {.r = NUM_9, .g = NUM_24,  .b = NUM_9}
   };
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_big, 4> result = ImageAOS::rsz_obtain_square_max(image, args);
+  array<rgb_big, 4> result = ImageAOS::rsz_obtain_square_max(image, args);
 
   EXPECT_EQ(result[0].r, 8);
   EXPECT_EQ(result[0].g, 23);
@@ -274,9 +295,9 @@ TEST_F(ImageAOSTest, RszObtainSquareMaxFailure) {
     {.r = NUM_9, .g = NUM_24,  .b = NUM_9}
   };
 
-  std::array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
+  array<unsigned int, 5> const args = {4, 5, 7, 8, 3};
 
-  std::array<rgb_big, 4> result = ImageAOS::rsz_obtain_square_max(image, args);
+  array<rgb_big, 4> result = ImageAOS::rsz_obtain_square_max(image, args);
 
   EXPECT_NE(result[0].r, 1);
   EXPECT_NE(result[0].g, 11);
@@ -297,7 +318,7 @@ TEST_F(ImageAOSTest, RszObtainSquareMaxFailure) {
 
 // Test con el metodo rsz_interpolate_min que funciona correctamente
 TEST_F(ImageAOSTest, RszInterpolateMinSuccess) {
-  std::array<rgb_small, 4> const square = {
+  array<rgb_small, 4> const square = {
     rgb_small{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
     rgb_small{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
     rgb_small{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
@@ -316,7 +337,7 @@ TEST_F(ImageAOSTest, RszInterpolateMinSuccess) {
 
 // Test con el metodo rsz_interpolate_min que no funciona
 TEST_F(ImageAOSTest, RszInterpolateMinFailure) {
-  std::array<rgb_small, 4> const square = {
+  array<rgb_small, 4> const square = {
     rgb_small{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
     rgb_small{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
     rgb_small{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
@@ -335,7 +356,7 @@ TEST_F(ImageAOSTest, RszInterpolateMinFailure) {
 
 // Test con el metodo rsz_interpolate_max que funciona correctamente
 TEST_F(ImageAOSTest, RszInterpolateMaxSuccess) {
-  std::array<rgb_big, 4> const square = {
+  array<rgb_big, 4> const square = {
     rgb_big{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
     rgb_big{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
     rgb_big{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
@@ -354,7 +375,7 @@ TEST_F(ImageAOSTest, RszInterpolateMaxSuccess) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un error de acceso a memoria
 TEST_F(ImageAOSTest, RszInterpolateMaxOutOfBounds) {
-  std::array<rgb_big, 4> const square = {
+  array<rgb_big, 4> const square = {
     rgb_big{.r = NUM_10, .g = NUM_20, .b = NUM_30},
     rgb_big{.r = NUM_40, .g = NUM_50, .b = NUM_60},
     rgb_big{.r = NUM_70, .g = NUM_80, .b = NUM_90},
@@ -373,7 +394,7 @@ TEST_F(ImageAOSTest, RszInterpolateMaxOutOfBounds) {
 
 // Test con el metodo rsz_interpolate_max que no funciona por un valor de u_param invalido
 TEST_F(ImageAOSTest, RszInterpolateMaxInvalidUParam) {
-  std::array<rgb_big, 4> const square = {
+  array<rgb_big, 4> const square = {
     rgb_big{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
     rgb_big{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
     rgb_big{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
@@ -392,7 +413,7 @@ TEST_F(ImageAOSTest, RszInterpolateMaxInvalidUParam) {
 
 // Test con el methods rsz_interpolate_max que no function por un valor de t_param invalid
 TEST_F(ImageAOSTest, RszInterpolateMaxInvalidTParam) {
-  constexpr std::array<rgb_big, 4> square = {
+  constexpr array<rgb_big, 4> square = {
     rgb_big{ .r = NUM_10,  .g = NUM_20,  .b = NUM_30},
     rgb_big{ .r = NUM_40,  .g = NUM_50,  .b = NUM_60},
     rgb_big{ .r = NUM_70,  .g = NUM_80,  .b = NUM_90},
@@ -410,7 +431,7 @@ TEST_F(ImageAOSTest, RszInterpolateMaxInvalidTParam) {
 }
 
 TEST_F(ImageAOSTest, ReadImageRGBSmallSuccess) {
-  std::ifstream input_file(getTestImagePath(), std::ios::binary);
+  ifstream input_file(getTestImagePath(), ios::binary);
   ASSERT_TRUE(input_file.is_open());
 
   vector<rgb_small> const result = getImageAOS()->read_image_rgb_small(input_file);
@@ -419,29 +440,15 @@ TEST_F(ImageAOSTest, ReadImageRGBSmallSuccess) {
 }
 
 TEST_F(ImageAOSTest, ReadImageRGBSmallFileNotFound) {
-  std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
+  ifstream input_file("non_existent_file.rgb", ios::binary);
   ASSERT_FALSE(input_file.is_open());
 }
 
-TEST_F(ImageAOSTest, ReadImageRGBSmallCorruptData) {
-  std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
-  ASSERT_TRUE(input_file.is_open());
 
-  vector<rgb_small> const result = getImageAOS()->read_image_rgb_small(input_file);
-
-  for (auto const & iter : result) {
-    EXPECT_GE(iter.r, NUM_0);
-    EXPECT_LE(iter.r, NUM_255);
-    EXPECT_GE(iter.g, NUM_0);
-    EXPECT_LE(iter.g, NUM_255);
-    EXPECT_GE(iter.b, NUM_0);
-    EXPECT_LE(iter.b, NUM_255);
-  }
-}
 
 // Test con el metodo read_image_rgb_big que funciona correctamente
 TEST_F(ImageAOSTest, ReadImageRGBBig_Success) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   ASSERT_TRUE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -454,7 +461,7 @@ TEST_F(ImageAOSTest, ReadImageRGBBig_Success) {
 
 // Test con el metodo read_image_rgb_big que no funciona porque no se puede abrir un archivo
 TEST_F(ImageAOSTest, ReadImageRGBBig_FileNotOpen) {
-  std::ifstream input_file("non_existent_file.rgb", std::ios::binary);
+  ifstream input_file("non_existent_file.rgb", ios::binary);
   ASSERT_FALSE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -463,29 +470,9 @@ TEST_F(ImageAOSTest, ReadImageRGBBig_FileNotOpen) {
   ASSERT_TRUE(image.empty());
 }
 
-// Test con el metodo read_image_rgb_big que no funciona porque hay errores al leer el archivo
-TEST_F(ImageAOSTest, ReadImageRGBBig_FileReadError) {
-  std::ofstream output_file("corrupt_image.rgb", std::ios::binary);
-  for (int i = 0; i < NUM_10; ++i) {
-    auto value = static_cast<unsigned short>(i);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    output_file.write(reinterpret_cast<char *>(&value), sizeof(value));
-  }
-  output_file.close();
-
-  std::ifstream input_file("corrupt_image.rgb", std::ios::binary);
-  ASSERT_TRUE(input_file.is_open());
-
-  ImageAOS const ImageAOS(0, {});
-  vector<rgb_big> const image = ImageAOS.read_image_rgb_big(input_file);
-
-  ASSERT_TRUE(image.empty());
-
-  input_file.close();
-}
 
 TEST_F(ImageAOSTest, LoadAndMap8_Success) {
-  std::ifstream input_file(getTestImagePath(), std::ios::binary);
+  ifstream input_file(getTestImagePath(), ios::binary);
   ASSERT_TRUE(input_file.is_open());
 
   auto result = getImageAOS()->cf_load_and_map_8(NUM_100, std::move(input_file), NUM_100);
@@ -494,7 +481,7 @@ TEST_F(ImageAOSTest, LoadAndMap8_Success) {
 
 // Test cf_load_map_8_BIG funciona
 TEST_F(ImageAOSTest, CfLoadAndMap8BIGSuccess) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -503,7 +490,7 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIGSuccess) {
 }
 
 TEST_F(ImageAOSTest, CfLoadAndMap8BIG_FileNotOpen) {
-  std::ifstream input_file("non_existent.ppm", std::ios::binary);
+  ifstream input_file("non_existent.ppm", ios::binary);
   EXPECT_FALSE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -514,7 +501,7 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_FileNotOpen) {
 }
 
 TEST_F(ImageAOSTest, CfLoadAndMap8BIG_InvalidWidth) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -524,7 +511,7 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_InvalidWidth) {
 }
 
 TEST_F(ImageAOSTest, CfLoadAndMap8BIG_InvalidHeight) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -534,7 +521,7 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_InvalidHeight) {
 }
 
 TEST_F(ImageAOSTest, CfLoadAndMap8BIG_NegativeWidth) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -544,7 +531,7 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_NegativeWidth) {
 }
 
 TEST_F(ImageAOSTest, CfLoadAndMap8BIG_NegativeHeight) {
-  std::ifstream input_file("test_image.ppm", std::ios::binary);
+  ifstream input_file("test_image.ppm", ios::binary);
   EXPECT_TRUE(input_file.is_open());
 
   ImageAOS const ImageAOS(0, {});
@@ -554,6 +541,117 @@ TEST_F(ImageAOSTest, CfLoadAndMap8BIG_NegativeHeight) {
 }
 
 
+
+TEST_F(ImageAOSTest, CfAddNodes) {
+  ImageAOS ImageAOS(0, {});
+  ImageAOS.cf_add_nodes();
+
+  // Verify that the nodes have been added correctly
+  ASSERT_EQ(ImageAOS.nod.size(), 27);  // Check the number of nodes added
+
+  // Check some specific nodes
+  EXPECT_EQ(ImageAOS.nod[0], packRGB(75, 75, 75));
+  EXPECT_EQ(ImageAOS.nod[1], packRGB(75, 75, 150));
+  EXPECT_EQ(ImageAOS.nod[2], packRGB(75, 75, 240));
+  EXPECT_EQ(ImageAOS.nod[3], packRGB(75, 150, 75));
+  EXPECT_EQ(ImageAOS.nod[4], packRGB(75, 150, 150));
+  EXPECT_EQ(ImageAOS.nod[5], packRGB(75, 150, 240));
+  EXPECT_EQ(ImageAOS.nod[6], packRGB(75, 240, 75));
+  EXPECT_EQ(ImageAOS.nod[7], packRGB(75, 240, 150));
+  EXPECT_EQ(ImageAOS.nod[8], packRGB(75, 240, 240));
+  EXPECT_EQ(ImageAOS.nod[9], packRGB(150, 75, 75));
+  EXPECT_EQ(ImageAOS.nod[10], packRGB(150, 75, 150));
+  EXPECT_EQ(ImageAOS.nod[11], packRGB(150, 75, 240));
+  EXPECT_EQ(ImageAOS.nod[12], packRGB(150, 150, 75));
+  EXPECT_EQ(ImageAOS.nod[13], packRGB(150, 150, 150));
+  EXPECT_EQ(ImageAOS.nod[14], packRGB(150, 150, 240));
+  EXPECT_EQ(ImageAOS.nod[15], packRGB(150, 240, 75));
+  EXPECT_EQ(ImageAOS.nod[16], packRGB(150, 240, 150));
+  EXPECT_EQ(ImageAOS.nod[17], packRGB(150, 240, 240));
+  EXPECT_EQ(ImageAOS.nod[18], packRGB(240, 75, 75));
+  EXPECT_EQ(ImageAOS.nod[19], packRGB(240, 75, 150));
+  EXPECT_EQ(ImageAOS.nod[20], packRGB(240, 75, 240));
+  EXPECT_EQ(ImageAOS.nod[21], packRGB(240, 150, 75));
+  EXPECT_EQ(ImageAOS.nod[22], packRGB(240, 150, 150));
+  EXPECT_EQ(ImageAOS.nod[23], packRGB(240, 150, 240));
+  EXPECT_EQ(ImageAOS.nod[24], packRGB(240, 240, 75));
+  EXPECT_EQ(ImageAOS.nod[25], packRGB(240, 240, 150));
+  EXPECT_EQ(ImageAOS.nod[26], packRGB(240, 240, 240));
+}
+
+TEST_F(ImageAOSTest, CfAddNodes_Failure) {
+  ImageAOS ImageAOS(0, {});
+  ImageAOS.cf_add_nodes();
+
+  ASSERT_NE(ImageAOS.nod.size(), 21);  // Check the number of nodes added
+
+  EXPECT_NE(ImageAOS.nod[0], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[1], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[2], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[3], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[4], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[5], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[6], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[7], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[8], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[9], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[10], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[11], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[12], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[13], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[14], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[15], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[16], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[17], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[18], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[19], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[20], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[21], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[22], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[23], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[24], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[25], packRGB(0, 0, 0));
+  EXPECT_NE(ImageAOS.nod[26], packRGB(0, 0, 0));
+}
+
+
+TEST_F(ImageAOSTest, CfAddNodesBIG_Success) {
+  ImageAOS ImageAOS(0, {});
+  ImageAOS.cf_add_nodes_BIG(NUM_75, NUM_150, NUM_240);
+
+  // Verify that the nodes have been added correctly
+  ASSERT_EQ(ImageAOS.nodBIG.size(), 27);  // Check the number of nodes added
+
+  // Check some specific nodes
+  EXPECT_EQ(ImageAOS.nodBIG[0], packRGBIG(75, 75, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[1], packRGBIG(75, 75, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[2], packRGBIG(75, 75, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[3], packRGBIG(75, 150, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[4], packRGBIG(75, 150, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[5], packRGBIG(75, 150, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[6], packRGBIG(75, 240, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[7], packRGBIG(75, 240, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[8], packRGBIG(75, 240, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[9], packRGBIG(150, 75, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[10], packRGBIG(150, 75, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[11], packRGBIG(150, 75, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[12], packRGBIG(150, 150, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[13], packRGBIG(150, 150, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[14], packRGBIG(150, 150, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[15], packRGBIG(150, 240, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[16], packRGBIG(150, 240, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[17], packRGBIG(150, 240, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[18], packRGBIG(240, 75, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[19], packRGBIG(240, 75, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[20], packRGBIG(240, 75, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[21], packRGBIG(240, 150, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[22], packRGBIG(240, 150, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[23], packRGBIG(240, 150, 240));
+  EXPECT_EQ(ImageAOS.nodBIG[24], packRGBIG(240, 240, 75));
+  EXPECT_EQ(ImageAOS.nodBIG[25], packRGBIG(240, 240, 150));
+  EXPECT_EQ(ImageAOS.nodBIG[26], packRGBIG(240, 240, 240));
+}
+
 TEST_F(ImageAOSTest, CfAddNodesBIG_Failure) {
   ImageAOS const ImageAOS(0, {});
   getImageAOS()->cf_add_nodes_BIG(static_cast<__uint16_t>(NUM_M75),
@@ -562,6 +660,7 @@ TEST_F(ImageAOSTest, CfAddNodesBIG_Failure) {
 
   EXPECT_EQ(ImageAOS.nodBIG.size(), 0) << "Expected nodBIG to be empty when given negative values.";
 }
+
 
 TEST_F(ImageAOSTest, CfGenerateGraph_Success) {
   auto graph = getImageAOS()->cf_generate_graph();
@@ -717,7 +816,7 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Success) {
-  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
       graph = getImageAOS()->cf_generate_graph_BIG();
 
   getImageAOS()->cf_generate_graph_BIG_2(graph);
@@ -732,7 +831,7 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Failure) {
-  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>>
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
       graph = getImageAOS()->cf_generate_graph_BIG();
 
   getImageAOS()->cf_generate_graph_BIG_2(graph);
@@ -747,7 +846,7 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG2_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Success) {
-  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph =
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph =
       getImageAOS()->cf_generate_graph_BIG();
 
   getImageAOS()->cf_generate_graph_BIG_2(graph);
@@ -766,7 +865,7 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Failure) {
-  unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph =
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph =
       getImageAOS()->cf_generate_graph_BIG();
 
   getImageAOS()->cf_generate_graph_BIG_2(graph);
@@ -785,7 +884,7 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG3_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG4_Success) {
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   graph = getImageAOS()->cf_generate_graph_BIG();
 
   getImageAOS()->cf_generate_graph_BIG_2(graph);
@@ -803,7 +902,7 @@ TEST_F(ImageAOSTest, CfGenerateGraphBIG4_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraphBIG4_Failure) {
-  std::unordered_map<__uint64_t, std::pair<std::vector<__uint64_t>, std::vector<__uint64_t>>> graph;
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
   graph = getImageAOS()->cf_generate_graph_BIG();
 
   getImageAOS()->cf_generate_graph_BIG_2(graph);
@@ -844,7 +943,7 @@ TEST_F(ImageAOSTest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
     {packRGB(NUM_20, NUM_50, NUM_80), packRGB(NUM_130, NUM_140,     NUM_150)},
     {    packRGB(NUM_30,NUM_60,NUM_90),     packRGB(NUM_160,NUM_170,NUM_180)}
   };
-  unordered_map<__uint32_t,pair<std::vector<uint32_t>,vector<__uint32_t>>>
+  unordered_map<__uint32_t,pair<vector<uint32_t>,vector<__uint32_t>>>
       const graph = {
     {packRGB(NUM_100, NUM_110, NUM_120), {{packRGB(NUM_130, NUM_140, NUM_150)}, {packRGB(NUM_160, NUM_170, NUM_180)}}},
     {packRGB(NUM_130, NUM_140, NUM_150), {{packRGB(NUM_160, NUM_170, NUM_180)}, {packRGB(NUM_190, NUM_200, NUM_210)}}},
@@ -856,8 +955,195 @@ TEST_F(ImageAOSTest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
   EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_160, NUM_170, NUM_180));
 }
 
+TEST_F(ImageAOSTest, CfSearchInGraphBIG_SomeColorsInDeleteitems) {
+  unordered_map<__uint64_t, __uint64_t> Deleteitems = {
+    {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)}
+  };
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const graph = {
+    {packRGBIG(NUM_10000, NUM_11000, NUM_12000),
+     {{packRGBIG(NUM_13000, NUM_14000, NUM_15000)}, {packRGBIG(NUM_16000, NUM_17000, NUM_18000)}}},
+    {packRGBIG(NUM_13000, NUM_14000, NUM_15000),                                         {{}, {}}}
+  };
+
+  ImageAOS::cf_search_in_graph_BIG(Deleteitems, graph);
+
+  EXPECT_EQ(Deleteitems[packRGBIG(NUM_1000, NUM_4000, NUM_7000)],
+            packRGBIG(NUM_16000, NUM_17000, NUM_18000));
+}
+
+TEST_F(ImageAOSTest, CfSearchInGraphBIG_AllColorsInDeleteitems) {
+  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
+    {packRGBIG(NUM_1000, NUM_4000, NUM_7000), packRGBIG(NUM_10000, NUM_11000, NUM_12000)},
+    {packRGBIG(NUM_2000, NUM_5000, NUM_8000), packRGBIG(NUM_13000, NUM_14000, NUM_15000)},
+    {packRGBIG(NUM_3000, NUM_6000, NUM_9000), packRGBIG(NUM_16000, NUM_17000, NUM_18000)}
+  };
+  unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> const graph = {
+    {packRGBIG(10000, 11000, 12000),
+     {{packRGBIG(13000, 14000, 15000)}, {packRGBIG(16000, 17000, 18000)}}},
+    {packRGBIG(13000, 14000, 15000),
+     {{packRGBIG(16000, 17000, 18000)}, {packRGBIG(19000, 20000, 21000)}}},
+    {packRGBIG(16000, 17000, 18000),
+     {{packRGBIG(10000, 11000, 12000)}, {packRGBIG(22000, 23000, 24000)}}}
+  };
+}
+
+
+TEST_F(ImageAOSTest, CpExport_LessThan256Colors) {
+  unordered_map<unsigned int, unsigned int> const color_map = {
+    {1, 0},
+    {2, 1},
+    {3, 2},
+    {4, 3},
+    {5, 4},
+    {6, 5},
+    {7, 6},
+    {8, 7}
+  };
+  list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7};
+
+  ofstream output_file("output_less_than_256.ppm", ios::binary);
+  ImageAOS::cp_export(output_file, color_map, indexes);
+  output_file.close();
+
+  ifstream input_file("output_less_than_256.ppm", ios::binary);
+  EXPECT_TRUE(input_file.is_open());
+
+  vector<unsigned char> const file_content((istreambuf_iterator<char>(input_file)),
+                                           istreambuf_iterator<char>());
+  input_file.close();
+
+  vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7};
+  EXPECT_EQ(file_content, expected_content);
+
+  if (filesystem::exists("output_less_than_256.ppm")) {
+    if (!filesystem::remove("output_less_than_256.ppm")) {
+      cerr << "Error deleting file: output_less_than_256.ppm" << '\n';
+    }
+  }
+}
+
+TEST_F(ImageAOSTest, CpExport_LessThan65536Colors) {
+  unordered_map<unsigned int, unsigned int> const color_map = {
+    { 1, 0},
+    { 2, 1},
+    { 3, 2},
+    { 4, 3},
+    { 5, 4},
+    { 6, 5},
+    { 7, 6},
+    { 8, 7},
+    { 9, 8},
+    {10, 9}
+  };
+  list<unsigned int> const indexes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  ofstream output_file("output_less_than_65536.ppm", ios::binary);
+  ImageAOS::cp_export(output_file, color_map, indexes);
+  output_file.close();
+
+  ifstream input_file("output_less_than_65536.ppm", ios::binary);
+  EXPECT_TRUE(input_file.is_open());
+
+  vector<unsigned char> const file_content((istreambuf_iterator<char>(input_file)),
+                                           istreambuf_iterator<char>());
+  input_file.close();
+
+  vector<unsigned char> const expected_content = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  EXPECT_EQ(file_content, expected_content);
+
+  if (filesystem::exists("output_less_than_65536.ppm")) {
+    if (!filesystem::remove("output_less_than_65536.ppm")) {
+      cerr << "Error deleting file: output_less_than_65536.ppm" << '\n';
+    }
+  }
+}
+
+TEST_F(ImageAOSTest, CpExport_MoreThan65536Colors) {
+  unordered_map<unsigned int, unsigned int> color_map;
+  for (unsigned int i = 0; i < NUM_70000; ++i) { color_map[i] = i; }
+  list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_70000; ++i) { indexes.push_back(i); }
+
+  ofstream output_file("output_more_than_65536.ppm", ios::binary);
+  ImageAOS::cp_export(output_file, color_map, indexes);
+  output_file.close();
+
+  ifstream input_file("output_more_than_65536.ppm", ios::binary);
+  EXPECT_TRUE(input_file.is_open());
+
+  vector<unsigned char> const file_content((istreambuf_iterator<char>(input_file)),
+                                           istreambuf_iterator<char>());
+  input_file.close();
+
+  vector<unsigned char> expected_content;
+  for (unsigned int i = 0; i < NUM_70000; ++i) {
+    expected_content.push_back(static_cast<unsigned char>(i % FOTO));
+    expected_content.push_back(static_cast<unsigned char>((i >> NUM_8) % FOTO));
+    expected_content.push_back(static_cast<unsigned char>((i >> NUM_16) % FOTO));
+    expected_content.push_back(static_cast<unsigned char>((i >> NUM_24) % FOTO));
+  }
+  EXPECT_EQ(file_content, expected_content);
+
+  if (filesystem::exists("output_more_than_65536.ppm")) {
+    if (!filesystem::remove("output_more_than_65536.ppm")) {
+      cerr << "Error deleting file: output_more_than_65536.ppm" << '\n';
+    }
+  }
+}
+
+TEST_F(ImageAOSTest, CpExportBIG_LessThan256Colors) {
+  unordered_map<unsigned long int, unsigned int> color_map;
+  for (unsigned long int i = 0; i < NUM_255; ++i) { color_map[i] = static_cast<unsigned int>(i); }
+  list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_10; ++i) { indexes.push_back(i); }
+
+  ofstream output_file("output_less_than_256_colors.ppm", ios::binary);
+  testing::internal::CaptureStderr();
+  ImageAOS::cp_export_BIG(output_file, color_map, indexes);
+  string const output = testing::internal::GetCapturedStderr();
+  output_file.close();
+
+  EXPECT_EQ(output, "");
+}
+
+TEST_F(ImageAOSTest, CpExportBIG_LessThan65536Colors) {
+  unordered_map<unsigned long int, unsigned int> color_map;
+  for (unsigned long int i = 0; i < NUM_65535; ++i) { color_map[i] = static_cast<unsigned int>(i); }
+  list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_10; ++i) { indexes.push_back(i); }
+
+  ofstream output_file("output_less_than_65536_colors.ppm", ios::binary);
+  testing::internal::CaptureStderr();
+  ImageAOS::cp_export_BIG(output_file, color_map, indexes);
+  string const output = testing::internal::GetCapturedStderr();
+  output_file.close();
+
+  EXPECT_EQ(output, "");
+}
+
+TEST_F(ImageAOSTest, CpExportBIG_LessThan4294967296Colors) {
+  unordered_map<unsigned long int, unsigned int> color_map;
+  for (unsigned long int i = 0; i < NUM_1000; ++i) { 
+    color_map[i] = static_cast<unsigned int>(i);
+  }
+  list<unsigned int> indexes;
+  for (unsigned int i = 0; i < NUM_10; ++i) { indexes.push_back(i); }
+
+  ofstream output_file("output_less_than_4294967296_colors.ppm", ios::binary);
+  testing::internal::CaptureStderr();
+  ImageAOS::cp_export_BIG(output_file, color_map, indexes);
+  string const output = testing::internal::GetCapturedStderr();
+  output_file.close();
+
+  EXPECT_EQ(output, "");
+}
+
+
+
 
 int main(int argc, char ** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+//NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

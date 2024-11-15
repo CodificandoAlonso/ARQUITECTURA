@@ -99,6 +99,7 @@ class ImageAOS : public Image {
     vector<rgb_small> array_small;
     vector<rgb_big> array_big;
 
+    friend class ImageAOSTest;
     friend class ImageAOSTest_RszObtainSquareMax_Test;
     friend class ImageAOSTest_RszObtainSquareMaxFailure_Test;
     friend class ImageAOSTest_RszObtainSquareMin_Test;
@@ -111,27 +112,23 @@ class ImageAOS : public Image {
     friend class ImageAOSTest_RszInterpolateMaxInvalidTParam_Test;
     friend class ImageAOSTest_ReadImageRGBSmallSuccess_Test;
     friend class ImageAOSTest_ReadImageRGBSmallFileNotFound_Test;
-    friend class ImageAOSTest_ReadImageRGBSmallIncompleteData_Test;
-    friend class ImageAOSTest_ReadImageRGBSmallCorruptData_Test;
-    friend class ImageAOSTest_ReadImageRGBSmallMemoryError_Test;
     friend class ImageAOSTest_ReadImageRGBBig_Success_Test;
     friend class ImageAOSTest_ReadImageRGBBig_FileNotOpen_Test;
-    friend class ImageAOSTest_ReadImageRGBBig_FileReadError_Test;
     friend class ImageAOSTest_LoadAndMap8_Success_Test;
-    friend class ImageAOSTest_LoadAndMap8_FileNotFound_Test;
     friend class ImageAOSTest_CfLoadAndMap8BIGSuccess_Test;
     friend class ImageAOSTest_CfLoadAndMap8BIG_FileNotOpen_Test;
     friend class ImageAOSTest_CfLoadAndMap8BIG_InvalidWidth_Test;
     friend class ImageAOSTest_CfLoadAndMap8BIG_InvalidHeight_Test;
     friend class ImageAOSTest_CfLoadAndMap8BIG_NegativeWidth_Test;
     friend class ImageAOSTest_CfLoadAndMap8BIG_NegativeHeight_Test;
+    friend class ImageAOSTest_CfAddNodes_Test;
+    friend class ImageAOSTest_CfAddNodes_Failure_Test;
     friend class ImageAOSTest_CfAddNodesBIG_Success_Test;
     friend class ImageAOSTest_CfAddNodesBIG_Failure_Test;
     friend class ImageAOSTest_CfGenerateGraph_Success_Test;
     friend class ImageAOSTest_CfGenerateGraph_Failure_Test;
     friend class ImageAOSTest_CfGenerateGraph2_Success_Test;
     friend class ImageAOSTest_CfGenerateGraph2_Failure_Test;
-    friend class ImageAOSTest;
     friend class ImageAOSTest_CfGenerateGraph3_Success_Test;
     friend class ImageAOSTest_CfGenerateGraph3_Failure_Test;
     friend class ImageAOSTest_CfGenerateGraph4_Success_Test;
@@ -144,15 +141,18 @@ class ImageAOS : public Image {
     friend class ImageAOSTest_CfGenerateGraphBIG3_Failure_Test;
     friend class ImageAOSTest_CfGenerateGraphBIG4_Success_Test;
     friend class ImageAOSTest_CfGenerateGraphBIG4_Failure_Test;
-    friend class ImageAOSTest_CfWriteInExit_EmptyDeleteitems_Test;
-    friend class ImageAOSTest_CfWriteInExit_SomeColorsInDeleteitems_Test;
-    friend class ImageAOSTest_CfWriteInExit_AllColorsInDeleteitems_Test;
-    friend class ImageAOSTest_CfWriteInExitBIG_EmptyDeleteitems_Test;
-    friend class ImageAOSTest_CfWriteInExitBIG_SomeColorsInDeleteitems_Test;
-    friend class ImageAOSTest_CfWriteInExitBIG_AllColorsInDeleteitems_Test;
-    friend class ImageAOSTest_CfWriteInExitBIG2_EmptyDeleteitems_Test;
-        friend class ImageAOSTest_CfSearchInGraphSmall_SomeColorsInDeleteitems_Test;
-        friend class ImageAOSTest_CfSearchInGraphSmall_AllColorsInDeleteitems_Test;
+    friend class ImageAOSTest_CfSearchInGraphSmall_SomeColorsInDeleteitems_Test;
+    friend class ImageAOSTest_CfSearchInGraphSmall_AllColorsInDeleteitems_Test;
+    friend class ImageAOSTest_CfSearchInGraphBIG_SomeColorsInDeleteitems_Test;
+    friend class ImageAOSTest_CfSearchInGraphBIG_AllColorsInDeleteitems_Test;
+    friend class ImageAOSTest_CpExport_LessThan256Colors_Test;
+    friend class ImageAOSTest_CpExport_LessThan65536Colors_Test;
+    friend class ImageAOSTest_CpExport_MoreThan65536Colors_Test;
+    friend class ImageAOSTest_CpExportBIG_LessThan256Colors_Test;
+    friend class ImageAOSTest_CpExportBIG_LessThan65536Colors_Test;
+    friend class ImageAOSTest_CpExportBIG_LessThan4294967296Colors_Test;
+
 };
+
 
 #endif  // IMAGEAOS_HPP
