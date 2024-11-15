@@ -83,6 +83,9 @@ static constexpr int NUM_18000 = 18000;
 static constexpr int NUM_65535 = 65535;
 static constexpr int NUM_70000 = 70000;
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
+
 class ImageSOATest : public ::testing::Test {
   private:
     gsl::owner<ImageSOA *> imageSOA = nullptr;
@@ -904,97 +907,6 @@ TEST_F(ImageSOATest, CfGenerateGraphBIG4_Failure) {
   EXPECT_NE(graph[getImageSOA()->nodBIG[26]].first.size(), 2);
 }
 
-TEST_F(ImageSOATest, CfWriteInExit_EmptyDeleteitems) {
-  unordered_map<__uint32_t, __uint32_t> const Deleteitems;
-  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
-  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
-  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
-
-  ofstream output_file("output_empty_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExit_SomeColorsInDeleteitems) {
-  unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
-    {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
-  };
-  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
-  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
-  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
-
-  ofstream output_file("output_some_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExit_AllColorsInDeleteitems) {
-  unordered_map<__uint32_t, __uint32_t> const Deleteitems = {
-    {packRGB(10, 40, 70), packRGB(100, 110, 120)},
-    {packRGB(20, 50, 80), packRGB(130, 140, 150)},
-    {packRGB(30, 60, 90), packRGB(160, 170, 180)}
-  };
-  getImageSOA()->soa_small.r = {NUM_10, NUM_20, NUM_30};
-  getImageSOA()->soa_small.g = {NUM_40, NUM_50, NUM_60};
-  getImageSOA()->soa_small.b = {NUM_70, NUM_80, NUM_90};
-
-  ofstream output_file("output_all_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExitBIG_EmptyDeleteitems) {
-  unordered_map<__uint64_t, __uint64_t> const Deleteitems;
-  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
-  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
-  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
-
-  ofstream output_file("output_empty_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
-  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
-    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)}
-  };
-  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
-  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
-  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
-
-  ofstream output_file("output_some_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-TEST_F(ImageSOATest, CfWriteInExitBIG_AllColorsInDeleteitems) {
-  unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
-    {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)},
-    {packRGBIG(2000, 5000, 8000), packRGBIG(13000, 14000, 15000)},
-    {packRGBIG(3000, 6000, 9000), packRGBIG(16000, 17000, 18000)}
-  };
-  getImageSOA()->soa_big.r = {NUM_1000, NUM_2000, NUM_3000};
-  getImageSOA()->soa_big.g = {NUM_4000, NUM_5000, NUM_6000};
-  getImageSOA()->soa_big.b = {NUM_7000, NUM_8000, NUM_9000};
-
-  ofstream output_file("output_all_colors_deleteitems.ppm", ios::binary);
-  getImageSOA()->cf_write_in_exit_BIG(Deleteitems);
-  output_file.close();
-
-  // Add assertions to verify the output file content
-}
-
-
 TEST_F(ImageSOATest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
   unordered_map<__uint32_t, __uint32_t> Deleteitems = {
     {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
@@ -1184,6 +1096,11 @@ TEST_F(ImageSOATest, CpExportBIG_LessThan256Colors) {
   output_file.close();
 
   EXPECT_EQ(output, "");
+  if (filesystem::exists("output_less_than_256_colors.ppm")) {
+    if (!filesystem::remove("output_less_than_256_colors.ppm")) {
+      cerr << "Error deleting file: output_less_than_256_colors.ppm" << '\n';
+    }
+  }
 }
 
 TEST_F(ImageSOATest, CpExportBIG_LessThan65536Colors) {
@@ -1199,6 +1116,11 @@ TEST_F(ImageSOATest, CpExportBIG_LessThan65536Colors) {
   output_file.close();
 
   EXPECT_EQ(output, "");
+  if (filesystem::exists("output_less_than_65536_colors.ppm")) {
+    if (!filesystem::remove("output_less_than_65536_colors.ppm")) {
+      cerr << "Error deleting file: output_less_than_65536_colors.ppm" << '\n';
+    }
+  }
 }
 
 TEST_F(ImageSOATest, CpExportBIG_LessThan4294967296Colors) {
@@ -1216,6 +1138,11 @@ TEST_F(ImageSOATest, CpExportBIG_LessThan4294967296Colors) {
   output_file.close();
 
   EXPECT_EQ(output, "");
+  if (filesystem::exists("output_less_than_4294967296_colors.ppm")) {
+    if (!filesystem::remove("output_less_than_4294967296_colors.ppm")) {
+      cerr << "Error deleting file: output_less_than_4294967296_colors.ppm" << '\n';
+    }
+  }
 }
 
 int main(int argc, char ** argv) {
@@ -1223,4 +1150,4 @@ int main(int argc, char ** argv) {
   return RUN_ALL_TESTS();
 }
 
-//Fin del test
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
