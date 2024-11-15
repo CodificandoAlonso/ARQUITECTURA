@@ -315,148 +315,9 @@ int ImageAOS::resize() {
 }
 
 /**
- * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
- * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
- * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 8 bits.
+ * Función auxiliar de la función cutfreq. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de valor maximo de intensidad de color 255.
  */
-void ImageAOS::cp_export(ofstream & output_file,
-                         unordered_map<unsigned int, unsigned int> const & color_map,
-                         list<unsigned int> const & indexes) {
-  unsigned long int const num_colors = color_map.size();
-  for (unsigned int const index : indexes) {
-    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-      write_binary_8(output_file, static_cast<unsigned char>(index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-      write_binary_16(output_file, static_cast<uint16_t>(index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      write_binary_32(output_file, static_cast<uint32_t>(index));
-    } else {
-      cerr << "Error: demasiados colores distintos.\n";
-      return;
-    }
-  }
-}
-
-/**
- * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
- * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
- * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 16 bits.
- */
-void ImageAOS::cp_export_BIG(ofstream & output_file,
-                             unordered_map<unsigned long int, unsigned int> const & color_map,
-                             list<unsigned int> const & indexes) {
-  unsigned long int const num_colors = color_map.size();
-  for (unsigned int const index : indexes) {
-    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
-      write_binary_8(output_file, static_cast<unsigned char>(index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
-      write_binary_16(output_file, static_cast<uint16_t>(index));
-    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
-      write_binary_32(output_file, static_cast<uint32_t>(index));
-    } else {
-      cerr << "Error: demasiados colores distintos.\n";
-      return;
-    }
-  }
-}
-
-/**
- * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
- * mapa de colores. Función para imágenes de 8 bits.
- */
-int ImageAOS::compress_min() {
-  ifstream input_file = this->get_if_input_file();
-  ofstream output_file(this->get_output_file(), ios::binary);
-  auto width  = static_cast<unsigned int>(this->get_width());
-  auto height = static_cast<unsigned int>(this->get_height());
-  unordered_map<unsigned int, unsigned int> color_map;
-  list<unsigned int> indexes;
-  vector<rgb_small> unique_colors;
-  for (unsigned int i = 0; i < width * height; i++) {
-    unsigned char const red         = read_binary_8(input_file);
-    unsigned char const grn         = read_binary_8(input_file);
-    unsigned char const blu         = read_binary_8(input_file);
-    unsigned int const concatenated = packRGB(red, grn, blu);
-    if (!color_map.contains(concatenated)) {
-      auto index              = static_cast<unsigned int>(unique_colors.size());
-      color_map[concatenated] = index;
-      unique_colors.push_back({.r = red, .g = grn, .b = blu});
-    }
-    indexes.push_back(color_map[concatenated]);
-  }
-  output_file << "C6"
-              << " " << width << " " << height << " " << this->get_maxval() << " "
-              << unique_colors.size() << "\n";
-  for (auto & pixel : unique_colors) {
-    write_binary_8(output_file, pixel.r);
-    write_binary_8(output_file, pixel.g);
-    write_binary_8(output_file, pixel.b);
-  }
-  cp_export(output_file, color_map, indexes);
-  input_file.close();
-  output_file.close();
-  return 0;
-}
-
-/**
- * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
- * mapa de colores. Función para imágenes de 16 bits.
- */
-int ImageAOS::compress_max() {
-  ifstream input_file = this->get_if_input_file();
-  ofstream output_file(this->get_output_file(), ios::binary);
-  auto width  = static_cast<unsigned int>(this->get_width());
-  auto height = static_cast<unsigned int>(this->get_height());
-  unordered_map<unsigned long int, unsigned int> color_map;
-  list<unsigned int> indexes;
-  vector<rgb_big> unique_colors;
-  for (unsigned int i = 0; i < width * height; i++) {
-    unsigned short const red             = read_binary_16(input_file);
-    unsigned short const grn             = read_binary_16(input_file);
-    unsigned short const blu             = read_binary_16(input_file);
-    unsigned long int const concatenated = packRGBIG(red, grn, blu);
-    if (!color_map.contains(concatenated)) {
-      auto index              = static_cast<unsigned int>(unique_colors.size());
-      color_map[concatenated] = index;
-      unique_colors.push_back({.r = red, .g = grn, .b = blu});
-    }
-    indexes.push_back(color_map[concatenated]);
-  }
-  output_file << "C6"
-              << " " << width << " " << height << " " << this->get_maxval() << " "
-              << unique_colors.size() << "\n";
-  for (auto & pixel : unique_colors) {
-    write_binary_16(output_file, pixel.r);
-    write_binary_16(output_file, pixel.g);
-    write_binary_16(output_file, pixel.b);
-  }
-  cp_export_BIG(output_file, color_map, indexes);
-  input_file.close();
-  output_file.close();
-  return 0;
-}
-
-/**
- * Función de compresión de la imagen.
- */
-int ImageAOS::compress() {
-  get_imgdata();
-
-  auto maxval = static_cast<unsigned int>(this->get_maxval());
-
-  if (maxval <= MIN_LEVEL) {
-    if (compress_min() < 0) { return -1; }
-  } else if (maxval <= MAX_LEVEL) {
-    if (compress_max() < 0) { return -1; }
-  } else {
-    cerr << "Error: maxval no soportado"
-         << "\n";
-    return -1;
-  }
-
-  return 0;
-}
-
 unordered_map<__uint32_t, __uint16_t> ImageAOS::cf_load_and_map_8(int width, ifstream input_file,
                                                                   int height) {
   unordered_map<__uint32_t, __uint16_t> myMap;
@@ -477,6 +338,10 @@ unordered_map<__uint32_t, __uint16_t> ImageAOS::cf_load_and_map_8(int width, ifs
   return myMap;
 }
 
+/**
+ * Función auxiliar de la función cutfreq. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de valor maximo de intensidad de color 65535.
+ */
 unordered_map<__uint64_t, __uint16_t> ImageAOS::cf_load_and_map_8BIG(int width, ifstream input_file,
                                                                      int height) {
   unsigned short red = 0;
@@ -500,6 +365,10 @@ unordered_map<__uint64_t, __uint16_t> ImageAOS::cf_load_and_map_8BIG(int width, 
   return myMap;
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Añade a una variable propia de ImageAOS los nodos con las
+ *posibles combinaciones del conjunto {Poco, Medio, Alto} para las tres componentes de color.
+ */
 void ImageAOS::cf_add_nodes() {
   this->nod.push_back(packRGB(POCO, POCO, POCO));
   this->nod.push_back(packRGB(POCO, POCO, MEDIO));
@@ -532,6 +401,10 @@ void ImageAOS::cf_add_nodes() {
   this->nod.push_back(packRGB(ALTO, ALTO, ALTO));
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Añade a una variable propia de ImageAOS los nodos con las
+ *posibles combinaciones del conjunto {Poco, Medio, Alto} para las tres componentes de color.
+ */
 void ImageAOS::cf_add_nodes_BIG(__uint16_t const POCOBIG, __uint16_t const MEDIOBIG,
                                 __uint16_t const ALTOBIG) {
   this->nodBIG.push_back(packRGBIG(POCOBIG, POCOBIG, POCOBIG));
@@ -565,6 +438,13 @@ void ImageAOS::cf_add_nodes_BIG(__uint16_t const POCOBIG, __uint16_t const MEDIO
   this->nodBIG.push_back(packRGBIG(ALTOBIG, ALTOBIG, ALTOBIG));
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Genera un "Grafo" a modo de unordered map, cuya key son
+ *los nodos, y el value es un par de vectores; donde el primer vector contiene los nodos adyacentes
+ *y el segundo los colores NO a eliminar que pertenecen a ese subrango de color.
+ *Asi se reduce la busqueda a los mas cercanos al color a eliminar. Como eran muchos nodos, se ha
+ *dividido en generate_graph, 2, 3 y 4.
+ */
 unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
     ImageAOS::cf_generate_graph() {
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph;
@@ -707,6 +587,15 @@ unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>>
   return graph;
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Genera un "Grafo" a modo de unordered map, cuya key son
+ *los nodos, y el value es un par de vectores; donde el primer vector contiene los nodos adyacentes
+ *y el segundo los colores NO a eliminar que pertenecen a ese subrango de color.
+ *Asi se reduce la busqueda a los mas cercanos al color a eliminar. Como eran muchos nodos, se ha
+ *dividido en generate_graph, 2, 3 y 4.
+ *Como esta es la version de imagenes de valor maximo de intensidad de color 65535, se ha modificado
+ *el valor de POCO, MEDIO y ALTO en funcion del valor maximo de la imagen
+ */
 unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
     ImageAOS::cf_generate_graph_BIG() {
   unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph;
@@ -857,6 +746,18 @@ unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>>
   return graph;
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Recibe el mapa de colores unicos y su frecuencia y un mapa
+ *Deleteitems vacio, que va a contener los colores menos frecuentes a eliminar. Lo que hace esta
+ *funcion es convertir myMap a un vector de pares para poder ordenarlo según el value.
+ *Posteriormente, se añaden a un vector puente "VectorDelete" los n primeros colores menos
+ *frecuentes añadiendo tmb todos los n+1 colores que tengan la misma frecuencia que el n-esimo.
+ *Luego se define un pivote que es la frecuencia del n-esimo color menos frecuente y se recorre
+ *VectorDelete otra vez, añadiendo a Deleteitems los colores que tengan una frecuencia menor que él,
+ *Esta funcion devuelve un deque los elementos con igual frecuencia que el n-esimo, para
+ *poder tratarlo en otra funcion que se encarga de decidir que colores de esa lista se van a
+ *eliminar en funcion de sus componentes r, g y b,a como bien dice el punto 2 del enunciado.
+ */
 deque<pair<__uint32_t, __uint16_t>>
     ImageAOS::cf_check_first_part_small(unordered_map<__uint32_t, __uint16_t> myMap,
                                         unordered_map<__uint32_t, __uint32_t> & Deleteitems,
@@ -865,16 +766,13 @@ deque<pair<__uint32_t, __uint16_t>>
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
   });
-  // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
+
   vector<pair<__uint32_t, __uint16_t>> VectorDelete;
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
 
-  // Añado al vector delete el numero de elementos que pide
   VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
-
-  // Mientras el siguiente al ultimo guardado tenga el mismo value, se añadira tmb
   while (myVector[tamDelete].second == VectorDelete[elems_to_delete - 1].second) {
     VectorDelete.emplace_back(myVector[tamDelete]);
     tamDelete++;
@@ -891,12 +789,16 @@ deque<pair<__uint32_t, __uint16_t>>
 
   int const new_n    = static_cast<int>(elems_to_delete);
   num_left           = new_n - elem_deleted;
-  auto const new_e_d = static_cast<long int>(elem_deleted);  // elem_deleted
+  auto const new_e_d = static_cast<long int>(elem_deleted);
 
   deque const left_elems(VectorDelete.begin() + new_e_d, VectorDelete.end());
   return left_elems;
 }
 
+/**
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
+ */
 deque<pair<__uint64_t, __uint16_t>>
     ImageAOS::cf_check_first_part_BIG(unordered_map<__uint64_t, __uint16_t> myMapBIG,
                                       unordered_map<__uint64_t, __uint64_t> & Deleteitems,
@@ -905,17 +807,12 @@ deque<pair<__uint64_t, __uint16_t>>
   ranges::sort(myVector, [](auto const & op1, auto const & op2) {
     return op1.second < op2.second;
   });
-
-  // Me paso a size_t el numero de elementos a eliminar y me creo un vector delete
   vector<pair<__uint64_t, __uint16_t>> VectorDelete;
   size_t const elems_to_delete = static_cast<size_t>(this->get_args()[0]);
-
-  // Añado al vector delete el numero de elementos que pide
   VectorDelete.reserve(elems_to_delete);
   for (size_t i = 0; i < elems_to_delete; i++) { VectorDelete.emplace_back(myVector[i]); }
   size_t tamDelete = elems_to_delete;
 
-  // Mientras el siguiente al ultimo guardado tenga el mismo value, se añadira tmb
   while (myVector[tamDelete].second == VectorDelete[elems_to_delete - 1].second) {
     VectorDelete.emplace_back(myVector[tamDelete]);
     tamDelete++;
@@ -938,6 +835,13 @@ deque<pair<__uint64_t, __uint16_t>>
   return left_elems;
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Esta recibe el Map Deleteitems que contiene como keys
+ *los colores a eliminar y como values el valor sustituto para cada color.
+ *Esta funcion se recorre el AOS con los píxeles de la imagen guardados en memoria y para cada valor
+ *de color, se busca en Deleteitems si ese color está en la lista de colores a eliminar, si es asi,
+ *en vez de escribir en la salida el valor original, se escribe el valor sustituto.
+ */
 void ImageAOS::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitems) {
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
@@ -960,6 +864,10 @@ void ImageAOS::cf_write_in_exit(unordered_map<__uint32_t, __uint32_t> Deleteitem
   output_file.close();
 }
 
+/**
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
+ */
 void ImageAOS::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Deleteitems) {
   write_out(this->get_maxval());
   ofstream output_file = this->get_of_output_file();
@@ -981,6 +889,16 @@ void ImageAOS::cf_write_in_exit_BIG(unordered_map<__uint64_t, __uint64_t> Delete
   output_file.close();
 }
 
+/**
+ *Funcion auxiliar de la funcion cutfreq. Esta recibe el Map Deleteitems con las keys ya completas,
+ *Mientras que ahora mismo en el value de Deleteitems no contiene el color sustituto, sino el valor
+ *del nodo del grafo mas cercano. Esta funcion se encarga de buscar el sustituto de cada color de
+ *deleteitems tanto en el nodo como en los vecinos inmediatos. Se utiliza un vector auxiliar Visited
+ *que contiene los nodos visitados, porque en caso de que ni el nodo ni sus vecinos tengan colores
+ *NO a eliminar asociados en la imagen, se realizaria una busqueda recursiva hasta encontrar un nodo
+ *con colores NO a eliminar asociados. Esto no obstante se realiza en la funcion
+ *cf_find_closest_in_neighbors.
+ */
 void ImageAOS::cf_search_in_graph_small(
     unordered_map<__uint32_t, __uint32_t> & Deleteitems,
     unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph) {
@@ -988,12 +906,9 @@ void ImageAOS::cf_search_in_graph_small(
     __uint32_t const color_to_delete             = entry.first;
     double min_distance                          = MAX_DIST;
     unordered_map<__uint32_t, __uint8_t> visited = {};
-    // Obtener el nodo correspondiente al color a eliminar
-    auto node_it = graph.find(entry.second);
+    auto node_it                                 = graph.find(entry.second);
     if (node_it == graph.end()) { continue; }
     visited[entry.second] = 0;
-    // Primero, verificar la distancia en el nodo principal
-    // bool found_in_main_node = false;
     for (__uint32_t const candidate : node_it->second.second) {
       double const distance = get_distance(color_to_delete, candidate);
       if (distance < min_distance) {
@@ -1007,11 +922,14 @@ void ImageAOS::cf_search_in_graph_small(
                                           .min_distance    = &min_distance,
                                           .visited_node    = &visited};
     __uint32_t const replacement_color = cf_find_closest_in_neighbors(&params_s);
-    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) { entry.second = replacement_color; }
   }
 }
 
+/**
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
+ */
 void ImageAOS::cf_search_in_graph_BIG(
     unordered_map<__uint64_t, __uint64_t> & Deleteitems,
     unordered_map<__uint64_t, pair<vector<__uint64_t>, vector<__uint64_t>>> graph) {
@@ -1019,8 +937,7 @@ void ImageAOS::cf_search_in_graph_BIG(
     __uint64_t const color_to_delete             = entry.first;
     double min_distance                          = MAX_DIST;
     unordered_map<__uint64_t, __uint8_t> visited = {};
-    // Obtener el nodo correspondiente al color a eliminar
-    auto node_it = graph.find(entry.second);
+    auto node_it                                 = graph.find(entry.second);
     if (node_it == graph.end()) { continue; }
     visited[entry.second] = 0;
     for (__uint64_t const candidate : node_it->second.second) {
@@ -1036,11 +953,24 @@ void ImageAOS::cf_search_in_graph_BIG(
                                           .min_distance    = &min_distance,
                                           .visited_node    = &visited};
     __uint64_t const replacement_color = cf_find_closest_in_neighbors_BIG(&params_s);
-    // Si encontramos un reemplazo adecuado, guardarlo en el grafo y en Deleteitems
     if (replacement_color != 0) { entry.second = replacement_color; }
   }
 }
 
+/**
+ *Funcion auxiliar principal de la función cutfreq para versiones de imagenes de valor maximo de
+ *intensidad de color 255. Esta funcion recibe el mapa de colores únicos y se encarga de gestionar
+ *todas las llamadas a las funciones auxiliares para el buen desempeño de la funcion cutfreq.
+ *Por enumerar lo que se hace y su orden. Se "comprueba la primera parte" = Se almacenan los
+ *colores que se sabe a ciencia cierta que se van a eliminar, es decir aquellos con menor frecuencia
+ *que el elemento n-esimo a eliminar. Luego se decide el resto de colores a eliminar según las
+ *directrices del enunciado, es decir, según el valor de sus componentes R, G y B.
+ *Luego se genera el grafo y se completa, añadiendo a los nodos de este tanto sus vecinos, como
+ *los colores NO a eliminar que pertenecen a ese rango de cercanos, y también añadiendo al mapa
+ *de colores de eliminacion los nodos más cercanos que les corresponderia, para saber por donde
+ *empezar a buscar. Luego se realiza la asignacion de sustitutos, y posteriormente se escribe en
+ *la salida
+ */
 void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) {
   unordered_map<__uint32_t, __uint32_t> Deleteitems;
   int num_left                          = 0;
@@ -1062,6 +992,10 @@ void ImageAOS::cutfreq_min(unordered_map<__uint32_t, __uint16_t> const & myMap) 
   cf_write_in_exit(Deleteitems);
 }
 
+/**
+ *Igual que la de arriba pero en version BIG, es decir, para imagenes de valor maximo de intensidad
+ *de color 65535
+ */
 void ImageAOS::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBIG) {
   unordered_map<__uint64_t, __uint64_t> Deleteitems;
   int num_left                          = 0;
@@ -1083,12 +1017,16 @@ void ImageAOS::cutfreq_max(unordered_map<__uint64_t, __uint16_t> const & myMapBI
   cf_write_in_exit_BIG(Deleteitems);
 }
 
+/**
+ *Funcion CUTFREQ principal, esta se encarga de realizar la llamada a la funcion auxiliar principal
+ *min o max dependiendo del valor maximo de intensidad de la imagen.
+ */
 int ImageAOS::cutfreq() {
   get_imgdata();
   ifstream input_file = this->get_if_input_file();
 
   if (!input_file) {
-    cerr << "Error al abrir los archivos de entrada/salida"
+    cerr << "Error al abrir el archivo de entrada"
          << "\n";
     return -1;
   }
@@ -1096,7 +1034,6 @@ int ImageAOS::cutfreq() {
   int const width  = this->get_width();
   int const height = this->get_height();
   int const maxval = this->get_maxval();
-  // ofstream output_file(this->get_output_file(), ios::binary);
   if (maxval == MIN_LEVEL) {
     unordered_map<__uint32_t, __uint16_t> myMap;
     myMap                        = cf_load_and_map_8(width, std::move(input_file), height);
@@ -1120,5 +1057,158 @@ int ImageAOS::cutfreq() {
     }
     cutfreq_max(myMapBIG);
   }
+  return 0;
+}
+
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 8 bits.
+ */
+void ImageAOS::cp_export(ofstream & output_file,
+                         unordered_map<unsigned int, unsigned int> const & color_map,
+                         list<unsigned int> const & indexes) {
+  unsigned long int const num_colors = color_map.size();
+  for (unsigned int const index : indexes) {
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(index));
+    } else {
+      cerr << "Error: demasiados colores distintos.\n";
+      return;
+    }
+  }
+}
+
+/**
+ * Función auxiliar de la función compress. Exporta los índices de los píxeles de la imagen a la
+ * tabla de colores. Se tienen en cuenta el número de colores distintos para determinar el tamaño
+ * del tipo de dato a exportar (8, 16 o 32 bits). Función para imágenes de 16 bits.
+ */
+void ImageAOS::cp_export_BIG(ofstream & output_file,
+                             unordered_map<unsigned long int, unsigned int> const & color_map,
+                             list<unsigned int> const & indexes) {
+  unsigned long int const num_colors = color_map.size();
+  for (unsigned int const index : indexes) {
+    if (num_colors < static_cast<unsigned long int>(pow(2, BYTE))) {
+      write_binary_8(output_file, static_cast<unsigned char>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 2 * BYTE))) {
+      write_binary_16(output_file, static_cast<uint16_t>(index));
+    } else if (num_colors < static_cast<unsigned long int>(pow(2, 4 * BYTE))) {
+      write_binary_32(output_file, static_cast<uint32_t>(index));
+    } else {
+      cerr << "Error: demasiados colores distintos.\n";
+      return;
+    }
+  }
+}
+
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 8 bits.
+ */
+int ImageAOS::compress_min() {
+  ifstream input_file = this->get_if_input_file();
+  if (!input_file) {
+    cerr << "Error al abrir el archivo de entrada"
+         << "\n";
+    return -1;
+  }
+  ofstream output_file(this->get_output_file(), ios::binary);
+  auto width  = static_cast<unsigned int>(this->get_width());
+  auto height = static_cast<unsigned int>(this->get_height());
+  unordered_map<unsigned int, unsigned int> color_map;
+  list<unsigned int> indexes;
+  vector<rgb_small> unique_colors;
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned char const red         = read_binary_8(input_file);
+    unsigned char const grn         = read_binary_8(input_file);
+    unsigned char const blu         = read_binary_8(input_file);
+    unsigned int const concatenated = packRGB(red, grn, blu);
+    if (!color_map.contains(concatenated)) {
+      auto index              = static_cast<unsigned int>(unique_colors.size());
+      color_map[concatenated] = index;
+      unique_colors.push_back({.r = red, .g = grn, .b = blu});
+    }
+    indexes.push_back(color_map[concatenated]);
+  }
+  output_file << "C6"
+              << " " << width << " " << height << " " << this->get_maxval() << " "
+              << unique_colors.size() << "\n";
+  for (auto & pixel : unique_colors) {
+    write_binary_8(output_file, pixel.r);
+    write_binary_8(output_file, pixel.g);
+    write_binary_8(output_file, pixel.b);
+  }
+  cp_export(output_file, color_map, indexes);
+  input_file.close();
+  output_file.close();
+  return 0;
+}
+
+/**
+ * Función auxiliar de la función compress. Carga la imagen y mapea los colores de la imagen a un
+ * mapa de colores. Función para imágenes de 16 bits.
+ */
+int ImageAOS::compress_max() {
+  ifstream input_file = this->get_if_input_file();
+  if (!input_file) {
+    cerr << "Error al abrir el archivo de entrada"
+         << "\n";
+    return -1;
+  }
+  ofstream output_file(this->get_output_file(), ios::binary);
+  auto width  = static_cast<unsigned int>(this->get_width());
+  auto height = static_cast<unsigned int>(this->get_height());
+  unordered_map<unsigned long int, unsigned int> color_map;
+  list<unsigned int> indexes;
+  vector<rgb_big> unique_colors;
+  for (unsigned int i = 0; i < width * height; i++) {
+    unsigned short const red             = read_binary_16(input_file);
+    unsigned short const grn             = read_binary_16(input_file);
+    unsigned short const blu             = read_binary_16(input_file);
+    unsigned long int const concatenated = packRGBIG(red, grn, blu);
+    if (!color_map.contains(concatenated)) {
+      auto index              = static_cast<unsigned int>(unique_colors.size());
+      color_map[concatenated] = index;
+      unique_colors.push_back({.r = red, .g = grn, .b = blu});
+    }
+    indexes.push_back(color_map[concatenated]);
+  }
+  output_file << "C6"
+              << " " << width << " " << height << " " << this->get_maxval() << " "
+              << unique_colors.size() << "\n";
+  for (auto & pixel : unique_colors) {
+    write_binary_16(output_file, pixel.r);
+    write_binary_16(output_file, pixel.g);
+    write_binary_16(output_file, pixel.b);
+  }
+  cp_export_BIG(output_file, color_map, indexes);
+  input_file.close();
+  output_file.close();
+  return 0;
+}
+
+/**
+ * Función de compresión de la imagen.
+ */
+int ImageAOS::compress() {
+  get_imgdata();
+
+  auto maxval = static_cast<unsigned int>(this->get_maxval());
+
+  if (maxval <= MIN_LEVEL) {
+    if (compress_min() < 0) { return -1; }
+  } else if (maxval <= MAX_LEVEL) {
+    if (compress_max() < 0) { return -1; }
+  } else {
+    cerr << "Error: maxval no soportado"
+         << "\n";
+    return -1;
+  }
+
   return 0;
 }
