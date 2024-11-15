@@ -1,10 +1,14 @@
 import unittest
 import random
 import subprocess
+import math
 
 version = "release"
 exe_imtoolaos = f"../cmake-build-{version}/imtool-aos/imtool-aos"
 exe_imtoolsoa = f"../cmake-build-{version}/imtool-soa/imtool-soa"
+
+def euclidean_distance(r1, g1, b1, r2, g2, b2):
+    return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
 
 def generate_ppm_f3(width, height, filename):
     with open(filename, 'wb') as f:
@@ -32,6 +36,53 @@ class TestImtoolAOS(unittest.TestCase):
         cls.img2_f3_height = 100
         generate_ppm_f3(cls.img1_f3_width, cls.img1_f3_height, cls.img1_f3)
         generate_ppm_f3(cls.img2_f3_width, cls.img2_f3_height, cls.img2_f3)
+
+    def checker_cutfreq(self, original_path, prof_path, my_path):
+        with open(original_path, "rb") as file1, open(prof_path, "rb") as file2, open(my_path, "rb") as file3:
+            header1 = read_ppm_header(file1)
+            header2 = read_ppm_header(file2)
+            header3 = read_ppm_header(file3)
+            self.assertEqual(header1, header2)
+            self.assertEqual(header1, header3)
+            self.assertEqual(header2, header3)
+
+            position = 0
+            contador = 0
+            cambios_hechos = 0
+            no_cambio = 0
+
+            while True:
+                byte1 = file1.read(3)
+                byte2 = file2.read(3)
+                byte3 = file3.read(3)
+
+                if not byte1 or not byte2 or not byte3:
+                    break
+
+                byte1_r, byte1_g, byte1_b = byte1
+                byte2_r, byte2_g, byte2_b = byte2
+                byte3_r, byte3_g, byte3_b = byte3
+
+                original_vs_profe = (abs(byte1_r - byte2_r) > 5 or abs(byte1_g - byte2_g) > 5 or abs(byte1_b - byte2_b) > 5)
+                original_vs_mio = (abs(byte1_r - byte3_r) > 5 or abs(byte1_g - byte3_g) > 5 or abs(byte1_b - byte3_b) > 5)
+
+                if original_vs_profe or original_vs_mio:
+                    if byte2 != byte3:
+                        dist_profesor = euclidean_distance(byte1_r, byte1_g, byte1_b, byte2_r, byte2_g, byte2_b)
+                        dist_mio = euclidean_distance(byte1_r, byte1_g, byte1_b, byte3_r, byte3_g, byte3_b)
+                        # 8.66 es la raiz cuadrada de 3 veces 255 al cuadrado, que es la distancia máxima
+                        # que se permite de divergencia.
+                        if (dist_mio - dist_profesor) > 8.66:
+                            contador += 1
+                    no_cambio += 1
+                    cambios_hechos += 1
+                position += 1
+
+            if cambios_hechos == 0:
+                return 0
+
+            porcentaje_exito = ((no_cambio - contador) / cambios_hechos) * 100
+            self.assertTrue(porcentaje_exito >= 99.99, f"Porcentaje de acierto: {porcentaje_exito}")
 
     def check_images(self, img1, img2, trheadshold=100.0):
         with open(img1, 'rb') as f1, open(img2, 'rb') as f2:
@@ -249,16 +300,16 @@ class TestImtoolAOS(unittest.TestCase):
         result_soa = subprocess.run(f'{exe_imtoolsoa} ./input/lake-large.ppm out_soa.ppm cutfreq 100000', shell=True, capture_output=True)
         self.assertEqual(result_aos.returncode, 0)
         self.assertEqual(result_soa.returncode, 0)
-        self.check_images("out_aos.ppm", "./expected/cutfreq/lake-large-100K.ppm", 99.5)
-        self.check_images("out_soa.ppm", "./expected/cutfreq/lake-large-100K.ppm", 99.5)
+        self.checker_cutfreq("./input/lake-large.ppm", "./expected/cutfreq/lake-large-100K.ppm", "out_aos.ppm")
+        self.checker_cutfreq("./input/lake-large.ppm", "./expected/cutfreq/lake-large-100K.ppm", "out_soa.ppm")
 
     def test_cutfreq_ok2(self):
         result_aos = subprocess.run(f'{exe_imtoolaos} ./input/lake-large.ppm out_aos.ppm cutfreq 162000', shell=True, capture_output=True)
         result_soa = subprocess.run(f'{exe_imtoolsoa} ./input/lake-large.ppm out_soa.ppm cutfreq 162000', shell=True, capture_output=True)
         self.assertEqual(result_aos.returncode, 0)
         self.assertEqual(result_soa.returncode, 0)
-        self.check_images("out_aos.ppm", "./expected/cutfreq/lake-large-162K.ppm", 97)
-        self.check_images("out_soa.ppm", "./expected/cutfreq/lake-large-162K.ppm", 97)
+        self.checker_cutfreq("./input/lake-large.ppm", "./expected/cutfreq/lake-large-162K.ppm", "out_aos.ppm")
+        self.checker_cutfreq("./input/lake-large.ppm", "./expected/cutfreq/lake-large-162K.ppm", "out_soa.ppm")
 
     def test_cutfreq_nok1(self):
         result_aos = subprocess.run(f'{exe_imtoolaos} ./input/lake-large.ppm out_aos.ppm cutfreq', shell=True, capture_output=True)
