@@ -1,8 +1,9 @@
 //
 // Created by hector on 2/11/24.
 //
-#include "imgaos/imageaos.hpp"  // Ensure the correct path to the header file
 #include "common/binario.hpp"
+#include "imgaos/imageaos.hpp"  // Ensure the correct path to the header file
+
 #include <array>
 #include <cstdio>
 #include <fstream>
@@ -46,12 +47,12 @@ static constexpr int NUM_80   = 80;
 static constexpr int NUM_90   = 90;
 static constexpr int NUM_110  = 110;
 static constexpr int NUM_120  = 120;
-static constexpr int NUM_130 = 130;
-static constexpr int NUM_140 = 140;
-static constexpr int NUM_150 = 150;
-static constexpr int NUM_160 = 160;
-static constexpr int NUM_170 = 170;
-static constexpr int NUM_180 = 180;
+static constexpr int NUM_130  = 130;
+static constexpr int NUM_140  = 140;
+static constexpr int NUM_150  = 150;
+static constexpr int NUM_160  = 160;
+static constexpr int NUM_170  = 170;
+static constexpr int NUM_180  = 180;
 static constexpr int NUM_M75  = -75;
 static constexpr int NUM_M150 = -150;
 static constexpr int NUM_M240 = -240;
@@ -64,8 +65,8 @@ static constexpr int NUM_6000 = 6000;
 static constexpr int NUM_7000 = 7000;
 static constexpr int NUM_8000 = 8000;
 static constexpr int NUM_9000 = 9000;
-static constexpr int NUM_75 = 75;
-static constexpr int NUM_240 = 240;
+static constexpr int NUM_75   = 75;
+static constexpr int NUM_240  = 240;
 
 class ImageAOSTest : public ::testing::Test {
   private:
@@ -643,7 +644,7 @@ TEST_F(ImageAOSTest, CfGenerateGraph_Failure) {
 
 TEST_F(ImageAOSTest, CfGenerateGraph2_Success) {
   unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
-   getImageAOS()->cf_generate_graph();
+      getImageAOS()->cf_generate_graph();
   getImageAOS()->cf_generate_graph_2(graph);
 
   // Correct assertions to verify the graph structure
@@ -658,8 +659,9 @@ TEST_F(ImageAOSTest, CfGenerateGraph2_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraph2_Failure) {
-    unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph=
-    getImageAOS()->cf_generate_graph();;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      getImageAOS()->cf_generate_graph();
+  ;
   getImageAOS()->cf_generate_graph_2(graph);
 
   // Intentionally incorrect assertions to cause the test to fail
@@ -676,8 +678,9 @@ TEST_F(ImageAOSTest, CfGenerateGraph2_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraph3_Success) {
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph=
-    getImageAOS()->cf_generate_graph();;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      getImageAOS()->cf_generate_graph();
+  ;
   getImageAOS()->cf_generate_graph_2(graph);
   getImageAOS()->cf_generate_graph_3(graph);
 
@@ -693,8 +696,9 @@ TEST_F(ImageAOSTest, CfGenerateGraph3_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraph3_Failure) {
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph=
-    getImageAOS()->cf_generate_graph();;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      getImageAOS()->cf_generate_graph();
+  ;
   getImageAOS()->cf_generate_graph_2(graph);
   getImageAOS()->cf_generate_graph_3(graph);
   // Intentionally incorrect assertions to cause the test to fail
@@ -711,11 +715,12 @@ TEST_F(ImageAOSTest, CfGenerateGraph3_Failure) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraph4_Success) {
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph=
-    getImageAOS()->cf_generate_graph();;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      getImageAOS()->cf_generate_graph();
+  ;
   getImageAOS()->cf_generate_graph_2(graph);
   getImageAOS()->cf_generate_graph_3(graph);
-        getImageAOS()->cf_generate_graph_4(graph);
+  getImageAOS()->cf_generate_graph_4(graph);
 
   // Correct assertions to verify the graph structure
   EXPECT_EQ(graph.size(), 27);
@@ -728,11 +733,12 @@ TEST_F(ImageAOSTest, CfGenerateGraph4_Success) {
 }
 
 TEST_F(ImageAOSTest, CfGenerateGraph4_Failure) {
-  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph=
-    getImageAOS()->cf_generate_graph();;
+  unordered_map<__uint32_t, pair<vector<__uint32_t>, vector<__uint32_t>>> graph =
+      getImageAOS()->cf_generate_graph();
+  ;
   getImageAOS()->cf_generate_graph_2(graph);
   getImageAOS()->cf_generate_graph_3(graph);
-        getImageAOS()->cf_generate_graph_4(graph);
+  getImageAOS()->cf_generate_graph_4(graph);
 
   // Intentionally incorrect assertions to cause the test to fail
   EXPECT_NE(graph.size(), 7);
@@ -932,7 +938,11 @@ TEST_F(ImageAOSTest, CfWriteInExit_AllColorsInDeleteitems) {
     {packRGB(20, 50, 80), packRGB(130, 140, 150)},
     {packRGB(30, 60, 90), packRGB(160, 170, 180)}
   };
-  getImageAOS()->array_small = {{.r =NUM_10, .g =NUM_40, .b =NUM_70}, {.r = NUM_20, .g = NUM_50, .b = NUM_80}, {.r = NUM_30, .g = NUM_60, .b = NUM_90}};
+  getImageAOS()->array_small = {
+    {.r = NUM_10, .g = NUM_40, .b = NUM_70},
+    {.r = NUM_20, .g = NUM_50, .b = NUM_80},
+    {.r = NUM_30, .g = NUM_60, .b = NUM_90}
+  };
 
   std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
   getImageAOS()->cf_write_in_exit(Deleteitems);
@@ -943,7 +953,11 @@ TEST_F(ImageAOSTest, CfWriteInExit_AllColorsInDeleteitems) {
 
 TEST_F(ImageAOSTest, CfWriteInExitBIG_EmptyDeleteitems) {
   std::unordered_map<__uint64_t, __uint64_t> const Deleteitems;
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
+  getImageAOS()->array_big = {
+    {.r = NUM_1000, .g = NUM_4000, .b = NUM_7000},
+    {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000},
+    {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}
+  };
 
   std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
   getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
@@ -956,8 +970,11 @@ TEST_F(ImageAOSTest, CfWriteInExitBIG_SomeColorsInDeleteitems) {
   std::unordered_map<__uint64_t, __uint64_t> const Deleteitems = {
     {packRGBIG(1000, 4000, 7000), packRGBIG(10000, 11000, 12000)}
   };
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
-
+  getImageAOS()->array_big = {
+    {.r = NUM_1000, .g = NUM_4000, .b = NUM_7000},
+    {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000},
+    {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}
+  };
 
   std::ofstream output_file("output_some_colors_deleteitems.ppm", std::ios::binary);
   getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
@@ -972,8 +989,11 @@ TEST_F(ImageAOSTest, CfWriteInExitBIG_AllColorsInDeleteitems) {
     {packRGBIG(2000, 5000, 8000), packRGBIG(13000, 14000, 15000)},
     {packRGBIG(3000, 6000, 9000), packRGBIG(16000, 17000, 18000)}
   };
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
-
+  getImageAOS()->array_big = {
+    {.r = NUM_1000, .g = NUM_4000, .b = NUM_7000},
+    {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000},
+    {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}
+  };
 
   std::ofstream output_file("output_all_colors_deleteitems.ppm", std::ios::binary);
   getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
@@ -984,7 +1004,11 @@ TEST_F(ImageAOSTest, CfWriteInExitBIG_AllColorsInDeleteitems) {
 
 TEST_F(ImageAOSTest, CfWriteInExitBIG2_EmptyDeleteitems) {
   std::unordered_map<__uint64_t, __uint64_t> const Deleteitems;
-  getImageAOS()->array_big = {{.r =NUM_1000, .g =NUM_4000, .b =NUM_7000}, {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000}, {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}};
+  getImageAOS()->array_big = {
+    {.r = NUM_1000, .g = NUM_4000, .b = NUM_7000},
+    {.r = NUM_2000, .g = NUM_5000, .b = NUM_8000},
+    {.r = NUM_3000, .g = NUM_6000, .b = NUM_9000}
+  };
 
   std::ofstream output_file("output_empty_deleteitems.ppm", std::ios::binary);
   getImageAOS()->cf_write_in_exit_BIG(Deleteitems);
@@ -993,17 +1017,14 @@ TEST_F(ImageAOSTest, CfWriteInExitBIG2_EmptyDeleteitems) {
   // Add assertions to verify the output file content
 }
 
-
-
-
 TEST_F(ImageAOSTest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
-
   unordered_map<__uint32_t, __uint32_t> Deleteitems = {
     {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)}
   };
   unordered_map<__uint32_t, pair<vector<uint32_t>, vector<__uint32_t>>> const graph = {
-    {packRGB(NUM_100, NUM_110, NUM_120), {{packRGB(NUM_130, NUM_140, NUM_150)}, {packRGB(NUM_160, NUM_170, NUM_180)}}},
-    {packRGB(NUM_130, NUM_140, NUM_150), {{}, {}}}
+    {packRGB(NUM_100, NUM_110, NUM_120),
+     {{packRGB(NUM_130, NUM_140, NUM_150)}, {packRGB(NUM_160, NUM_170, NUM_180)}}},
+    {packRGB(NUM_130, NUM_140, NUM_150),                                 {{}, {}}}
   };
 
   ImageAOS::cf_search_in_graph_small(Deleteitems, graph);
@@ -1015,21 +1036,19 @@ TEST_F(ImageAOSTest, CfSearchInGraphSmall_SomeColorsInDeleteitems) {
 TEST_F(ImageAOSTest, CfSearchInGraphSmall_AllColorsInDeleteitems) {
   unordered_map<__uint32_t, __uint32_t> Deleteitems = {
     {packRGB(NUM_10, NUM_40, NUM_70), packRGB(NUM_100, NUM_110, NUM_120)},
-    {packRGB(NUM_20, NUM_50, NUM_80), packRGB(NUM_130, NUM_140,     NUM_150)},
-    {    packRGB(NUM_30,NUM_60,NUM_90),     packRGB(NUM_160,NUM_170,NUM_180)}
+    {packRGB(NUM_20, NUM_50, NUM_80), packRGB(NUM_130, NUM_140, NUM_150)},
+    {packRGB(NUM_30, NUM_60, NUM_90), packRGB(NUM_160, NUM_170, NUM_180)}
   };
-  unordered_map<__uint32_t,pair<std::vector<uint32_t>,vector<__uint32_t>>>
-      const graph = {
+  unordered_map<__uint32_t, pair<std::vector<uint32_t>, vector<__uint32_t>>> const graph = {
     {packRGB(100, 110, 120), {{packRGB(130, 140, 150)}, {packRGB(160, 170, 180)}}},
     {packRGB(130, 140, 150), {{packRGB(160, 170, 180)}, {packRGB(190, 200, 210)}}},
     {packRGB(160, 170, 180), {{packRGB(100, 110, 120)}, {packRGB(220, 230, 240)}}}
-      };
+  };
   ImageAOS::cf_search_in_graph_small(Deleteitems, graph);
   EXPECT_EQ(Deleteitems[packRGB(NUM_10, NUM_40, NUM_70)], packRGB(NUM_160, NUM_170, NUM_180));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_20, NUM_50, NUM_80));
-        EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_30, NUM_60, NUM_90));
+  EXPECT_EQ(Deleteitems[packRGB(NUM_20, NUM_50, NUM_80)], packRGB(NUM_20, NUM_50, NUM_80));
+  EXPECT_EQ(Deleteitems[packRGB(NUM_30, NUM_60, NUM_90)], packRGB(NUM_160, NUM_170, NUM_180));
 }
-
 
 int main(int argc, char ** argv) {
   ::testing::InitGoogleTest(&argc, argv);
